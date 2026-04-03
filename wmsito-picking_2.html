@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>WMSito · Picking</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F2F3F5;
+  --surface: #FFFFFF;
+  --border: #E4E7EC;
+  --text: #0F1623;
+  --text2: #5A6478;
+  --text3: #9BA8BC;
+  --cobalt: #3B4FD8;
+  --cobalt-d: #2B3CAA;
+  --cobalt-p: #EEF2FF;
+  --mint: #1A7A66;
+  --mint-p: #E8F7F4;
+  --coral: #C0392B;
+  --coral-p: #FDECEA;
+  --amber: #9A6010;
+  --amber-p: #FFF4E0;
+  --r: 14px;
+  --rl: 18px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  max-width: 390px;
+  margin: 0 auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── COUCHE (animation) ── */
+.couche {
+  position: fixed;
+  inset: 0;
+  max-width: 390px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), opacity .25s;
+  overflow: hidden;
+}
+
+.couche.hidden-right {
+  transform: translateX(calc(50% + 390px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.couche.hidden-left {
+  transform: translateX(calc(50% - 390px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── TOPBAR COMMUN ── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px 12px;
+  flex-shrink: 0;
+}
+
+.tb-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tb-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cobalt);
+  cursor: pointer;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  font-family: 'Manrope', sans-serif;
+}
+
+.tb-back svg { flex-shrink: 0; }
+
+.tb-logo {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.tb-agent {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.av {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cobalt-p);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  color: var(--cobalt);
+}
+
+.tb-context {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.tb-client-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 2px;
+}
+
+.tb-client-name {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--text);
+}
+
+/* ── COUCHE 1 — LISTE COMMANDES ── */
+.c1-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.wave-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.wave-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.wave-meta {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 1px;
+}
+
+.cutoff-badge {
+  background: var(--cobalt);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* Filtre client */
+.client-filter {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.cf-btn {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text2);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: 'Manrope', sans-serif;
+  transition: all .12s;
+}
+
+.cf-btn.active {
+  background: var(--cobalt);
+  border-color: var(--cobalt);
+  color: #fff;
+}
+
+/* Commande cards */
+.cmd-card {
+  background: var(--surface);
+  border-radius: var(--rl);
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  transition: border-color .12s;
+}
+
+.cmd-card:active { border-color: var(--cobalt); }
+
+.cmd-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.cmd-card-num {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.cmd-card-client {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cobalt);
+  background: var(--cobalt-p);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.cmd-card-dest {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.cmd-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cmd-card-lignes {
+  font-size: 12px;
+  color: var(--text3);
+}
+
+.cmd-card-prog {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.mini-bar {
+  width: 60px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.mini-fill {
+  height: 100%;
+  background: var(--cobalt);
+  border-radius: 2px;
+}
+
+.mini-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cobalt);
+}
+
+/* Scan home btn */
+.scan-big-btn {
+  width: 100%;
+  padding: 18px;
+  border-radius: var(--rl);
+  border: 2px dashed var(--border);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  transition: all .12s;
+}
+
+.scan-big-btn:active {
+  border-color: var(--cobalt);
+  color: var(--cobalt);
+  background: var(--cobalt-p);
+}
+
+/* ── COUCHE 2 — LIGNES ── */
+.c2-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+}
+
+.c2-cmd-info {
+  margin-bottom: 14px;
+}
+
+.c2-dest {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+
+.c2-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.tag-pav { background: var(--amber-p); color: var(--amber); }
+.tag-b2b { background: var(--cobalt-p); color: var(--cobalt); }
+.tag-b2c { background: var(--mint-p); color: var(--mint); }
+.tag-chaine { background: #FFF0D6; color: #8A5500; border: 1px dashed #D4890A; }
+
+.prog-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.prog-bar {
+  flex: 1;
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.prog-fill {
+  height: 100%;
+  background: var(--cobalt);
+  border-radius: 3px;
+  transition: width .3s;
+}
+
+.prog-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--cobalt);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Ligne rows */
+.ligne-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  background: var(--surface);
+  border-radius: var(--r);
+  margin-bottom: 7px;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  transition: all .12s;
+}
+
+.ligne-row:active { border-color: var(--cobalt); }
+
+.ligne-row.done {
+  opacity: .4;
+  cursor: default;
+  border-color: transparent;
+  background: var(--mint-p);
+}
+
+.ligne-row.trans-after {
+  border-bottom-color: var(--amber);
+  border-bottom-width: 2px;
+}
+
+.ligne-index {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text3);
+  min-width: 18px;
+  text-align: center;
+}
+
+.ligne-row.done .ligne-index { color: var(--mint); }
+
+.ligne-info { flex: 1; min-width: 0; }
+
+.ligne-nom {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ligne-row.done .ligne-nom { color: var(--mint); }
+
+.ligne-sub {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 1px;
+  font-family: monospace;
+}
+
+.ligne-qte {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text);
+  min-width: 36px;
+  text-align: right;
+}
+
+.ligne-row.done .ligne-qte { color: var(--mint); }
+
+.ligne-done-check {
+  color: var(--mint);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.trans-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  margin-bottom: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--amber);
+}
+
+.trans-line {
+  flex: 1;
+  height: 1px;
+  background: var(--amber);
+  opacity: .4;
+}
+
+/* ── COUCHE 3 — LIGNE ACTIVE ── */
+.c3-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px 0;
+  overflow: hidden;
+}
+
+.c3-step {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: 20px;
+}
+
+.c3-produit {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.c3-ref {
+  font-size: 12px;
+  color: var(--text3);
+  font-family: monospace;
+  margin-bottom: 24px;
+}
+
+.c3-qte-section {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.c3-qte-num {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 72px;
+  line-height: 1;
+  color: var(--cobalt);
+}
+
+.c3-qte-unit {
+  font-size: 18px;
+  color: var(--text3);
+  font-weight: 500;
+}
+
+.c3-colis {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 24px;
+}
+
+.c3-lot-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+
+.c3-lot-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 3px;
+}
+
+.c3-lot-num {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.c3-lot-dlc {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.c3-lot-dlc.ok { color: var(--mint); }
+.c3-lot-dlc.warn { color: var(--coral); }
+
+.c3-warn-box {
+  background: var(--coral-p);
+  border-radius: var(--r);
+  padding: 10px 13px;
+  font-size: 12px;
+  color: var(--coral);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.c3-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.c3-action-btn {
+  flex: 1;
+  padding: 11px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  text-align: center;
+}
+
+.c3-action-btn.danger {
+  border-color: var(--coral-p);
+  background: var(--coral-p);
+  color: var(--coral);
+}
+
+/* SCAN BUTTON — plein écran bas */
+.c3-scan-wrap {
+  margin-top: auto;
+  padding: 0 0 32px;
+}
+
+.c3-scan-btn {
+  width: 100%;
+  padding: 22px;
+  border-radius: var(--rl);
+  border: none;
+  background: var(--cobalt);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all .12s;
+}
+
+.c3-scan-btn:active {
+  transform: scale(.97);
+  background: var(--cobalt-d);
+}
+
+.c3-scan-btn.warn-btn {
+  background: var(--coral);
+}
+
+/* ── MODALS (bottom sheet) ── */
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15,22,35,.45);
+  z-index: 500;
+  align-items: flex-end;
+  max-width: 390px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.modal-bg.open { display: flex; }
+
+.sheet {
+  background: var(--surface);
+  border-radius: 22px 22px 0 0;
+  padding: 18px 18px 36px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.handle {
+  width: 36px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+.sheet-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.sheet-sub {
+  font-size: 12px;
+  color: var(--text3);
+  margin-bottom: 16px;
+}
+
+.lot-option {
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 13px 14px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: border-color .12s;
+}
+
+.lot-option.current { border-color: var(--cobalt); background: var(--cobalt-p); }
+.lot-option:active { border-color: var(--cobalt); }
+
+.lot-opt-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+
+.lot-opt-num {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.lot-opt-dlc-ok { font-weight: 700; color: var(--mint); font-size: 13px; }
+.lot-opt-dlc-warn { font-weight: 700; color: var(--coral); font-size: 13px; }
+.lot-opt-meta { font-size: 11px; color: var(--text2); }
+
+.sheet-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+
+.s-btn {
+  width: 100%; padding: 15px;
+  border-radius: var(--r);
+  border: none;
+  font-size: 15px; font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer; text-align: left;
+}
+
+.s-btn.primary { background: var(--cobalt); color: #fff; }
+.s-btn.ghost { background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+.s-btn.danger { background: var(--coral-p); color: var(--coral); }
+.s-btn.amber { background: var(--amber-p); color: var(--amber); }
+
+.colis-wrap { margin-bottom: 14px; }
+.colis-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 8px; }
+.colis-input {
+  width: 100%; padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--r);
+  font-size: 36px; font-weight: 700;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  text-align: center; color: var(--text);
+  background: var(--bg); outline: none;
+}
+.colis-input:focus { border-color: var(--cobalt); }
+.colis-hint { font-size: 11px; color: var(--text3); text-align: center; margin-top: 6px; }
+
+.fin-summary {
+  background: var(--bg);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+.fin-row {
+  display: flex; justify-content: space-between;
+  padding: 4px 0; border-bottom: 1px solid var(--border);
+}
+.fin-row:last-child { border-bottom: none; }
+.fin-label { color: var(--text2); }
+.fin-val { font-weight: 700; }
+
+.etiq-note {
+  background: var(--mint-p);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--mint);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ── SCAN OVERLAY ── */
+.scan-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 600;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 390px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.scan-overlay.open { display: flex; }
+
+.scan-context {
+  color: rgba(255,255,255,.5);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.scan-product-label {
+  color: #fff;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  text-align: center;
+  padding: 0 24px;
+  margin-bottom: 28px;
+  line-height: 1.2;
+}
+
+.scan-frame {
+  width: 220px; height: 220px;
+  border: 2px solid rgba(255,255,255,.15);
+  border-radius: 18px;
+  position: relative;
+  margin-bottom: 32px;
+}
+
+.sc { position: absolute; width: 24px; height: 24px; border-color: var(--cobalt); border-style: solid; border-width: 0; }
+.sc-tl { top:-2px; left:-2px; border-top-width:3px; border-left-width:3px; border-radius:5px 0 0 0; }
+.sc-tr { top:-2px; right:-2px; border-top-width:3px; border-right-width:3px; border-radius:0 5px 0 0; }
+.sc-bl { bottom:-2px; left:-2px; border-bottom-width:3px; border-left-width:3px; border-radius:0 0 0 5px; }
+.sc-br { bottom:-2px; right:-2px; border-bottom-width:3px; border-right-width:3px; border-radius:0 0 5px 0; }
+
+.scan-line {
+  position: absolute; left: 10px; right: 10px; height: 2px;
+  background: var(--cobalt);
+  animation: sl 2s ease-in-out infinite;
+}
+@keyframes sl { 0%,100%{top:15%;opacity:1} 50%{top:85%;opacity:.4} }
+
+.scan-sim-btn {
+  background: var(--cobalt);
+  color: #fff; border: none;
+  padding: 16px 40px;
+  border-radius: var(--r);
+  font-size: 16px; font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  cursor: pointer; margin-bottom: 12px;
+}
+
+.scan-sim-btn:active { transform: scale(.97); }
+.scan-cancel { color: rgba(255,255,255,.35); font-size: 13px; cursor: pointer; padding: 8px; }
+
+/* ── SUCCESS FLASH ── */
+.sf {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(26,122,102,.94);
+  z-index: 700;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 10px;
+  max-width: 390px; left: 50%;
+  transform: translateX(-50%);
+}
+.sf.show { display: flex; }
+.sf-icon { width: 72px; height: 72px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 34px; }
+.sf-t { color: #fff; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px; }
+.sf-s { color: rgba(255,255,255,.75); font-size: 13px; text-align: center; padding: 0 20px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     COUCHE 1 — LISTE DES COMMANDES
+══════════════════════════════════ -->
+<div class="couche" id="c1">
+  <div class="topbar">
+    <div class="tb-row">
+      <div class="tb-logo">WMSito · Picking</div>
+      <div class="tb-agent">
+        <div class="av">SB</div>
+        Sophie B.
+      </div>
+    </div>
+  </div>
+
+  <div class="c1-body">
+    <div class="wave-header">
+      <div>
+        <div class="wave-title">Wave du jour</div>
+        <div class="wave-meta">jeudi 3 avril · 3 commandes</div>
+      </div>
+      <div class="cutoff-badge">avant 15h</div>
+    </div>
+
+    <button class="scan-big-btn" onclick="openScan('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M20 14v6M14 20h6"/></svg>
+      Scanner un code commande
+    </button>
+
+    <div class="client-filter">
+      <button class="cf-btn active" onclick="filterClient('all',this)">Tous</button>
+      <button class="cf-btn" onclick="filterClient('yumi',this)">Yumi / Paf</button>
+      <button class="cf-btn" onclick="filterClient('xoco',this)">Xoco</button>
+    </div>
+
+    <div id="cmd-cards"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     COUCHE 2 — LIGNES DE COMMANDE
+══════════════════════════════════ -->
+<div class="couche hidden-right" id="c2">
+  <div class="topbar">
+    <div class="tb-row">
+      <button class="tb-back" onclick="goTo(1)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+        Wave
+      </button>
+      <div class="tb-agent">
+        <div class="av">SB</div>
+        Sophie B.
+      </div>
+    </div>
+    <div class="tb-context">
+      <div class="tb-client-label" id="c2-client-label">Client</div>
+      <div class="tb-client-name" id="c2-cmd-num">#4521</div>
+    </div>
+  </div>
+
+  <div class="c2-body">
+    <div class="c2-cmd-info">
+      <div class="c2-dest" id="c2-dest"></div>
+      <div class="c2-tags" id="c2-tags"></div>
+    </div>
+
+    <div class="prog-row">
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="prog-label" id="prog-label">0/0</div>
+    </div>
+
+    <div id="lignes-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     COUCHE 3 — LIGNE ACTIVE (FOCUS)
+══════════════════════════════════ -->
+<div class="couche hidden-right" id="c3">
+  <div class="topbar">
+    <div class="tb-row">
+      <button class="tb-back" onclick="goTo(2)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+        <span id="c3-back-label">#4521</span>
+      </button>
+      <div class="tb-agent">
+        <div class="av">SB</div>
+        Sophie B.
+      </div>
+    </div>
+    <div class="tb-context">
+      <div class="tb-client-label" id="c3-client-label">Client</div>
+      <div class="tb-client-name" id="c3-cmd-num">#4521</div>
+    </div>
+  </div>
+
+  <div class="c3-body">
+    <div class="c3-step" id="c3-step">Ligne 1 sur 6</div>
+    <div class="c3-produit" id="c3-produit">Grand format 1000ml · Joie BIO</div>
+    <div class="c3-ref" id="c3-ref">YP-GF-JOI</div>
+
+    <div class="c3-qte-section">
+      <div class="c3-qte-num" id="c3-qte">10</div>
+      <div class="c3-qte-unit">unités</div>
+    </div>
+    <div class="c3-colis" id="c3-colis">2 colis · PAV</div>
+
+    <div class="c3-lot-row">
+      <div>
+        <div class="c3-lot-label">Lot FIFO</div>
+        <div class="c3-lot-num" id="c3-lot-num">5 363 153</div>
+      </div>
+      <div>
+        <div class="c3-lot-dlc ok" id="c3-lot-dlc">03/03/2026 ✓</div>
+      </div>
+    </div>
+
+    <div id="c3-warn" style="display:none" class="c3-warn-box">
+      DLC hors critère — exception autorisée par Alexandra G.
+    </div>
+
+    <div class="c3-actions">
+      <button class="c3-action-btn" onclick="openLot()">Changer lot</button>
+      <button class="c3-action-btn danger" onclick="openRupture()">Rupture !</button>
+    </div>
+
+    <div class="c3-scan-wrap">
+      <button class="c3-scan-btn" id="c3-scan-btn" onclick="openScan('pav')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M20 14v6M14 20h6"/></svg>
+        Scanner PAV
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOT -->
+<div class="modal-bg" id="modal-lot">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Choisir un lot</div>
+    <div class="sheet-sub" id="lot-sub"></div>
+    <div id="lot-options"></div>
+    <div class="sheet-actions">
+      <button class="s-btn ghost" onclick="closeModal('modal-lot')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RUPTURE -->
+<div class="modal-bg" id="modal-rupture">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Rupture de stock</div>
+    <div class="sheet-sub" id="rupture-sub"></div>
+    <div class="sheet-actions">
+      <button class="s-btn primary" onclick="handleRupture('attente')">Mettre en attente · ASN requis</button>
+      <button class="s-btn amber" onclick="handleRupture('partiel')">Livrer partiellement</button>
+      <button class="s-btn danger" onclick="handleRupture('annuler')">Annuler · ticket SAV auto</button>
+      <button class="s-btn ghost" onclick="closeModal('modal-rupture')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FIN COMMANDE -->
+<div class="modal-bg" id="modal-fin">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Fin de commande</div>
+    <div class="sheet-sub">Confirmez le nombre réel de colis</div>
+    <div class="colis-wrap">
+      <div class="colis-label">Nombre de colis réels</div>
+      <input class="colis-input" type="number" id="nb-colis" value="20" min="1">
+      <div class="colis-hint">Estimé : <span id="colis-est">20</span> · ajustez si besoin</div>
+    </div>
+    <div class="fin-summary">
+      <div class="fin-row"><span class="fin-label">Commande</span><span class="fin-val" id="fin-cmd">#4521</span></div>
+      <div class="fin-row"><span class="fin-label">Lignes</span><span class="fin-val" id="fin-lignes">0/0</span></div>
+      <div class="fin-row"><span class="fin-label">Agent(s)</span><span class="fin-val" id="fin-agents">Sophie B.</span></div>
+    </div>
+    <div class="etiq-note">1 étiquette par colis réel · générées après confirmation</div>
+    <div class="sheet-actions">
+      <button class="s-btn primary" onclick="confirmerFin()">Confirmer · Imprimer étiquettes</button>
+      <button class="s-btn ghost" onclick="closeModal('modal-fin')">Continuer le picking</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL INCIDENT -->
+<div class="modal-bg" id="modal-incident">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Signaler un incident</div>
+    <div class="sheet-sub">Session Yumi/Paf · wave 15h</div>
+    <div class="sheet-actions">
+      <button class="s-btn ghost" style="text-align:left" onclick="closeModal('modal-incident')">Produit manquant / introuvable</button>
+      <button class="s-btn ghost" style="text-align:left" onclick="closeModal('modal-incident')">DLC non conforme constatée</button>
+      <button class="s-btn ghost" style="text-align:left" onclick="closeModal('modal-incident')">Palette endommagée</button>
+      <button class="s-btn ghost" style="text-align:left" onclick="closeModal('modal-incident')">Quantité insuffisante</button>
+      <button class="s-btn ghost" style="text-align:left" onclick="closeModal('modal-incident')">Autre incident</button>
+      <button class="s-btn ghost" style="color:var(--text3)" onclick="closeModal('modal-incident')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN OVERLAY -->
+<div class="scan-overlay" id="scan-overlay">
+  <div class="scan-context" id="scan-ctx">PAV · produit</div>
+  <div class="scan-product-label" id="scan-product"></div>
+  <div class="scan-frame">
+    <div class="sc sc-tl"></div><div class="sc sc-tr"></div>
+    <div class="sc sc-bl"></div><div class="sc sc-br"></div>
+    <div class="scan-line"></div>
+  </div>
+  <button class="scan-sim-btn" onclick="simulateScan()">Simuler le scan ✓</button>
+  <div class="scan-cancel" onclick="closeScan()">Annuler</div>
+</div>
+
+<!-- SUCCESS FLASH -->
+<div class="sf" id="sf">
+  <div class="sf-icon">✓</div>
+  <div class="sf-t" id="sf-t">PAV scanné</div>
+  <div class="sf-s" id="sf-s"></div>
+</div>
+
+<script>
+// ── DATA ──
+const clients = {
+  yumi: { nom:'Yumi / Paf', short:'Yumi' },
+  xoco: { nom:'Xoco', short:'Xoco' }
+};
+
+const commandes = {
+  '4521': {
+    client:'yumi', dest:'Alexandre Marques · Hôtel Lutetia · Paris 6e',
+    type:'B2B CHR', pav:true, chaine:true, colisEst:20, agents:['Sophie B.'],
+    lignes:[
+      {id:'a1',nom:'Grand format 1000ml · Joie BIO',ref:'YP-GF-JOI',qte:10,colis:2,lot:'5 363 153',dlc:'03/03/2026',ok:true,trans:true},
+      {id:'a2',nom:'Grand format 1000ml · Bonheur BIO',ref:'YP-GF-BON',qte:10,colis:2,lot:'5 364 094',dlc:'04/03/2026',ok:true,trans:false},
+      {id:'a3',nom:'Grand format 1000ml · Confiance BIO',ref:'YP-GF-CON',qte:10,colis:2,lot:'6 012 093',dlc:'17/03/2026',ok:true,trans:false},
+      {id:'a4',nom:'Amour BIO 240ml',ref:'YP-AMO-240',qte:36,colis:6,lot:'6 013 078',dlc:'18/03/2026',ok:true,trans:false},
+      {id:'a5',nom:'Force BIO 240ml',ref:'YP-FOR-240',qte:24,colis:4,lot:'6 013 074',dlc:'18/03/2026',ok:true,trans:false},
+      {id:'a6',nom:'Vitalité BIO 240ml',ref:'YP-VIT-240',qte:24,colis:4,lot:'6 025 110',dlc:'30/03/2026',ok:true,trans:false},
+    ]
+  },
+  '4530':{
+    client:'yumi', dest:'Alice Gauchet · Artigues-près-Bordeaux',
+    type:'B2C', pav:false, chaine:false, colisEst:1, agents:['Sophie B.'],
+    lignes:[
+      {id:'b1',nom:'Amour BIO 240ml',ref:'YP-AMO-240',qte:2,colis:1,lot:'5 350 078',dlc:'18/02/2026',ok:true,trans:false},
+      {id:'b2',nom:'Force BIO 240ml',ref:'YP-FOR-240',qte:2,colis:1,lot:'5 350 074',dlc:'18/02/2026',ok:true,trans:false},
+      {id:'b3',nom:'Résilience BIO 240ml',ref:'YP-RES-240',qte:3,colis:1,lot:'6 004 154',dlc:'09/03/2026',ok:true,trans:false},
+      {id:'b4',nom:'Absolu BIO 60ml',ref:'YP-ABS-60',qte:2,colis:1,lot:'5 351 095',dlc:'02/04/2026',ok:true,trans:false},
+      {id:'b5',nom:'Guide · Cure Détox (24p)',ref:'YP-GUIDE',qte:1,colis:1,lot:'—',dlc:'08/03/2028',ok:true,trans:false},
+    ]
+  },
+  '4538':{
+    client:'xoco', dest:'WSH Grand Central · La Défense',
+    type:'B2B GSS', pav:true, chaine:false, colisEst:10, agents:['Antoine G.'],
+    lignes:[
+      {id:'c1',nom:'Shot gingembre 6cl',ref:'YP-SHOT-6',qte:30,colis:5,lot:'6 025 110',dlc:'30/04/2026',ok:true,trans:false},
+      {id:'c2',nom:'Jus orange carotte BIO',ref:'YP-ORC-33',qte:60,colis:5,lot:'6 013 078',dlc:'10/05/2026',ok:true,trans:false},
+    ]
+  }
+};
+
+const lotsAlt = {
+  'YP-AMO-240':[
+    {num:'5 350 078',dlc:'18/02/2026',stock:432,ok:true},
+    {num:'6 013 078',dlc:'18/03/2026',stock:288,ok:true},
+  ],
+  'YP-GF-JOI':[
+    {num:'5 363 153',dlc:'03/03/2026',stock:200,ok:true},
+    {num:'6 018 044',dlc:'15/04/2026',stock:150,ok:true},
+  ]
+};
+
+// ── STATE ──
+let curLayer = 1;
+let curCmdId = null;
+let curLigneId = null;
+let doneLignes = {};
+let scanMode = null;
+let clientFilter = 'all';
+
+// ── INIT ──
+function init() {
+  renderCmdCards('all');
+}
+
+function renderCmdCards(filter) {
+  const el = document.getElementById('cmd-cards');
+  el.innerHTML = '';
+  Object.entries(commandes).forEach(([id, cmd]) => {
+    if (filter !== 'all' && cmd.client !== filter) return;
+    const done = Object.keys(doneLignes).length;
+    const total = cmd.lignes.length;
+    const pct = 0;
+    const cl = clients[cmd.client];
+    const card = document.createElement('div');
+    card.className = 'cmd-card';
+    card.dataset.client = cmd.client;
+    card.innerHTML = `
+      <div class="cmd-card-top">
+        <div class="cmd-card-num">#${id}</div>
+        <div class="cmd-card-client">${cl.short}</div>
+      </div>
+      <div class="cmd-card-dest">${cmd.dest}</div>
+      <div class="cmd-card-footer">
+        <div class="cmd-card-lignes">${cmd.lignes.length} lignes · ${cmd.type}</div>
+        <div class="cmd-card-prog">
+          <div class="mini-bar"><div class="mini-fill" style="width:${pct}%"></div></div>
+          <div class="mini-pct">${pct}%</div>
+        </div>
+      </div>`;
+    card.onclick = () => openCmd(id);
+    el.appendChild(card);
+  });
+}
+
+function filterClient(f, btn) {
+  clientFilter = f;
+  document.querySelectorAll('.cf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCmdCards(f);
+}
+
+// ── NAVIGATION 3 COUCHES ──
+function goTo(layer) {
+  const layers = [null, 'c1', 'c2', 'c3'];
+  layers.forEach((id, i) => {
+    if (!id) return;
+    const el = document.getElementById(id);
+    el.classList.remove('hidden-right', 'hidden-left');
+    if (i < layer) el.classList.add('hidden-left');
+    if (i > layer) el.classList.add('hidden-right');
+  });
+  curLayer = layer;
+}
+
+// ── COUCHE 2 — COMMANDE ──
+function openCmd(id) {
+  curCmdId = id;
+  doneLignes = {};
+  const cmd = commandes[id];
+  const cl = clients[cmd.client];
+
+  document.getElementById('c2-client-label').textContent = cl.nom;
+  document.getElementById('c2-cmd-num').textContent = '#' + id;
+  document.getElementById('c2-dest').textContent = cmd.dest;
+  document.getElementById('fin-cmd').textContent = '#' + id;
+  document.getElementById('fin-agents').textContent = cmd.agents.join(', ');
+  document.getElementById('nb-colis').value = cmd.colisEst;
+  document.getElementById('colis-est').textContent = cmd.colisEst;
+
+  // Tags
+  const tagsEl = document.getElementById('c2-tags');
+  let tags = [];
+  if (cmd.pav) tags.push('<span class="tag tag-pav">PAV</span>');
+  if (cmd.type.includes('B2B')) tags.push('<span class="tag tag-b2b">' + cmd.type + '</span>');
+  if (cmd.type.includes('B2C')) tags.push('<span class="tag tag-b2c">B2C</span>');
+  if (cmd.chaine) tags.push('<span class="tag tag-chaine">Mode chaîne</span>');
+  tagsEl.innerHTML = tags.join('');
+
+  renderLignes();
+  goTo(2);
+}
+
+function renderLignes() {
+  const cmd = commandes[curCmdId];
+  const el = document.getElementById('lignes-list');
+  el.innerHTML = '';
+  const total = cmd.lignes.length;
+  const done = Object.keys(doneLignes).length;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = done + '/' + total;
+  document.getElementById('fin-lignes').textContent = done + '/' + total;
+
+  cmd.lignes.forEach((l, i) => {
+    const isDone = doneLignes[l.id];
+    const row = document.createElement('div');
+    row.className = 'ligne-row' + (isDone ? ' done' : '');
+    row.innerHTML = `
+      <div class="ligne-index">${isDone ? '✓' : (i + 1)}</div>
+      <div class="ligne-info">
+        <div class="ligne-nom">${l.nom}</div>
+        <div class="ligne-sub">${l.ref}${isDone ? ' · Lot ' + doneLignes[l.id].lot : ''}</div>
+      </div>
+      <div class="ligne-qte">${l.qte}</div>`;
+    if (!isDone) row.onclick = () => openLigne(l.id);
+    el.appendChild(row);
+
+    if (l.trans && !isDone) {
+      const div = document.createElement('div');
+      div.className = 'trans-divider';
+      div.innerHTML = `<div class="trans-line"></div><span>Transition agent 2</span><div class="trans-line"></div>`;
+      el.appendChild(div);
+    }
+  });
+
+  // Bouton fin si tout est done
+  const allDone = done >= total;
+  let finBtn = document.getElementById('c2-fin-btn');
+  if (!finBtn) {
+    finBtn = document.createElement('button');
+    finBtn.id = 'c2-fin-btn';
+    finBtn.style.cssText = 'width:100%;padding:18px;border-radius:16px;border:none;font-size:16px;font-weight:700;font-family:Manrope,sans-serif;cursor:pointer;margin-top:8px;display:none';
+    finBtn.onclick = () => openModal('modal-fin');
+    el.appendChild(finBtn);
+  }
+  if (allDone) {
+    finBtn.style.display = 'block';
+    finBtn.style.background = '#1A7A66';
+    finBtn.style.color = '#fff';
+    finBtn.textContent = '✓ Tout est prêt · Confirmer les colis';
+  }
+}
+
+// ── COUCHE 3 — LIGNE ──
+function openLigne(lid) {
+  const cmd = commandes[curCmdId];
+  const l = cmd.lignes.find(x => x.id === lid);
+  const cl = clients[cmd.client];
+  const idx = cmd.lignes.findIndex(x => x.id === lid);
+  curLigneId = lid;
+
+  document.getElementById('c3-client-label').textContent = cl.nom;
+  document.getElementById('c3-cmd-num').textContent = '#' + curCmdId;
+  document.getElementById('c3-back-label').textContent = '#' + curCmdId;
+  document.getElementById('c3-step').textContent = 'Ligne ' + (idx + 1) + ' sur ' + cmd.lignes.length;
+  document.getElementById('c3-produit').textContent = l.nom;
+  document.getElementById('c3-ref').textContent = l.ref;
+  document.getElementById('c3-qte').textContent = l.qte;
+  document.getElementById('c3-colis').textContent = l.colis + ' colis' + (cmd.pav && l.ref !== 'YP-GUIDE' ? ' · PAV' : '');
+  document.getElementById('c3-lot-num').textContent = l.lot;
+
+  const dlcEl = document.getElementById('c3-lot-dlc');
+  dlcEl.textContent = l.dlc + (l.ok ? ' ✓' : ' ⚠');
+  dlcEl.className = 'c3-lot-dlc ' + (l.ok ? 'ok' : 'warn');
+
+  const warn = document.getElementById('c3-warn');
+  warn.style.display = l.ok ? 'none' : 'block';
+
+  const scanBtn = document.getElementById('c3-scan-btn');
+  scanBtn.className = 'c3-scan-btn' + (l.ok ? '' : ' warn-btn');
+
+  goTo(3);
+}
+
+// ── SCAN ──
+function openScan(mode) {
+  scanMode = mode;
+  const overlay = document.getElementById('scan-overlay');
+  if (mode === 'home') {
+    document.getElementById('scan-ctx').textContent = 'Code commande';
+    document.getElementById('scan-product').textContent = 'Scannez le code-barres';
+  } else if (mode === 'pav' && curLigneId) {
+    const cmd = commandes[curCmdId];
+    const l = cmd.lignes.find(x => x.id === curLigneId);
+    document.getElementById('scan-ctx').textContent = 'PAV · ' + l.ref;
+    document.getElementById('scan-product').textContent = l.nom;
+  }
+  overlay.classList.add('open');
+}
+
+function closeScan() {
+  document.getElementById('scan-overlay').classList.remove('open');
+}
+
+function simulateScan() {
+  closeScan();
+  if (scanMode === 'home') {
+    openCmd('4521');
+    return;
+  }
+  if (scanMode === 'pav' && curLigneId) {
+    const cmd = commandes[curCmdId];
+    const l = cmd.lignes.find(x => x.id === curLigneId);
+    doneLignes[curLigneId] = { lot: l.lot };
+    flash('PAV scanné', l.nom + ' · Lot ' + l.lot + ' · ' + l.qte + 'u');
+
+    // Auto-avance vers la ligne suivante
+    const idx = cmd.lignes.findIndex(x => x.id === curLigneId);
+    const next = cmd.lignes.slice(idx + 1).find(x => !doneLignes[x.id]);
+
+    setTimeout(() => {
+      renderLignes();
+      if (next) {
+        openLigne(next.id);
+      } else {
+        goTo(2);
+      }
+    }, 1400);
+  }
+}
+
+// ── LOT ──
+function openLot() {
+  const cmd = commandes[curCmdId];
+  const l = cmd.lignes.find(x => x.id === curLigneId);
+  document.getElementById('lot-sub').textContent = l.nom;
+  const lots = lotsAlt[l.ref] || [{ num: l.lot, dlc: l.dlc, stock: 500, ok: l.ok }];
+  document.getElementById('lot-options').innerHTML = lots.map(lt => `
+    <div class="lot-option${lt.num === l.lot ? ' current' : ''}" onclick="selectLot('${lt.num}','${lt.dlc}',${lt.ok})">
+      <div class="lot-opt-top">
+        <span class="lot-opt-num">${lt.num}</span>
+        <span class="${lt.ok ? 'lot-opt-dlc-ok' : 'lot-opt-dlc-warn'}">${lt.dlc}${lt.ok ? ' ✓' : ' ⚠'}</span>
+      </div>
+      <div class="lot-opt-meta">${lt.stock.toLocaleString()} u. dispo${lt.num === l.lot ? ' · FIFO' : ''}</div>
+    </div>`).join('');
+  openModal('modal-lot');
+}
+
+function selectLot(num, dlc, ok) {
+  const cmd = commandes[curCmdId];
+  const l = cmd.lignes.find(x => x.id === curLigneId);
+  l.lot = num; l.dlc = dlc; l.ok = ok;
+  closeModal('modal-lot');
+  openLigne(curLigneId);
+  flash(ok ? 'Lot changé' : 'Lot hors critère', 'Lot ' + num + (ok ? '' : ' — exception tracée'));
+}
+
+// ── RUPTURE ──
+function openRupture() {
+  const cmd = commandes[curCmdId];
+  const l = cmd.lignes.find(x => x.id === curLigneId);
+  document.getElementById('rupture-sub').textContent = l.nom;
+  openModal('modal-rupture');
+}
+
+function handleRupture(action) {
+  closeModal('modal-rupture');
+  const msgs = {
+    attente: 'En attente · ASN requis',
+    partiel: 'Livraison partielle enregistrée',
+    annuler: 'Commande annulée · Ticket SAV créé'
+  };
+  flash('Rupture traitée', msgs[action]);
+  setTimeout(() => goTo(2), 1600);
+}
+
+// ── FIN ──
+function confirmerFin() {
+  const nb = document.getElementById('nb-colis').value;
+  closeModal('modal-fin');
+  flash('✓ ' + nb + ' étiquettes', 'Commande #' + curCmdId + ' · envoi imprimante');
+  setTimeout(() => goTo(1), 2000);
+}
+
+// ── UTILS ──
+function flash(t, s) {
+  document.getElementById('sf-t').textContent = t;
+  document.getElementById('sf-s').textContent = s;
+  const el = document.getElementById('sf');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1600);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-bg').forEach(b => {
+  b.addEventListener('click', e => { if (e.target === b) b.classList.remove('open'); });
+});
+
+init();
+</script>
+</body>
+</html>

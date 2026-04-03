@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WMSito — Yumi/Paf</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Manrope:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F6F8;
+  --surface: #FFFFFF;
+  --border: #E4E7EC;
+  --border-md: rgba(0,0,0,0.12);
+  --text: #1C2330;
+  --text2: #5A6478;
+  --text3: #9BA8BC;
+  --sb-active-bg: #EEF2FF;
+  --sb-active: #3B4FD8;
+  --cobalt: #3B4FD8;
+  --cobalt-p: #DDEAFF;
+  --cobalt-t: #2B5AB8;
+  --mint-p: #D6F5EF;
+  --mint-t: #1A7A66;
+  --coral-p: #FFE0E0;
+  --coral-t: #B83838;
+  --amber-p: #FFF0D6;
+  --amber-t: #9A6010;
+  --purple-p: #EDE8FF;
+  --purple-t: #5040A0;
+  --gray-p: #EEF0F4;
+  --gray-t: #4A5568;
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  height: 100vh;
+  overflow: hidden;
+}
+
+h1, h2, h3, h4 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; }
+.mono { font-family: 'DM Mono', monospace; font-size: 11px; }
+
+.app { display: flex; height: 100vh; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.sb-header {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sb-cube {
+  width: 24px; height: 24px;
+  background: var(--sb-active-bg);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.sb-cube svg { width: 13px; height: 13px; }
+.sb-brand-name { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 14px; color: var(--text); }
+
+.client-card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+
+.client-name { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); margin-bottom: 3px; }
+.client-meta { font-size: 10px; color: var(--text3); display: flex; flex-direction: column; gap: 2px; }
+.client-cert { display: flex; gap: 4px; margin-top: 5px; }
+
+.nav-sec {
+  padding: 14px 18px 4px;
+  font-size: 9px; font-weight: 600;
+  color: var(--text3);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 18px;
+  font-size: 12px;
+  color: var(--text3);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all .12s;
+  user-select: none;
+}
+
+.nav-item:hover { background: var(--bg); color: var(--text2); }
+.nav-item.active {
+  background: var(--sb-active-bg);
+  color: var(--sb-active);
+  border-left-color: var(--sb-active);
+  font-weight: 500;
+}
+
+.nav-ico { width: 14px; height: 14px; flex-shrink: 0; opacity: .65; }
+.nav-item.active .nav-ico { opacity: 1; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--coral-p);
+  color: var(--coral-t);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 20px;
+}
+
+.sb-footer {
+  margin-top: auto;
+  padding: 13px 18px;
+  border-top: 1px solid var(--border);
+}
+
+.sb-footer-label { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+.sb-footer-name { font-size: 12px; font-weight: 500; color: var(--text2); }
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+.topbar {
+  height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.topbar h1 { font-size: 17px; }
+
+.content { flex: 1; overflow-y: auto; padding: 22px 24px; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── COMPONENTS ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 20px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
+.kpi-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; font-weight: 500; }
+.kpi-val { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 28px; line-height: 1; }
+.kpi-sub { font-size: 10px; color: var(--text3); margin-top: 4px; }
+
+.two-col { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; }
+.three-col { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+
+.sec-label {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 9px;
+}
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 13px 15px; margin-bottom: 12px; }
+.card-flush { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 12px; }
+
+.b { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 500; white-space: nowrap; }
+.bc { background: var(--cobalt-p); color: var(--cobalt-t); }
+.bm { background: var(--mint-p); color: var(--mint-t); }
+.br { background: var(--coral-p); color: var(--coral-t); }
+.ba { background: var(--amber-p); color: var(--amber-t); }
+.bp { background: var(--purple-p); color: var(--purple-t); }
+.bg { background: var(--gray-p); color: var(--gray-t); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: var(--radius);
+  font-size: 11px; font-family: 'Manrope', sans-serif; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--border-md);
+  background: transparent; color: var(--text2);
+  transition: all .12s; white-space: nowrap;
+}
+.btn:hover { background: var(--bg); }
+.btn.primary { background: var(--cobalt); border-color: var(--cobalt); color: #fff; }
+.btn.primary:hover { background: #2B3FC0; }
+.btn.soft { background: var(--cobalt-p); border-color: #B8CEFF; color: var(--cobalt-t); }
+.btn.mint { background: var(--mint-p); border-color: #A8E8DC; color: var(--mint-t); }
+.btn.danger { background: var(--coral-p); border-color: #FFBCBC; color: var(--coral-t); }
+.btn.sm { padding: 4px 10px; font-size: 10px; }
+
+.filter-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.filter-bar input, .filter-bar select {
+  padding: 6px 10px; border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 12px;
+  font-family: 'Manrope', sans-serif; background: var(--surface);
+  color: var(--text); outline: none;
+}
+.filter-bar input { flex: 1; }
+.filter-bar input:focus, .filter-bar select:focus { border-color: var(--cobalt); }
+
+.tbl { width: 100%; border-collapse: collapse; font-size: 12px; font-family: 'Manrope', sans-serif; }
+.tbl th {
+  text-align: left; padding: 8px 12px;
+  font-size: 10px; font-weight: 600; color: var(--text3);
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  text-transform: uppercase; letter-spacing: .04em;
+  cursor: pointer; user-select: none;
+}
+.tbl th:hover { color: var(--text2); }
+.tbl td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tbody tr:hover { background: #FAFBFD; }
+.tbl td.dim { color: var(--text2); }
+
+.row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.row:last-child { border-bottom: none; padding-bottom: 0; }
+
+/* ── TICKET ── */
+.tkt { display: flex; align-items: flex-start; gap: 9px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.tkt:last-child { border-bottom: none; padding-bottom: 0; }
+.tkt-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.tkt-title { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.tkt-meta { font-size: 10px; color: var(--text3); }
+
+/* ── ZONE BARS ── */
+.zone-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.zone-row:last-child { border-bottom: none; }
+.zone-name { width: 140px; font-weight: 500; }
+.zone-bar-wrap { flex: 1; height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+.zone-bar-fill { height: 100%; border-radius: 2px; }
+.zone-count { width: 60px; text-align: right; color: var(--text2); font-size: 11px; }
+
+/* ── DLC PROGRESS ── */
+.dlc-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.dlc-row:last-child { border-bottom: none; }
+.dlc-prod { flex: 1; font-weight: 500; }
+.dlc-bar-wrap { width: 100px; height: 4px; background: var(--bg); border-radius: 2px; overflow: hidden; }
+.dlc-bar-fill { height: 100%; border-radius: 2px; }
+.dlc-date { width: 70px; text-align: right; font-family: 'DM Mono', monospace; font-size: 11px; }
+
+/* ── ASN FORM ── */
+.asn-dropzone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 12px;
+}
+.asn-dropzone:hover { border-color: var(--cobalt); color: var(--cobalt-t); background: var(--cobalt-p); }
+
+/* ── CONFIG SECTION ── */
+.config-section { margin-bottom: 20px; }
+.config-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.config-row:last-child { border-bottom: none; }
+.config-label { flex: 1; font-weight: 500; }
+.config-value { color: var(--text2); }
+
+.toggle { position: relative; width: 36px; height: 20px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0;
+  background: var(--border); border-radius: 20px;
+  cursor: pointer; transition: .2s;
+}
+.toggle-slider:before {
+  content: ''; position: absolute;
+  width: 14px; height: 14px;
+  left: 3px; bottom: 3px;
+  background: white; border-radius: 50%;
+  transition: .2s;
+}
+.toggle input:checked + .toggle-slider { background: var(--cobalt); }
+.toggle input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+/* ── MODAL ── */
+.modal-backdrop {
+  display: none; position: fixed; inset: 0;
+  background: rgba(28,35,48,0.35); z-index: 1000;
+  align-items: center; justify-content: center;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: var(--radius-lg);
+  padding: 22px 24px; width: 420px;
+  border: 1px solid var(--border-md);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  max-height: 90vh; overflow-y: auto;
+}
+.modal h3 { font-size: 16px; margin-bottom: 4px; }
+.modal-sub { font-size: 11px; color: var(--text3); margin-bottom: 16px; }
+.modal-label { font-size: 10px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 5px; margin-top: 12px; }
+.modal-label:first-of-type { margin-top: 0; }
+.modal input, .modal select, .modal textarea {
+  width: 100%; padding: 7px 10px; border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 12px;
+  font-family: 'Manrope', sans-serif; background: var(--bg);
+  color: var(--text); outline: none;
+}
+.modal input:focus, .modal select:focus, .modal textarea:focus { border-color: var(--cobalt); background: var(--surface); }
+.modal textarea { resize: vertical; min-height: 80px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+.info-box { background: var(--cobalt-p); border: 1px solid #B8CEFF; border-radius: var(--radius); padding: 9px 12px; font-size: 11px; color: var(--cobalt-t); margin-top: 10px; }
+.warning-box { background: var(--amber-p); border: 1px solid #FFD080; border-radius: var(--radius); padding: 9px 12px; font-size: 11px; color: var(--amber-t); margin-top: 10px; }
+
+/* ── TICKET THREAD ── */
+.thread { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 12px; }
+.thread-msg { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.thread-msg:last-child { border-bottom: none; }
+.thread-msg.cargonautes { background: var(--cobalt-p); }
+.thread-msg.client { background: var(--surface); }
+.thread-author { font-weight: 600; font-size: 11px; margin-bottom: 3px; color: var(--text2); }
+.thread-time { float: right; font-size: 10px; color: var(--text3); }
+.thread-body { color: var(--text); line-height: 1.5; }
+
+/* ── NOTIF BANNER ── */
+.notif-banner {
+  background: var(--amber-p);
+  border: 1px solid #FFD080;
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+.notif-banner-icon { font-size: 18px; flex-shrink: 0; }
+.notif-banner-text { flex: 1; }
+.notif-banner-title { font-weight: 600; color: var(--amber-t); margin-bottom: 2px; }
+.notif-banner-sub { color: var(--amber-t); opacity: .8; font-size: 11px; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+    <div class="sb-header">
+      <div class="sb-brand">
+        <div class="sb-cube">
+          <svg viewBox="0 0 14 14" fill="none" stroke="var(--sb-active)" stroke-width="1.5">
+            <path d="M7 1L1 4.5v5L7 13l6-3.5v-5z"/>
+            <path d="M7 1v12M1 4.5l6 3.5 6-3.5"/>
+          </svg>
+        </div>
+        <span class="sb-brand-name">WMSito</span>
+      </div>
+      <div class="client-card">
+        <div class="client-name">Yumi / Paf</div>
+        <div class="client-meta">
+          <span>Client depuis janv. 2024</span>
+          <span>Rotation FIFO · Alerte DLC 15 j</span>
+        </div>
+        <div class="client-cert">
+          <span class="b bp">BIO</span>
+          <span class="b bc">TeamDesk</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-sec">Mon espace</div>
+    <div class="nav-item active" onclick="navigate('dashboard',this)">
+      <svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>
+      Vue d'ensemble
+    </div>
+    <div class="nav-item" onclick="navigate('stock',this)">
+      <svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="12" height="5" rx="1"/><rect x="2" y="4" width="10" height="4" rx="1"/><rect x="4" y="1" width="6" height="3" rx="1"/></svg>
+      Mon stock
+    </div>
+    <div class="nav-item" onclick="navigate('commandes',this)">
+      <svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="12" height="10" rx="1"/><path d="M1 6h12M4 2v2M10 2v2"/></svg>
+      Commandes
+    </div>
+    <div class="nav-item" onclick="navigate('receptions',this)">
+      <svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4 7l3 3 3-3"/><path d="M2 12h10"/></svg>
+      Réceptions
+    </div>
+    <div class="nav-item" onclick="navigate('expeditions',this)">
+      <svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 13V4M4 8l3-4 3 4"/><path d="M2 2h10"/></svg>
+      Expéditions
+    </div>
+    <div class="nav-item" onclick="navigate('sav',this)">
+      <svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 9a2 2 0 01-2 2H3l-2 2V3a2 2 0 012-2h8a2 2 0 012 2z"/></svg>
+      SAV / Tickets
+      <span class="nav-badge">2</span>
+    </div>
+    <div class="nav-item" onclick="navigate('catalogue',this)">
+      <svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1L1 4.5v5L7 13l6-3.5v-5z"/><path d="M7 1v12M1 4.5l6 3.5 6-3.5"/></svg>
+      Catalogue produits
+    </div>
+    <div class="nav-item" onclick="navigate('config',this)">
+      <svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="2"/><path d="M7 1v2M7 11v2M1 7h2M11 7h2M2.5 2.5l1.5 1.5M10 10l1.5 1.5M11.5 2.5L10 4M4 10l-1.5 1.5"/></svg>
+      Configuration
+    </div>
+
+    <div class="sb-footer">
+      <div class="sb-footer-label">Connecté en tant que</div>
+      <div class="sb-footer-name">Alexandra GUIGNARD</div>
+      <div style="font-size:10px;color:var(--text3)">Responsable des opérations</div>
+    </div>
+  </div>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+    <div class="topbar">
+      <h1 id="page-title">Vue d'ensemble</h1>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="b br">1 alerte DLC</span>
+        <span style="font-size:11px;color:var(--text3)">mercredi 2 avril 2026</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+
+        <!-- ALERTE DLC -->
+        <div class="notif-banner">
+          <div class="notif-banner-icon">⚠</div>
+          <div class="notif-banner-text">
+            <div class="notif-banner-title">Alerte DLC — action requise</div>
+            <div class="notif-banner-sub">Le produit Jus pressé 25cl expire dans 8 jours (08/04/2026). Indiquez-nous la marche à suivre.</div>
+          </div>
+          <button class="btn danger sm" onclick="openModal('modal-dlc')">Répondre</button>
+        </div>
+
+        <!-- ACTION RAPIDE -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+          <button class="btn primary" style="font-size:12px;padding:8px 18px" onclick="openModal('modal-new-commande')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v12M1 7h12"/></svg>
+            Nouvelle commande de préparation
+          </button>
+          <button class="btn soft" style="font-size:12px;padding:8px 18px" onclick="openModal('modal-import-commande')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v8M4 6l3 3 3-3"/><path d="M2 11h10"/></svg>
+            Importer un fichier
+          </button>
+          <div style="margin-left:auto;font-size:11px;color:var(--text3)">Créneau par défaut : <strong style="color:var(--cobalt-t)">Normal 13h</strong></div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+          <div class="kpi">
+            <div class="kpi-label">Palettes en stock</div>
+            <div class="kpi-val" style="color:var(--cobalt-t)">41</div>
+            <div class="kpi-sub">3 zones · FIFO</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Commandes ce mois</div>
+            <div class="kpi-val" style="color:var(--mint-t)">142</div>
+            <div class="kpi-sub">88% B2C · 12% B2B</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Expéd. Cargonautes</div>
+            <div class="kpi-val" style="color:var(--cobalt-t)">83</div>
+            <div class="kpi-sub">58% du total ce mois</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Expéd. Chronofresh</div>
+            <div class="kpi-val" style="color:var(--mint-t)">41</div>
+            <div class="kpi-sub">29% · frais uniquement</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Tickets SAV ouverts</div>
+            <div class="kpi-val" style="color:var(--coral-t)">2</div>
+            <div class="kpi-sub">1 en attente de réponse</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div>
+            <div class="sec-label">Mon stock par zone</div>
+            <div class="card">
+              <div class="zone-row">
+                <div class="zone-name">CF2 — Stockage</div>
+                <div class="zone-bar-wrap"><div class="zone-bar-fill" style="width:82%;background:var(--cobalt-t)"></div></div>
+                <div class="zone-count">28 pal.</div>
+              </div>
+              <div class="zone-row">
+                <div class="zone-name">Zone BIO</div>
+                <div class="zone-bar-wrap"><div class="zone-bar-fill" style="width:40%;background:var(--purple-t)"></div></div>
+                <div class="zone-count">8 pal.</div>
+              </div>
+              <div class="zone-row">
+                <div class="zone-name">CF1 — Expédition</div>
+                <div class="zone-bar-wrap"><div class="zone-bar-fill" style="width:25%;background:var(--mint-t)"></div></div>
+                <div class="zone-count">5 pal.</div>
+              </div>
+            </div>
+
+            <div class="sec-label" style="margin-top:4px">Alertes DLC</div>
+            <div class="card">
+              <div class="dlc-row">
+                <div class="dlc-prod">Jus pressé 25cl</div>
+                <div class="dlc-bar-wrap"><div class="dlc-bar-fill" style="width:15%;background:var(--coral-t)"></div></div>
+                <div class="dlc-date" style="color:var(--coral-t)">08/04/26</div>
+                <span class="b br">8 jours</span>
+              </div>
+              <div class="dlc-row">
+                <div class="dlc-prod">Jus betterave 33cl</div>
+                <div class="dlc-bar-wrap"><div class="dlc-bar-fill" style="width:45%;background:var(--amber-t)"></div></div>
+                <div class="dlc-date">22/04/26</div>
+                <span class="b ba">20 jours</span>
+              </div>
+              <div class="dlc-row">
+                <div class="dlc-prod">Jus pomme gingembre</div>
+                <div class="dlc-bar-wrap"><div class="dlc-bar-fill" style="width:75%;background:var(--mint-t)"></div></div>
+                <div class="dlc-date">15/05/26</div>
+                <span class="b bm">43 jours</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="sec-label">Prochaines expéditions</div>
+            <div class="card">
+              <div class="row">
+                <div style="flex:1">
+                  <div style="font-weight:500">Commande #4521</div>
+                  <div style="font-size:10px;color:var(--text3)">Paris 11e · Chronofresh · B2C</div>
+                </div>
+                <span class="b bc">Demain 13h</span>
+              </div>
+              <div class="row">
+                <div style="flex:1">
+                  <div style="font-weight:500">Commande #4530</div>
+                  <div style="font-size:10px;color:var(--text3)">Montreuil · Chronofresh · B2C</div>
+                </div>
+                <span class="b bc">Jeudi 13h</span>
+              </div>
+              <div class="row">
+                <div style="flex:1">
+                  <div style="font-weight:500">Commande #4538 — B2B</div>
+                  <div style="font-size:10px;color:var(--text3)">La Défense · STEF · B2B</div>
+                </div>
+                <span class="b bg">Vendredi</span>
+              </div>
+            </div>
+
+            <div class="sec-label" style="margin-top:4px">Tickets SAV</div>
+            <div class="card">
+              <div class="tkt">
+                <div class="tkt-dot" style="background:var(--coral-t)"></div>
+                <div style="flex:1">
+                  <div class="tkt-title">Carton éclaté — réception 01/04</div>
+                  <div class="tkt-meta">TKT-2026-089 · En attente de votre réponse</div>
+                </div>
+                <button class="btn sm soft" onclick="navigate('sav',document.querySelector('[onclick*=sav]'))">Voir</button>
+              </div>
+              <div class="tkt">
+                <div class="tkt-dot" style="background:var(--amber-t)"></div>
+                <div style="flex:1">
+                  <div class="tkt-title">Quantité reçue &lt; ASN déclaré</div>
+                  <div class="tkt-meta">TKT-2026-087 · Cargonautes a répondu</div>
+                </div>
+                <button class="btn sm soft" onclick="navigate('sav',document.querySelector('[onclick*=sav]'))">Voir</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STOCK ── -->
+      <div class="page" id="page-stock">
+        <div class="filter-bar">
+          <input type="text" placeholder="Rechercher par produit, palette, zone...">
+          <select><option>Toutes les zones</option><option>CF2 — Stockage</option><option>Zone BIO</option><option>CF1 — Expédition</option></select>
+          <select><option>Tous les produits</option><option>Jus pressé 25cl</option><option>Jus betterave</option></select>
+        </div>
+
+        <div class="kpi-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+          <div class="kpi"><div class="kpi-label">Total palettes</div><div class="kpi-val" style="color:var(--cobalt-t)">41</div><div class="kpi-sub">3 zones actives</div></div>
+          <div class="kpi"><div class="kpi-label">Rotation</div><div class="kpi-val" style="color:var(--text);font-size:22px">FIFO</div><div class="kpi-sub">Premier entré, premier sorti</div></div>
+          <div class="kpi"><div class="kpi-label">Prochaine DLC</div><div class="kpi-val" style="color:var(--coral-t);font-size:20px">08/04</div><div class="kpi-sub">Jus pressé 25cl · 8 jours</div></div>
+        </div>
+
+        <div class="sec-label">Palettes en stock</div>
+        <div class="card-flush">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Code-barres</th>
+                <th>Produit</th>
+                <th>Zone</th>
+                <th>DLC / DDM</th>
+                <th>Qté</th>
+                <th>Certification</th>
+                <th>Arrivée</th>
+                <th>État</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">PAL-2026-0891</td>
+                <td style="font-weight:500">Jus pressé 25cl</td>
+                <td><span class="b bc">Z-STO</span></td>
+                <td class="mono" style="color:var(--coral-t)">08/04/26</td>
+                <td>576 u.</td>
+                <td>—</td>
+                <td class="mono">28/03/26</td>
+                <td><span class="b br">DLC proche</span></td>
+              </tr>
+              <tr>
+                <td class="mono">PAL-2026-0912</td>
+                <td style="font-weight:500">Jus betterave 33cl</td>
+                <td><span class="b bc">Z-STO</span></td>
+                <td class="mono">22/04/26</td>
+                <td>432 u.</td>
+                <td>—</td>
+                <td class="mono">01/04/26</td>
+                <td><span class="b bm">OK</span></td>
+              </tr>
+              <tr>
+                <td class="mono">PAL-2026-0893</td>
+                <td style="font-weight:500">Jus pomme gingembre</td>
+                <td><span class="b bp">Z-BIO</span></td>
+                <td class="mono">15/05/26</td>
+                <td>288 u.</td>
+                <td><span class="b bp">BIO</span></td>
+                <td class="mono">25/03/26</td>
+                <td><span class="b bm">OK</span></td>
+              </tr>
+              <tr>
+                <td class="mono">PAL-2026-0944</td>
+                <td style="font-weight:500">Shot gingembre 6cl</td>
+                <td><span class="b bc">Z-STO</span></td>
+                <td class="mono">30/04/26</td>
+                <td>1200 u.</td>
+                <td>—</td>
+                <td class="mono">02/04/26</td>
+                <td><span class="b bm">OK</span></td>
+              </tr>
+              <tr>
+                <td class="mono">PAL-2026-0945</td>
+                <td style="font-weight:500">Jus orange carotte</td>
+                <td><span class="b bp">Z-BIO</span></td>
+                <td class="mono">10/05/26</td>
+                <td>360 u.</td>
+                <td><span class="b bp">BIO</span></td>
+                <td class="mono">02/04/26</td>
+                <td><span class="b bm">OK</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── COMMANDES ── -->
+      <div class="page" id="page-commandes">
+        <div class="filter-bar">
+          <input type="text" placeholder="Rechercher une commande...">
+          <select><option>Tous les statuts</option><option>En préparation</option><option>Prête</option><option>Expédiée</option></select>
+          <select><option>B2B + B2C</option><option>B2C</option><option>B2B</option></select>
+          <button class="btn primary" onclick="openModal('modal-asn')">+ Déclarer une réception</button>
+        </div>
+
+        <div class="sec-label">Commandes récentes</div>
+        <div class="card-flush">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>N° commande</th>
+                <th>Date</th>
+                <th>Destination</th>
+                <th>Type</th>
+                <th>Produits</th>
+                <th>Transporteur</th>
+                <th>Cutoff</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono" style="font-weight:500">#4521</td>
+                <td class="mono">02/04/26</td>
+                <td>Paris 11e</td>
+                <td><span class="b bg">B2C</span></td>
+                <td>Jus pressé ×90</td>
+                <td class="dim">Chronofresh</td>
+                <td><span class="b bc">Normal 13h</span></td>
+                <td><span class="b ba">En préparation</span></td>
+              </tr>
+              <tr>
+                <td class="mono" style="font-weight:500">#4530</td>
+                <td class="mono">03/04/26</td>
+                <td>Montreuil</td>
+                <td><span class="b bg">B2C</span></td>
+                <td>Jus pressé ×120</td>
+                <td class="dim">Chronofresh</td>
+                <td><span class="b bc">Normal 13h</span></td>
+                <td><span class="b bg">En attente</span></td>
+              </tr>
+              <tr>
+                <td class="mono" style="font-weight:500">#4538</td>
+                <td class="mono">04/04/26</td>
+                <td>La Défense</td>
+                <td><span class="b bc">B2B</span></td>
+                <td>Shot gingembre ×200</td>
+                <td class="dim">STEF</td>
+                <td><span class="b bg">Sur place</span></td>
+                <td><span class="b bg">En attente</span></td>
+              </tr>
+              <tr>
+                <td class="mono" style="font-weight:500">#4512</td>
+                <td class="mono">01/04/26</td>
+                <td>Paris 3e</td>
+                <td><span class="b bg">B2C</span></td>
+                <td>Jus betterave ×60</td>
+                <td class="dim">Chronofresh</td>
+                <td><span class="b ba">Premium 17h</span></td>
+                <td><span class="b bm">Expédiée</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="sec-label">Réceptions attendues (ASN)</div>
+          <div class="card-flush">
+            <table class="tbl">
+              <thead>
+                <tr><th>Date prévue</th><th>Produits attendus</th><th>Palettes</th><th>Origine</th><th>Statut</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono">02/04/26</td>
+                  <td style="font-weight:500">Jus pressé 25cl · Shot gingembre</td>
+                  <td>5 pal. EUR</td>
+                  <td><span class="b bc">Import CSV</span></td>
+                  <td><span class="b ba">En attente</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <button class="btn soft" onclick="openModal('modal-asn')">+ Déclarer une nouvelle réception attendue</button>
+        </div>
+      </div>
+
+      <!-- ── RECEPTIONS ── -->
+      <div class="page" id="page-receptions">
+        <div class="filter-bar">
+          <input type="text" placeholder="Rechercher...">
+          <select><option>Avril 2026</option><option>Mars 2026</option><option>Février 2026</option></select>
+        </div>
+        <div class="card-flush">
+          <table class="tbl">
+            <thead>
+              <tr><th>Date</th><th>Heure</th><th>Transporteur</th><th>Palettes reçues</th><th>EUR reçues</th><th>EUR rendues</th><th>Type</th><th>Anomalie</th><th>Agent</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">01/04/26</td><td class="mono">09:14</td>
+                <td>STEF</td><td>3</td><td>3</td><td>3</td>
+                <td><span class="b bc">Frais</span></td>
+                <td><span class="b br">Oui</span></td>
+                <td class="dim">Sophie B.</td>
+              </tr>
+              <tr>
+                <td class="mono">28/03/26</td><td class="mono">11:30</td>
+                <td>Chronofresh</td><td>4</td><td>4</td><td>4</td>
+                <td><span class="b bp">BIO</span></td>
+                <td><span class="b bm">Non</span></td>
+                <td class="dim">Antoine G.</td>
+              </tr>
+              <tr>
+                <td class="mono">25/03/26</td><td class="mono">08:45</td>
+                <td>STEF</td><td>2</td><td>2</td><td>2</td>
+                <td><span class="b bc">Frais</span></td>
+                <td><span class="b bm">Non</span></td>
+                <td class="dim">Marc D.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── EXPEDITIONS ── -->
+      <div class="page" id="page-expeditions">
+        <div class="filter-bar">
+          <input type="text" placeholder="Rechercher par numéro, tracking...">
+          <select><option>Tous les statuts</option><option>En transit</option><option>Livré</option><option>Anomalie</option></select>
+        </div>
+        <div class="card-flush">
+          <table class="tbl">
+            <thead>
+              <tr><th>N° expédition</th><th>Commande</th><th>Date</th><th>Destination</th><th>Transporteur</th><th>Tracking</th><th>Palettes</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">SHIP-4926572801</td>
+                <td class="mono">#4512</td>
+                <td class="mono">01/04/26</td>
+                <td>Paris 3e</td>
+                <td>Chronofresh</td>
+                <td class="mono" style="font-size:10px">CHF20260401-881</td>
+                <td>4 EUR</td>
+                <td><span class="b bm">Livré</span></td>
+              </tr>
+              <tr>
+                <td class="mono">SHIP-4926572756</td>
+                <td class="mono">#4498</td>
+                <td class="mono">31/03/26</td>
+                <td>Vincennes</td>
+                <td>STEF</td>
+                <td class="mono" style="font-size:10px">STF20260331-220</td>
+                <td>1 EUR</td>
+                <td><span class="b br">Anomalie</span></td>
+              </tr>
+              <tr>
+                <td class="mono">SHIP-4926572700</td>
+                <td class="mono">#4482</td>
+                <td class="mono">28/03/26</td>
+                <td>Neuilly</td>
+                <td>Chronofresh</td>
+                <td class="mono" style="font-size:10px">CHF20260328-442</td>
+                <td>2 EUR</td>
+                <td><span class="b bm">Livré</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── SAV ── -->
+      <div class="page" id="page-sav">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div></div>
+          <button class="btn primary" onclick="openModal('modal-new-ticket')">+ Ouvrir un ticket</button>
+        </div>
+
+        <!-- Ticket 1 — en attente de réponse client -->
+        <div class="sec-label">En attente de votre réponse</div>
+        <div class="card" style="border-color:#FFBCBC">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px">TKT-2026-089 — Carton éclaté à la réception</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">Ouvert le 01/04/2026 · PAL-2026-0891 · STEF · Confirmé sur CMR</div>
+            </div>
+            <span class="b br">Action requise</span>
+          </div>
+          <div class="thread">
+            <div class="thread-msg cargonautes">
+              <div class="thread-author">Cargonautes — Sophie Bernard <span class="thread-time">01/04/26 · 09:22</span></div>
+              <div class="thread-body">Bonjour Alexandra, lors de la réception de ce matin nous avons constaté un carton éclaté sur la palette PAL-2026-0891. Le produit Jus pressé 25cl présente des dommages sur environ 1/3 de la palette. L'anomalie a été notée sur le CMR remis au transporteur STEF. Merci de nous indiquer comment procéder.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn mint" onclick="openModal('modal-reply-ticket')">Répondre</button>
+            <button class="btn" onclick="openModal('modal-close-ticket')">Aucune action nécessaire</button>
+          </div>
+        </div>
+
+        <!-- Ticket 2 — en cours -->
+        <div class="sec-label" style="margin-top:8px">En cours</div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:14px">TKT-2026-087 — Quantité reçue &lt; ASN</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">Ouvert le 01/04/2026 · ASN-2026-041 · STEF · Lié à TKT-2026-071</div>
+            </div>
+            <span class="b ba">En cours</span>
+          </div>
+          <div class="thread">
+            <div class="thread-msg cargonautes">
+              <div class="thread-author">Cargonautes — Antoine G. <span class="thread-time">01/04/26 · 14:10</span></div>
+              <div class="thread-body">Bonjour, l'ASN déclarait 5 palettes mais seulement 4 ont été reçues. Nous attendons votre confirmation pour savoir si la 5e palette est en route ou si l'ASN doit être corrigé.</div>
+            </div>
+            <div class="thread-msg client">
+              <div class="thread-author">Yumi/Paf — Alexandra GUIGNARD <span class="thread-time">01/04/26 · 16:42</span></div>
+              <div class="thread-body">Bonjour Antoine, la 5e palette est en cours de chargement chez notre fournisseur. Livraison prévue demain matin. Merci de mettre à jour l'ASN.</div>
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn soft sm" onclick="openModal('modal-reply-ticket')">Ajouter un message</button>
+          </div>
+        </div>
+
+        <!-- Ticket 3 — clôturé -->
+        <div class="sec-label" style="margin-top:8px">Clôturés récemment</div>
+        <div class="card" style="opacity:.7">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:13px">TKT-2026-071 — Palette incomplète à la livraison</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">Clôturé le 22/03/2026 · SHIP-4926572756 · Résolu par téléphone</div>
+            </div>
+            <span class="b bm">Clôturé</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CATALOGUE PRODUITS ── -->
+      <div class="page" id="page-catalogue">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="filter-bar" style="margin-bottom:0;flex:1">
+            <input type="text" placeholder="Rechercher un produit...">
+            <select><option>Tous types</option><option>Consommable</option><option>PLV / Goodies</option></select>
+          </div>
+          <button class="btn primary" style="margin-left:10px" onclick="openModal('modal-new-produit')">+ Nouveau produit</button>
+        </div>
+
+        <div class="sec-label">Produits consommables</div>
+        <div class="card-flush" style="margin-bottom:16px">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Réf.</th>
+                <th>Type</th>
+                <th>Poids unit.</th>
+                <th>Volume unit.</th>
+                <th>Équiv. Cyke</th>
+                <th>DLC B2C</th>
+                <th>DLC GMS</th>
+                <th>DLC GSS</th>
+                <th>DLC CHR</th>
+                <th>DLC Bureaux</th>
+                <th style="width:40px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:500">Jus pressé 25cl</td>
+                <td class="mono">YP-JUS-25</td>
+                <td><span class="b bc">Frais · BIO</span></td>
+                <td>0.25 kg</td>
+                <td>0.49 L</td>
+                <td style="font-size:11px;color:var(--text2)">Bouteille Yumi 237ml</td>
+                <td><span class="b br">+21j</span></td>
+                <td><span class="b ba">+30j</span></td>
+                <td><span class="b bc">+21j</span></td>
+                <td><span class="b bm">+14j</span></td>
+                <td><span class="b bm">+14j</span></td>
+                <td>
+                  <span class="edit-icon" onclick="openModal('modal-edit-produit')" style="cursor:pointer;color:var(--text3);display:inline-flex;padding:2px;border-radius:4px">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight:500">Jus betterave 33cl</td>
+                <td class="mono">YP-BET-33</td>
+                <td><span class="b bc">Frais</span></td>
+                <td>0.35 kg</td>
+                <td>0.85 L</td>
+                <td style="font-size:11px;color:var(--text2)">Bouteille Yumi 300ml</td>
+                <td><span class="b br">+21j</span></td>
+                <td><span class="b ba">+30j</span></td>
+                <td><span class="b bc">+21j</span></td>
+                <td><span class="b bm">+14j</span></td>
+                <td><span class="b bm">+14j</span></td>
+                <td>
+                  <span class="edit-icon" onclick="openModal('modal-edit-produit')" style="cursor:pointer;color:var(--text3);display:inline-flex;padding:2px;border-radius:4px">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight:500">Shot gingembre 6cl</td>
+                <td class="mono">YP-SHOT-6</td>
+                <td><span class="b bc">Frais · BIO</span></td>
+                <td>0.08 kg</td>
+                <td>0.23 L</td>
+                <td style="font-size:11px;color:var(--text2)">Bouteille Yumi 60ml</td>
+                <td><span class="b br">+21j</span></td>
+                <td><span class="b ba">+30j</span></td>
+                <td><span class="b bc">+21j</span></td>
+                <td><span class="b bm">+14j</span></td>
+                <td><span class="b bm">+14j</span></td>
+                <td>
+                  <span class="edit-icon" onclick="openModal('modal-edit-produit')" style="cursor:pointer;color:var(--text3);display:inline-flex;padding:2px;border-radius:4px">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sec-label">PLV / Goodies & matériel animation</div>
+        <div class="card-flush">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Réf.</th>
+                <th>Poids</th>
+                <th>Volume</th>
+                <th>Équiv. Cyke</th>
+                <th>Stock entrepôt</th>
+                <th style="width:40px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:500">Stand d'animation</td>
+                <td class="mono">YP-STAND</td>
+                <td>10.0 kg</td>
+                <td>300.0 L</td>
+                <td style="font-size:11px;color:var(--text2)">Stand d'animation</td>
+                <td><span class="b bm">2 unités</span></td>
+                <td>
+                  <span class="edit-icon" onclick="openModal('modal-edit-produit')" style="cursor:pointer;color:var(--text3);display:inline-flex;padding:2px;border-radius:4px">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight:500">Gobelets Yumi (lot 50)</td>
+                <td class="mono">YP-GOB-50</td>
+                <td>0.3 kg</td>
+                <td>2.0 L</td>
+                <td style="font-size:11px;color:var(--text3)">— non lié</td>
+                <td><span class="b ba">12 lots</span></td>
+                <td>
+                  <span class="edit-icon" onclick="openModal('modal-edit-produit')" style="cursor:pointer;color:var(--text3);display:inline-flex;padding:2px;border-radius:4px">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight:500">Totebag Yumi</td>
+                <td class="mono">YP-TOTE</td>
+                <td>0.1 kg</td>
+                <td>0.5 L</td>
+                <td style="font-size:11px;color:var(--text3)">— non lié</td>
+                <td><span class="b bm">45 unités</span></td>
+                <td>
+                  <span class="edit-icon" onclick="openModal('modal-edit-produit')" style="cursor:pointer;color:var(--text3);display:inline-flex;padding:2px;border-radius:4px">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-weight:500">Flyers A5 (lot 100)</td>
+                <td class="mono">YP-FLY-100</td>
+                <td>0.25 kg</td>
+                <td>1.0 L</td>
+                <td style="font-size:11px;color:var(--text3)">— non lié</td>
+                <td><span class="b bc">8 lots</span></td>
+                <td>
+                  <span class="edit-icon" onclick="openModal('modal-edit-produit')" style="cursor:pointer;color:var(--text3);display:inline-flex;padding:2px;border-radius:4px">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── CONFIG ── -->
+      <div class="page" id="page-config">
+        <div class="two-col">
+          <div>
+            <div class="sec-label">Mes contacts & notifications</div>
+            <div class="card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:12px;color:var(--text2)">Contacts enregistrés</div>
+                <button class="btn sm soft" onclick="openModal('modal-add-contact')">+ Ajouter</button>
+              </div>
+              <div class="row">
+                <div style="flex:1">
+                  <div style="font-weight:500">Alexandra GUIGNARD</div>
+                  <div style="font-size:10px;color:var(--text3)">Responsable des opérations · lun-ven 8h-19h</div>
+                  <div style="margin-top:3px;display:flex;gap:3px"><span class="b bc" style="font-size:9px">Réception</span><span class="b bc" style="font-size:9px">Stock</span><span class="b bc" style="font-size:9px">Inventaires</span></div>
+                </div>
+                <span class="b bm">Principal</span>
+              </div>
+              <div class="row">
+                <div style="flex:1">
+                  <div style="font-weight:500">Thibault Sempéré</div>
+                  <div style="font-size:10px;color:var(--text3)">Responsable B2B/B2C · lun-ven 8h30-17h30</div>
+                  <div style="margin-top:3px;display:flex;gap:3px"><span class="b bc" style="font-size:9px">Commandes B2B/B2C</span><span class="b bc" style="font-size:9px">Livraisons</span></div>
+                </div>
+                <span class="b bg">Contact</span>
+              </div>
+              <div class="row">
+                <div style="flex:1">
+                  <div style="font-weight:500">Emilie Levy</div>
+                  <div style="font-size:10px;color:var(--text3)">Directrice commerciale · lun-ven 9h-19h</div>
+                  <div style="margin-top:3px;display:flex;gap:3px"><span class="b bc" style="font-size:9px">Animations</span><span class="b bc" style="font-size:9px">PLV</span></div>
+                </div>
+                <span class="b bg">Contact</span>
+              </div>
+            </div>
+
+            <div class="sec-label" style="margin-top:4px">Escalade automatique</div>
+            <div class="card">
+              <div class="config-row">
+                <div class="config-label">Si pas de réponse après</div>
+                <select style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+                  <option>24 heures</option>
+                  <option>48 heures</option>
+                  <option>72 heures</option>
+                </select>
+              </div>
+              <div class="config-row">
+                <div class="config-label">Escalader vers</div>
+                <div class="config-value">Claire Durot · Antoine Greneche</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="sec-label">Préférences de réception</div>
+            <div class="card">
+              <div class="config-row">
+                <div class="config-label">Contrôle température</div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div class="config-row">
+                <div class="config-label">Contrôle BIO obligatoire</div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div class="config-row">
+                <div class="config-label">Contrôle étiquetage</div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div class="config-row">
+                <div class="config-label">Vérification certificats</div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+              </div>
+              <div class="config-row">
+                <div class="config-label">Contrôle immatriculation</div>
+                <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+              </div>
+            </div>
+
+            <div class="sec-label" style="margin-top:4px">Paramètres stock</div>
+            <div class="card">
+              <div class="config-row">
+                <div class="config-label">Méthode de rotation</div>
+                <select style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+                  <option>FIFO — Premier entré, premier sorti</option>
+                  <option>LIFO — Dernier entré, premier sorti</option>
+                </select>
+              </div>
+              <div class="config-row">
+                <div class="config-label">Alerte DLC (jours avant)</div>
+                <select style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+                  <option>15 jours</option>
+                  <option>30 jours</option>
+                  <option>7 jours</option>
+                </select>
+              </div>
+              <div class="config-row">
+                <div class="config-label">Cutoff préféré</div>
+                <select style="padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+                  <option>Normal — avant 13h</option>
+                  <option>Premium — avant 17h</option>
+                </select>
+              </div>
+              <div class="config-row" style="align-items:flex-start;padding-top:10px">
+                <div style="flex:1">
+                  <div class="config-label" style="font-weight:500">Confirmation hors critère DLC</div>
+                  <div style="font-size:10px;color:var(--text3);margin-top:2px;max-width:260px;line-height:1.4">Affiche une alerte de confirmation lorsque vous sélectionnez du stock dont la DLC ne respecte pas votre critère par canal. Désactiver cette option ne supprime pas la traçabilité — chaque exception reste enregistrée avec votre nom et horodatage.</div>
+                </div>
+                <label class="toggle" style="margin-top:2px"><input type="checkbox" checked id="toggle-dlc-confirm"><span class="toggle-slider"></span></label>
+              </div>
+              <div id="dlc-confirm-off-warning" style="display:none;margin-top:4px;padding:8px 10px;background:var(--amber-p);border:1px solid #FFD080;border-radius:var(--radius);font-size:11px;color:var(--amber-t)">
+                <strong>Attention :</strong> En désactivant cette confirmation, vous pouvez sélectionner du stock hors critère sans alerte. Toute exception reste tracée automatiquement — vous en assumez la responsabilité.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── MODALS ── -->
+
+<!-- DLC RESPONSE -->
+<div class="modal-backdrop" id="modal-dlc">
+  <div class="modal">
+    <h3>Alerte DLC — Jus pressé 25cl</h3>
+    <div class="modal-sub">Expire le 08/04/2026 · PAL-2026-0891 · 576 unités</div>
+    <div class="modal-label">Que souhaitez-vous faire ?</div>
+    <select style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+      <option>Je vais récupérer la marchandise</option>
+      <option>Préparer une commande urgente pour écouler le stock</option>
+      <option>Autoriser la destruction du produit</option>
+      <option>Don alimentaire</option>
+      <option>Autre — préciser ci-dessous</option>
+    </select>
+    <div class="modal-label">Message à Cargonautes</div>
+    <textarea placeholder="Précisez vos instructions..."></textarea>
+    <div class="warning-box">En choisissant "Autoriser la destruction", vous confirmez que Cargonautes peut procéder à l'élimination du produit après la date d'expiration. Cette action sera tracée avec votre nom et horodatage.</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-dlc')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-dlc')">Confirmer ma réponse</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASN -->
+<div class="modal-backdrop" id="modal-asn">
+  <div class="modal">
+    <h3>Déclarer une réception attendue</h3>
+    <div class="modal-sub">Prévenez Cargonautes de l'arrivée de vos palettes</div>
+    <div class="modal-label">Date d'arrivée prévue</div>
+    <input type="date" value="2026-04-05">
+    <div class="modal-label">Transporteur</div>
+    <select style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+      <option>STEF</option><option>Chronofresh</option><option>STG</option><option>Autre</option>
+    </select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+      <div>
+        <div class="modal-label" style="margin-top:0">Nb palettes</div>
+        <input type="number" value="3" placeholder="Nb palettes">
+      </div>
+      <div>
+        <div class="modal-label" style="margin-top:0">Palettes EUR</div>
+        <input type="number" value="3" placeholder="Palettes EUR">
+      </div>
+    </div>
+    <div class="modal-label">Type de produit</div>
+    <select style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+      <option>Frais</option><option>Sec</option><option>BIO — Frais</option><option>BIO — Sec</option>
+    </select>
+    <div class="modal-label">Ou importer depuis CSV</div>
+    <div class="asn-dropzone" onclick="this.style.borderColor='var(--cobalt)'">
+      ↑ Glisser-déposer un fichier CSV ou cliquer pour importer
+    </div>
+    <div class="info-box">Anticiper votre réception vous permet de bénéficier d'un traitement prioritaire et d'un tarif réduit selon votre grille cutoff.</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-asn')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-asn')">Enregistrer l'ASN</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPLY TICKET -->
+<div class="modal-backdrop" id="modal-reply-ticket">
+  <div class="modal" style="width:460px">
+    <h3>Répondre au ticket</h3>
+    <div class="modal-sub">TKT-2026-089 — Carton éclaté à la réception</div>
+    <div class="modal-label">Votre message</div>
+    <textarea placeholder="Écrivez votre réponse à Cargonautes..."></textarea>
+    <div class="modal-label">Joindre un fichier (optionnel)</div>
+    <input type="file">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-reply-ticket')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-reply-ticket')">Envoyer la réponse</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLOSE TICKET -->
+<div class="modal-backdrop" id="modal-close-ticket">
+  <div class="modal">
+    <h3>Aucune action nécessaire</h3>
+    <div class="modal-sub">TKT-2026-089 — Carton éclaté à la réception</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:12px">En confirmant, vous indiquez à Cargonautes qu'aucune action n'est requise de votre part. Le ticket sera clôturé automatiquement.</p>
+    <div class="modal-label">Motif (optionnel)</div>
+    <textarea placeholder="Précisez si nécessaire..."></textarea>
+    <div class="warning-box">Cette décision sera enregistrée avec votre nom et horodatage dans l'historique du ticket.</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-close-ticket')">Annuler</button>
+      <button class="btn danger" onclick="closeModal('modal-close-ticket')">Confirmer — aucune action</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW TICKET -->
+<div class="modal-backdrop" id="modal-new-ticket">
+  <div class="modal">
+    <h3>Ouvrir un ticket SAV</h3>
+    <div class="modal-sub">Signalez un problème à l'équipe Cargonautes</div>
+    <div class="modal-label">Catégorie</div>
+    <select style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+      <option>Problème de réception</option>
+      <option>Problème d'expédition</option>
+      <option>Anomalie produit</option>
+      <option>Litige transporteur</option>
+      <option>Question stock</option>
+      <option>Autre</option>
+    </select>
+    <div class="modal-label">Description du problème</div>
+    <textarea placeholder="Décrivez le problème en détail..."></textarea>
+    <div class="modal-label">Palette / Commande concernée (optionnel)</div>
+    <input type="text" placeholder="PAL-2026-XXXX ou #XXXX">
+    <div class="modal-label">Joindre un fichier (optionnel)</div>
+    <input type="file">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-new-ticket')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-new-ticket')">Ouvrir le ticket</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOUVELLE COMMANDE DE PRÉPARATION -->
+<div class="modal-backdrop" id="modal-new-commande">
+  <div class="modal" style="width:540px">
+    <h3>Nouvelle commande de préparation</h3>
+    <div class="modal-sub">Créneau par défaut : Normal 13h · Yumi/Paf</div>
+
+    <!-- DATE + TYPE -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <div class="modal-label" style="margin-top:0">Date souhaitée</div>
+        <input type="date" value="2026-04-03">
+      </div>
+      <div>
+        <div class="modal-label" style="margin-top:0">Type</div>
+        <select style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+          <option>B2C</option>
+          <option>B2B</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- CRÉNEAU -->
+    <div class="modal-label">Créneau de livraison</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:4px">
+      <div class="cutoff-btn" data-cutoff="11" data-prix="0.95" onclick="selectCutoff(this)" style="border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center;cursor:pointer;font-size:10px;font-family:'Manrope',sans-serif;transition:all .12s">
+        <div style="font-weight:700;font-size:12px;color:var(--mint-t)">avant 11h</div>
+        <div style="color:var(--mint-t);margin:2px 0">0,95 €/u</div>
+        <div style="font-size:9px;background:var(--mint-p);color:var(--mint-t);border-radius:10px;padding:1px 4px">-5%</div>
+      </div>
+      <div class="cutoff-btn" data-cutoff="13" data-prix="1.00" onclick="selectCutoff(this)" style="border:2px solid var(--cobalt);border-radius:var(--radius);padding:8px 6px;text-align:center;cursor:pointer;font-size:10px;background:var(--cobalt-p);font-family:'Manrope',sans-serif;transition:all .12s">
+        <div style="font-weight:700;font-size:12px;color:var(--cobalt-t)">avant 13h</div>
+        <div style="color:var(--cobalt-t);margin:2px 0">1,00 €/u</div>
+        <div style="font-size:9px;background:var(--cobalt-p);color:var(--cobalt-t);border-radius:10px;padding:1px 4px">défaut</div>
+      </div>
+      <div class="cutoff-btn" data-cutoff="15" data-prix="1.10" onclick="selectCutoff(this)" style="border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center;cursor:pointer;font-size:10px;font-family:'Manrope',sans-serif;transition:all .12s">
+        <div style="font-weight:700;font-size:12px;color:var(--text)">avant 15h</div>
+        <div style="color:var(--amber-t);margin:2px 0">1,10 €/u</div>
+        <div style="font-size:9px;background:var(--amber-p);color:var(--amber-t);border-radius:10px;padding:1px 4px">+10%</div>
+      </div>
+      <div class="cutoff-btn" data-cutoff="17" data-prix="1.25" onclick="selectCutoff(this)" style="border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center;cursor:pointer;font-size:10px;font-family:'Manrope',sans-serif;transition:all .12s">
+        <div style="font-weight:700;font-size:12px;color:var(--text)">avant 17h</div>
+        <div style="color:var(--amber-t);margin:2px 0">1,25 €/u</div>
+        <div style="font-size:9px;background:var(--amber-p);color:var(--amber-t);border-radius:10px;padding:1px 4px">+25%</div>
+      </div>
+      <div class="cutoff-btn" data-cutoff="99" data-prix="1.50" onclick="selectCutoff(this)" style="border:1px solid var(--border);border-radius:var(--radius);padding:8px 6px;text-align:center;cursor:pointer;font-size:10px;font-family:'Manrope',sans-serif;transition:all .12s">
+        <div style="font-weight:700;font-size:12px;color:var(--coral-t)">urgence</div>
+        <div style="color:var(--coral-t);margin:2px 0">1,50 €/u</div>
+        <div style="font-size:9px;background:var(--coral-p);color:var(--coral-t);border-radius:10px;padding:1px 4px">+50%</div>
+      </div>
+    </div>
+
+    <!-- SIMULATEUR -->
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;font-size:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="color:var(--text2)">Coût estimé</div>
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:22px;color:var(--text)" id="sim-total">0,00 €</span>
+          <span style="font-size:11px;color:var(--text3)" id="sim-detail">0 items × 1,00 €</span>
+        </div>
+      </div>
+      <div id="sim-nudge" style="font-size:11px;margin-top:4px;display:none"></div>
+    </div>
+
+    <!-- DESTINATAIRE -->
+    <div class="modal-label">Destinataire</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <input type="text" placeholder="Prénom">
+      <input type="text" placeholder="Nom">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <input type="tel" placeholder="Téléphone">
+      <input type="email" placeholder="Email">
+    </div>
+    <input type="text" placeholder="Adresse" style="margin-top:8px;width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+    <div style="display:grid;grid-template-columns:100px 1fr;gap:8px;margin-top:8px">
+      <input type="text" placeholder="Code postal">
+      <input type="text" placeholder="Ville">
+    </div>
+
+    <!-- PRODUITS -->
+    <div class="modal-label">Produits</div>
+    <div id="produits-grid" style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:8px">
+      <div style="display:grid;grid-template-columns:1fr 80px 70px 36px;background:var(--bg);padding:6px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)">
+        <div>Produit</div><div>Unité</div><div style="text-align:right">Qté</div><div></div>
+      </div>
+      <div id="produits-rows">
+        <div style="padding:16px;text-align:center;font-size:12px;color:var(--text3)">
+          Aucun produit ajouté — cliquez sur "Ajouter un produit"
+        </div>
+      </div>
+    </div>
+    <button class="btn soft sm" onclick="openModal('modal-add-produit')" style="margin-bottom:4px">
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v12M1 7h12"/></svg>
+      Ajouter un produit
+    </button>
+    <button class="btn sm" style="margin-bottom:12px;border-color:var(--mint-p);color:var(--mint-t);background:var(--mint-p)" onclick="openModal('modal-stock-dlc')">
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="12" height="5" rx="1"/><rect x="2" y="4" width="10" height="4" rx="1"/></svg>
+      Voir stock disponible selon DLC canal
+    </button>
+
+    <!-- STOCK EN ATTENTE -->
+    <div class="modal-label">Stock disponible pour cette préparation</div>
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);flex:1;transition:all .12s" id="stock-oui-label">
+        <input type="radio" name="stock-dispo" value="oui" onchange="handleStockRadio('oui')" style="width:auto" checked>
+        <div>
+          <div style="font-weight:500">Oui — stock disponible</div>
+          <div style="font-size:10px;color:var(--text3)">Le stock est déjà dans l'entrepôt</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;padding:8px 14px;border:1px solid var(--border);border-radius:var(--radius);flex:1;transition:all .12s" id="stock-non-label">
+        <input type="radio" name="stock-dispo" value="non" onchange="handleStockRadio('non')" style="width:auto">
+        <div>
+          <div style="font-weight:500">Non — stock en transit</div>
+          <div style="font-size:10px;color:var(--text3)">La marchandise n'est pas encore arrivée</div>
+        </div>
+      </label>
+    </div>
+    <div id="stock-asn-info" style="display:none" class="info-box">
+      Cette commande sera mise en attente jusqu'à la réception du stock. Avez-vous déclaré un ASN ? <a href="#" style="color:var(--cobalt-t)">Déclarer une réception attendue →</a>
+    </div>
+
+    <!-- INSTRUCTIONS -->
+    <div class="modal-label">Instructions au préparateur</div>
+    <textarea placeholder="Ex : Toujours placer les étiquettes face visible vers le haut. Pour les commandes La Défense, emballer les bouteilles individuellement. Ne pas empiler plus de 2 cartons. Livraison au 3e étage, pas d'ascenseur — prévenir le destinataire." style="min-height:65px"></textarea>
+
+    <div id="urgence-warning" style="display:none" class="warning-box">
+      Cette commande dépasse votre créneau par défaut (Normal 13h). Un supplément d'urgence sera appliqué. Confirmez-vous ?
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-new-commande')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-new-commande')">Confirmer la commande</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PRODUIT (sub-modal) -->
+<div class="modal-backdrop" id="modal-add-produit">
+  <div class="modal" style="width:340px">
+    <h3>Ajouter un produit</h3>
+    <div class="modal-sub">Depuis votre catalogue Yumi/Paf</div>
+    <div class="modal-label" style="margin-top:0">Produit</div>
+    <select id="select-produit" style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+      <option value="">— Choisir un produit —</option>
+      <option value="Jus pressé 25cl|unité">Jus pressé 25cl</option>
+      <option value="Jus betterave 33cl|unité">Jus betterave 33cl</option>
+      <option value="Jus pomme gingembre 25cl|unité">Jus pomme gingembre 25cl</option>
+      <option value="Shot gingembre 6cl|unité">Shot gingembre 6cl</option>
+      <option value="Jus orange carotte 33cl|unité">Jus orange carotte 33cl</option>
+    </select>
+    <div class="modal-label">Quantité</div>
+    <input type="number" id="input-qte-produit" value="1" min="1" placeholder="Quantité">
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-add-produit')">Annuler</button>
+      <button class="btn primary" onclick="addProduitToGrid()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT COMMANDE -->
+<div class="modal-backdrop" id="modal-import-commande">
+  <div class="modal">
+    <h3>Importer des commandes</h3>
+    <div class="modal-sub">Importez un fichier CSV ou Excel avec vos lignes de commande</div>
+    <div class="asn-dropzone">
+      ↑ Glisser-déposer un fichier CSV / Excel<br>
+      <span style="font-size:10px;color:var(--text3);margin-top:4px;display:block">ou cliquer pour parcourir</span>
+    </div>
+    <div class="modal-label">Créneau par défaut pour toutes les lignes</div>
+    <select style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+      <option>Normal 13h — 1,00 €/u (défaut)</option>
+      <option>Avant 11h — 0,95 €/u (-5%)</option>
+      <option>Avant 15h — 1,10 €/u (+10%)</option>
+      <option>Avant 17h — 1,25 €/u (+25%)</option>
+    </select>
+    <div class="info-box" style="margin-top:10px">
+      <strong>Format attendu :</strong> référence_produit · quantité · destination · date · type (B2B/B2C)<br>
+      <a href="#" style="color:var(--cobalt-t);font-size:11px">Télécharger le modèle CSV →</a>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-import-commande')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-import-commande')">Importer</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PRODUIT -->
+<div class="modal-backdrop" id="modal-edit-produit">
+  <div class="modal" style="width:520px">
+    <h3>Modifier le produit</h3>
+    <div class="modal-sub">Jus pressé 25cl · YP-JUS-25</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <div class="modal-label" style="margin-top:0">Nom du produit</div>
+        <input type="text" value="Jus pressé à froid 25cl">
+      </div>
+      <div>
+        <div class="modal-label" style="margin-top:0">Référence interne</div>
+        <input type="text" value="YP-JUS-25">
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
+      <div>
+        <div class="modal-label" style="margin-top:0">Poids unitaire (kg)</div>
+        <input type="number" value="0.25" step="0.01">
+      </div>
+      <div>
+        <div class="modal-label" style="margin-top:0">Volume unitaire (L)</div>
+        <input type="number" value="0.49" step="0.01">
+      </div>
+      <div>
+        <div class="modal-label" style="margin-top:0">Équivalent Cyke</div>
+        <select style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+          <option>Bouteille Yumi 237ml</option>
+          <option>Bouteille Yumi 60ml</option>
+          <option>Bouteille Yumi 500ml</option>
+          <option>Bouteille 300ml</option>
+          <option>Carton pack shots 60ml</option>
+          <option>Stand d'animation</option>
+          <option>— Non lié à Cyke</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-label">DLC minimales par canal de distribution</div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr 80px 36px;background:var(--surface);padding:6px 12px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)">
+        <div>Canal</div><div style="text-align:center">DLC min (jours)</div><div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 80px 36px;padding:8px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:12px">
+        <div style="display:flex;align-items:center;gap:6px"><span class="b bg">B2C</span><span style="color:var(--text2)">Particuliers</span></div>
+        <input type="number" value="21" min="1" style="width:60px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:'Manrope',sans-serif;text-align:center;background:var(--surface)">
+        <span class="edit-icon" style="color:var(--text3);cursor:pointer;display:inline-flex">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 80px 36px;padding:8px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:12px">
+        <div style="display:flex;align-items:center;gap:6px"><span class="b ba">GMS</span><span style="color:var(--text2)">Grandes surfaces</span></div>
+        <input type="number" value="30" min="1" style="width:60px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:'Manrope',sans-serif;text-align:center;background:var(--surface)">
+        <span class="edit-icon" style="color:var(--text3);cursor:pointer;display:inline-flex">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 80px 36px;padding:8px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:12px">
+        <div style="display:flex;align-items:center;gap:6px"><span class="b bp">GSS</span><span style="color:var(--text2)">Bio spécialisé (Naturalia, Biocoop)</span></div>
+        <input type="number" value="21" min="1" style="width:60px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:'Manrope',sans-serif;text-align:center;background:var(--surface)">
+        <span class="edit-icon" style="color:var(--text3);cursor:pointer;display:inline-flex">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 80px 36px;padding:8px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:12px">
+        <div style="display:flex;align-items:center;gap:6px"><span class="b bm">CHR</span><span style="color:var(--text2)">Café / Hôtel / Restaurant</span></div>
+        <input type="number" value="14" min="1" style="width:60px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:'Manrope',sans-serif;text-align:center;background:var(--surface)">
+        <span class="edit-icon" style="color:var(--text3);cursor:pointer;display:inline-flex">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 80px 36px;padding:8px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:12px">
+        <div style="display:flex;align-items:center;gap:6px"><span class="b bc">Bureaux</span><span style="color:var(--text2)">Office wellness</span></div>
+        <input type="number" value="14" min="1" style="width:60px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:'Manrope',sans-serif;text-align:center;background:var(--surface)">
+        <span class="edit-icon" style="color:var(--text3);cursor:pointer;display:inline-flex">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 80px 36px;padding:8px 12px;align-items:center;font-size:12px">
+        <div style="display:flex;align-items:center;gap:6px"><span class="b" style="background:#F0E8D0;color:#7A5010">Animation</span><span style="color:var(--text2)">Dégustations / promo in-store</span></div>
+        <input type="number" value="7" min="1" style="width:60px;padding:4px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:'Manrope',sans-serif;text-align:center;background:var(--surface)">
+        <span class="edit-icon" style="color:var(--text3);cursor:pointer;display:inline-flex">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 2l3 3-7 7H2v-3L9 2z"/></svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top:10px">Toute modification sera enregistrée dans l'historique avec votre nom et horodatage.</div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-edit-produit')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-edit-produit')">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOUVEAU PRODUIT -->
+<div class="modal-backdrop" id="modal-new-produit">
+  <div class="modal" style="width:440px">
+    <h3>Nouveau produit</h3>
+    <div class="modal-sub">Ajouter au catalogue Yumi/Paf</div>
+    <div class="modal-label" style="margin-top:0">Type de produit</div>
+    <select style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+      <option>Consommable (avec DLC)</option>
+      <option>PLV / Goodies (sans DLC)</option>
+    </select>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+      <div>
+        <div class="modal-label" style="margin-top:0">Nom du produit</div>
+        <input type="text" placeholder="Ex: Jus mangue passion 25cl">
+      </div>
+      <div>
+        <div class="modal-label" style="margin-top:0">Référence</div>
+        <input type="text" placeholder="Ex: YP-MNG-25">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
+      <div>
+        <div class="modal-label" style="margin-top:0">Poids (kg)</div>
+        <input type="number" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <div class="modal-label" style="margin-top:0">Volume (L)</div>
+        <input type="number" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <div class="modal-label" style="margin-top:0">Équiv. Cyke</div>
+        <select style="width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+          <option>— Choisir —</option>
+          <option>Bouteille Yumi 237ml</option>
+          <option>Bouteille Yumi 60ml</option>
+          <option>Bouteille Yumi 500ml</option>
+          <option>Carton pack shots</option>
+          <option>Stand d'animation</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-new-produit')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-new-produit')">Créer le produit</button>
+    </div>
+  </div>
+</div>
+
+<!-- STOCK DLC FILTER (sub-modal appelé depuis nouvelle commande) -->
+<div class="modal-backdrop" id="modal-stock-dlc">
+  <div class="modal" style="width:540px">
+    <h3>Sélectionner le stock</h3>
+    <div class="modal-sub">Canal B2C · DLC minimum requise : +21 jours (aujourd'hui + 21j = 23/04/2026)</div>
+
+    <div style="background:var(--mint-p);border:1px solid #A8E8DC;border-radius:var(--radius);padding:8px 12px;font-size:11px;color:var(--mint-t);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="6"/><path d="M7 4v3.5L9 9"/></svg>
+      Stock en noir = conforme · Stock en gris = hors critère DLC (prix négocié possible)
+    </div>
+
+    <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="display:grid;grid-template-columns:24px 1fr 90px 70px 70px 70px;background:var(--bg);padding:6px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border)">
+        <div></div><div>Palette · Produit</div><div>DLC</div><div>Jours restants</div><div>Qté dispo</div><div>Statut</div>
+      </div>
+
+      <!-- Conforme -->
+      <div style="display:grid;grid-template-columns:24px 1fr 90px 70px 70px 70px;padding:9px 10px;border-bottom:1px solid var(--border);align-items:center;font-size:12px">
+        <input type="checkbox" checked>
+        <div>
+          <div style="font-weight:500">Jus betterave 33cl</div>
+          <div class="mono" style="color:var(--text3)">PAL-2026-0912</div>
+        </div>
+        <div class="mono">22/04/26</div>
+        <div style="font-weight:500;color:var(--mint-t)">+20j</div>
+        <div>432 u.</div>
+        <div><span class="b bm">Conforme</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:24px 1fr 90px 70px 70px 70px;padding:9px 10px;border-bottom:1px solid var(--border);align-items:center;font-size:12px">
+        <input type="checkbox">
+        <div>
+          <div style="font-weight:500">Shot gingembre 6cl</div>
+          <div class="mono" style="color:var(--text3)">PAL-2026-0944</div>
+        </div>
+        <div class="mono">30/04/26</div>
+        <div style="font-weight:500;color:var(--mint-t)">+28j</div>
+        <div>1200 u.</div>
+        <div><span class="b bm">Conforme</span></div>
+      </div>
+
+      <!-- Hors critère — grisé -->
+      <div style="display:grid;grid-template-columns:24px 1fr 90px 70px 70px 70px;padding:9px 10px;align-items:center;font-size:12px;opacity:.45" id="hors-critere-row">
+        <input type="checkbox" onchange="handleHorsCritere(this)">
+        <div>
+          <div style="font-weight:500">Jus pressé 25cl</div>
+          <div class="mono" style="color:var(--text3)">PAL-2026-0891</div>
+        </div>
+        <div class="mono" style="color:var(--coral-t)">08/04/26</div>
+        <div style="font-weight:500;color:var(--coral-t)">+6j</div>
+        <div>576 u.</div>
+        <div><span class="b br">Hors critère</span></div>
+      </div>
+    </div>
+
+    <div id="hors-critere-warning" style="display:none;margin-top:8px" class="warning-box">
+      <div style="font-weight:600;margin-bottom:4px">⚠ Stock hors critère DLC sélectionné</div>
+      <div style="font-size:11px">Ce stock expire le 08/04/2026 (+6j). Votre critère B2C requiert +21j. En confirmant, vous assumez la responsabilité de cette sélection. Cette exception sera enregistrée avec votre nom et horodatage.</div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="chk-responsabilite" style="width:auto">
+        <label for="chk-responsabilite" style="font-size:11px;cursor:pointer;font-weight:500;color:var(--amber-t)">Je confirme assumer la responsabilité de cette sélection</label>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-stock-dlc')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-stock-dlc')">Confirmer la sélection</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CONTACT -->
+<div class="modal-backdrop" id="modal-add-contact">
+  <div class="modal">
+    <h3>Ajouter un contact</h3>
+    <div class="modal-sub">Ce contact recevra les notifications selon les thématiques choisies</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <div class="modal-label" style="margin-top:0">Prénom</div>
+        <input type="text" placeholder="Prénom">
+      </div>
+      <div>
+        <div class="modal-label" style="margin-top:0">Nom</div>
+        <input type="text" placeholder="Nom">
+      </div>
+    </div>
+    <div class="modal-label">Fonction</div>
+    <input type="text" placeholder="Ex: Responsable logistique">
+    <div class="modal-label">Email</div>
+    <input type="email" placeholder="prenom@entreprise.fr">
+    <div class="modal-label">Téléphone</div>
+    <input type="tel" placeholder="+33 6 XX XX XX XX">
+    <div class="modal-label">Horaires de disponibilité</div>
+    <input type="text" placeholder="Ex: lun-ven 9h-18h">
+    <div class="modal-label">Thématiques de notification</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer"><input type="checkbox" checked> Réceptions</label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer"><input type="checkbox"> Stock</label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer"><input type="checkbox"> Commandes B2B/B2C</label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer"><input type="checkbox"> DLC / Alertes</label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer"><input type="checkbox"> SAV</label>
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer"><input type="checkbox"> Livraisons</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-add-contact')">Annuler</button>
+      <button class="btn primary" onclick="closeModal('modal-add-contact')">Ajouter le contact</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function handleHorsCritere(cb) {
+  const row = document.getElementById('hors-critere-row');
+  const warning = document.getElementById('hors-critere-warning');
+  const chkResp = document.getElementById('chk-responsabilite');
+  const dlcConfirmToggle = document.getElementById('toggle-dlc-confirm');
+  const confirmActive = dlcConfirmToggle ? dlcConfirmToggle.checked : true;
+
+  if (cb.checked) {
+    row.style.opacity = '1';
+    if (confirmActive && warning) {
+      warning.style.display = 'block';
+      if (chkResp) chkResp.checked = false;
+    } else if (!confirmActive) {
+      if (warning) warning.style.display = 'none';
+    }
+  } else {
+    row.style.opacity = '.45';
+    if (warning) warning.style.display = 'none';
+    if (chkResp) chkResp.checked = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const toggle = document.getElementById('toggle-dlc-confirm');
+  const offWarning = document.getElementById('dlc-confirm-off-warning');
+  if (toggle && offWarning) {
+    toggle.addEventListener('change', function() {
+      offWarning.style.display = this.checked ? 'none' : 'block';
+    });
+  }
+});
+
+const titles = {
+  dashboard: 'Vue d\'ensemble',
+  stock: 'Mon stock',
+  commandes: 'Commandes',
+  receptions: 'Réceptions',
+  expeditions: 'Expéditions',
+  sav: 'SAV / Tickets',
+  catalogue: 'Catalogue produits',
+  config: 'Configuration'
+};
+
+function navigate(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + page + "'")) {
+        n.classList.add('active');
+      }
+    });
+  }
+  document.getElementById('page-title').textContent = titles[page] || page;
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+let currentPrix = 1.00;
+let produits = [];
+
+function selectCutoff(el) {
+  document.querySelectorAll('.cutoff-btn').forEach(b => {
+    b.style.border = '1px solid var(--border)';
+    b.style.background = 'transparent';
+  });
+  el.style.border = '2px solid var(--cobalt)';
+  el.style.background = 'var(--cobalt-p)';
+  currentPrix = parseFloat(el.dataset.prix);
+  const cutoff = parseInt(el.dataset.cutoff);
+  updateSim();
+  const warning = document.getElementById('urgence-warning');
+  if (warning) warning.style.display = cutoff > 13 ? 'block' : 'none';
+}
+
+function addProduitToGrid() {
+  const select = document.getElementById('select-produit');
+  const qteInput = document.getElementById('input-qte-produit');
+  if (!select.value) return;
+  const [nom, unite] = select.value.split('|');
+  const qte = parseInt(qteInput.value) || 1;
+  const id = Date.now();
+  produits.push({ id, nom, unite, qte });
+  renderProduits();
+  updateSim();
+  closeModal('modal-add-produit');
+  select.value = '';
+  qteInput.value = 1;
+}
+
+function removeProduit(id) {
+  produits = produits.filter(p => p.id !== id);
+  renderProduits();
+  updateSim();
+}
+
+function renderProduits() {
+  const rows = document.getElementById('produits-rows');
+  if (!rows) return;
+  if (produits.length === 0) {
+    rows.innerHTML = '<div style="padding:16px;text-align:center;font-size:12px;color:var(--text3)">Aucun produit ajouté — cliquez sur "Ajouter un produit"</div>';
+    return;
+  }
+  rows.innerHTML = produits.map(p => `
+    <div style="display:grid;grid-template-columns:1fr 80px 70px 36px;padding:7px 10px;border-bottom:1px solid var(--border);align-items:center;font-size:12px">
+      <div style="font-weight:500">${p.nom}</div>
+      <div style="color:var(--text3)">${p.unite}</div>
+      <input type="number" value="${p.qte}" min="1"
+        onchange="updateQte(${p.id}, this.value)"
+        style="width:55px;padding:3px 6px;border:1px solid var(--border);border-radius:5px;font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text)">
+      <button onclick="removeProduit(${p.id})"
+        style="width:24px;height:24px;border:none;background:var(--coral-p);color:var(--coral-t);border-radius:5px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;padding:0">
+        ×
+      </button>
+    </div>
+  `).join('');
+}
+
+function updateQte(id, val) {
+  const p = produits.find(p => p.id === id);
+  if (p) { p.qte = parseInt(val) || 1; updateSim(); }
+}
+
+function updateSim() {
+  const total = produits.reduce((sum, p) => sum + p.qte, 0);
+  const cout = (total * currentPrix).toFixed(2).replace('.', ',');
+  const prixStr = currentPrix.toFixed(2).replace('.', ',');
+  const el = document.getElementById('sim-total');
+  const detail = document.getElementById('sim-detail');
+  const nudge = document.getElementById('sim-nudge');
+  if (el) el.textContent = cout + ' €';
+  if (detail) detail.textContent = total + ' items × ' + prixStr + ' €';
+  if (nudge) {
+    if (currentPrix > 1.00) {
+      const eco = ((currentPrix - 1.00) * total).toFixed(2).replace('.', ',');
+      nudge.style.display = 'block';
+      nudge.style.color = 'var(--amber-t)';
+      nudge.textContent = '⚠ En passant à Normal 13h vous économiseriez ' + eco + ' €';
+    } else if (currentPrix < 1.00) {
+      const eco = ((1.00 - currentPrix) * total).toFixed(2).replace('.', ',');
+      nudge.style.display = 'block';
+      nudge.style.color = 'var(--mint-t)';
+      nudge.textContent = '✓ Excellent ! Vous économisez ' + eco + ' € vs le créneau par défaut';
+    } else {
+      nudge.style.display = 'none';
+    }
+  }
+}
+
+function handleStockRadio(val) {
+  const info = document.getElementById('stock-asn-info');
+  if (info) info.style.display = val === 'non' ? 'block' : 'none';
+}
+
+document.querySelectorAll('.modal-backdrop').forEach(b => {
+  b.addEventListener('click', e => { if (e.target === b) b.classList.remove('open'); });
+});
+</script>
+</body>
+</html>

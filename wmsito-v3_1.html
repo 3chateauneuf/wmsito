@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WMSito — Cargonautes</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=Manrope:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F6F8;--surface:#FFFFFF;--border:#E4E7EC;--border-md:#CDD3DE;--text:#1C2330;--text2:#5A6478;--text3:#9BA8BC;--cobalt:#3B4FD8;--cobalt-p:#DDEAFF;--cobalt-t:#2B5AB8;--mint-p:#D6F5EF;--mint-t:#1A7A66;--coral-p:#FFE0E0;--coral-t:#B83838;--amber-p:#FFF0D6;--amber-t:#9A6010;--purple-p:#EDE8FF;--purple-t:#5040A0;--gray-p:#EEF0F4;--gray-t:#4A5568;--pink-p:#FFE4F2;--pink-t:#903060;--teal-p:#D6F0F8;--teal-t:#1A6880;--sb-bg:#FAFBFC;--sb-active-bg:#EEF2FF;--sb-active:#3B4FD8;--sb-text:#8492A6;--radius:8px;--radius-lg:11px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;height:100vh;overflow:hidden}
+h1,h2,h3,.section-title,.dialog-title,.kpi-val,.topbar-title,.logo-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:700}
+.app{display:flex;height:100vh}
+.sidebar{width:216px;min-width:216px;background:var(--sb-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.logo-area{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
+.logo-row{display:flex;align-items:center;gap:9px;margin-bottom:2px}
+.logo-icon{width:26px;height:26px;background:var(--sb-active-bg);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:14px;height:14px}
+.logo-name{font-size:15px;color:var(--text)}
+.logo-sub{font-size:10px;color:var(--text3);padding-left:35px}
+.nav-section{padding:14px 16px 4px;font-size:9px;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 16px;font-size:12px;font-weight:400;color:var(--sb-text);cursor:pointer;border-left:2px solid transparent;transition:all .12s;user-select:none}
+.nav-item:hover{background:#F0F2F7;color:var(--text)}
+.nav-item.active{background:var(--sb-active-bg);color:var(--sb-active);border-left-color:var(--sb-active);font-weight:600}
+.nav-ico{width:14px;height:14px;flex-shrink:0;opacity:.65}
+.nav-item.active .nav-ico{opacity:1}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--sb-active-bg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--sb-active);flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;flex-shrink:0}
+.topbar-title{font-size:17px;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:9px}
+.content{flex:1;overflow-y:auto;padding:20px 22px;background:var(--bg)}
+.page{display:none}.page.active{display:block}
+.section-title{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px 15px}
+.kpi-label{font-size:10px;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.kpi-val{font-size:28px;font-weight:700;line-height:1;color:var(--text)}
+.kpi-sub{font-size:10px;color:var(--text3);margin-top:3px}
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px 15px;margin-bottom:11px}
+.card-flush{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:11px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;font-family:'Manrope',sans-serif}
+.bc{background:var(--cobalt-p);color:var(--cobalt-t)}.bm{background:var(--mint-p);color:var(--mint-t)}.br{background:var(--coral-p);color:var(--coral-t)}.ba{background:var(--amber-p);color:var(--amber-t)}.bp{background:var(--purple-p);color:var(--purple-t)}.bg{background:var(--gray-p);color:var(--gray-t)}.bpk{background:var(--pink-p);color:var(--pink-t)}.bt{background:var(--teal-p);color:var(--teal-t)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius);font-size:11px;font-family:'Manrope',sans-serif;font-weight:600;cursor:pointer;border:1px solid var(--border-md);background:transparent;color:var(--text2);transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--bg)}
+.btn.primary{background:var(--cobalt);border-color:var(--cobalt);color:#fff}.btn.primary:hover{background:#2B3FC0}
+.btn.soft{background:var(--cobalt-p);border-color:#B8CEFF;color:var(--cobalt-t)}.btn.soft:hover{background:#C8DEFF}
+.btn.notify{background:var(--cobalt-p);border-color:#B8CEFF;color:var(--cobalt-t)}
+.btn.notify-urgent{background:var(--coral-p);border-color:#FFBCBC;color:var(--coral-t)}
+.btn.danger{background:var(--coral-p);border-color:#FFBCBC;color:var(--coral-t)}
+.btn.sm{padding:3px 9px;font-size:10px}
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:13px}
+.filter-bar input,.filter-bar select{padding:6px 10px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:11px;font-family:'Manrope',sans-serif;background:var(--surface);color:var(--text);outline:none}
+.filter-bar input{flex:1}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--cobalt)}
+.data-table{width:100%;border-collapse:collapse;font-size:12px}
+.data-table th{text-align:left;padding:8px 12px;font-size:10px;font-weight:600;color:var(--text3);background:var(--bg);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none;white-space:nowrap}
+.data-table th:hover{color:var(--text2)}
+.data-table th .sort-icon{margin-left:3px;opacity:.4;font-size:9px}
+.data-table th.sorted .sort-icon{opacity:1;color:var(--cobalt-t)}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover{background:#FAFBFD}
+.data-table td.dim{color:var(--text2)}.data-table td.mono{font-family:'DM Mono',monospace;font-size:11px}
+.row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.row:last-child{border-bottom:none;padding-bottom:0}
+.prep-day{margin-bottom:11px}
+.prep-day-header{display:flex;align-items:center;justify-content:space-between;background:var(--cobalt-p);color:var(--cobalt-t);padding:7px 12px;border-radius:var(--radius);font-size:11px;font-weight:600;cursor:pointer;user-select:none}
+.prep-day-header .chevron{transition:transform .2s;display:inline-block}
+.prep-day-header.collapsed .chevron{transform:rotate(-90deg)}
+.prep-day-body{overflow:hidden;transition:max-height .25s ease}
+.prep-day-body.collapsed{max-height:0!important}
+.prep-row{display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid var(--border);border-radius:var(--radius);margin-top:5px;font-size:11px;background:var(--surface);position:relative;transition:border-color .12s}
+.prep-row:hover{border-color:var(--border-md)}
+.prep-name{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text);cursor:default;position:relative}
+.prep-client{color:var(--text3);font-size:10px;min-width:65px}
+.prep-actions{margin-left:auto;display:flex;gap:4px;opacity:0;transition:opacity .15s}
+.prep-row:hover .prep-actions{opacity:1}
+.progress-bar{height:3px;background:var(--cobalt-p);border-radius:2px;width:55px;overflow:hidden;flex-shrink:0}
+.progress-fill{height:100%;background:var(--mint-t);border-radius:2px}
+.dropdown-wrap{position:relative;display:inline-block}
+.dropdown-menu{position:absolute;top:calc(100% + 4px);left:0;z-index:300;background:var(--surface);border:1px solid var(--border-md);border-radius:var(--radius-lg);padding:4px;min-width:150px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.dropdown-menu.open{display:block}
+.dropdown-item{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;color:var(--text2);transition:background .1s}
+.dropdown-item:hover{background:var(--bg);color:var(--text)}
+.dropdown-item .di-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.tooltip{position:absolute;z-index:200;background:var(--surface);border:1px solid var(--border-md);border-radius:var(--radius-lg);padding:11px 13px;font-size:11px;min-width:220px;pointer-events:none;top:calc(100% + 5px);left:0;box-shadow:0 4px 16px rgba(0,0,0,.08);display:none}
+.tooltip-title{font-weight:600;margin-bottom:7px;font-size:12px;color:var(--text)}
+.tooltip-row{display:flex;justify-content:space-between;gap:18px;padding:2px 0;border-bottom:1px solid var(--border)}
+.tooltip-row:last-child{border-bottom:none}
+.tooltip-row .tl{color:var(--text3)}.tooltip-row .tv{color:var(--text);font-weight:500}
+.ticket-item{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)}
+.ticket-item:last-child{border-bottom:none;padding-bottom:0}
+.ticket-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ticket-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.ticket-meta{font-size:10px;color:var(--text3)}
+.alr-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px}
+.alr-row:last-child{border-bottom:none}
+.notif-sent{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;color:var(--mint-t);background:var(--mint-p);border:1px solid #A8E8DC;padding:2px 8px;border-radius:20px;cursor:default;position:relative}
+.notif-tooltip{position:absolute;bottom:calc(100% + 5px);right:0;background:var(--surface);border:1px solid var(--border-md);border-radius:var(--radius);padding:8px 10px;font-size:10px;color:var(--text2);white-space:nowrap;display:none;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.08);line-height:1.6}
+.notif-sent:hover .notif-tooltip{display:block}
+.zone-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.zone-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:11px 13px}
+.zone-name{font-size:11px;font-weight:600;margin-bottom:3px;color:var(--text)}
+.zone-stat{font-size:10px;color:var(--text3)}
+.zone-bar{height:3px;background:var(--bg);border-radius:2px;margin-top:8px;overflow:hidden}
+.zone-fill{height:100%;border-radius:2px}
+.recap-header{display:flex;align-items:center;gap:6px;padding:5px 0 7px;border-bottom:1px solid var(--border-md);font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.recap-row{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.recap-row:last-child{border-bottom:none}
+.rc{flex:1;font-weight:600}.rv{width:70px;text-align:right;color:var(--text2)}.rv.bold{color:var(--text);font-weight:600}
+.cert-badges{display:flex;flex-wrap:wrap;gap:3px}
+.tabs{display:flex;margin-bottom:13px;border:1px solid var(--border-md);border-radius:var(--radius);overflow:hidden;width:fit-content}
+.tab{padding:6px 16px;font-size:11px;font-weight:500;font-family:'Manrope',sans-serif;cursor:pointer;color:var(--text2);background:var(--bg);border:none;transition:all .12s}
+.tab.active{background:var(--surface);color:var(--text);font-weight:600}
+.overlay{position:fixed;inset:0;z-index:500;background:rgba(28,35,48,.38);display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.dialog{background:var(--surface);border-radius:14px;padding:22px;width:380px;max-width:95vw;border:1px solid var(--border-md);box-shadow:0 8px 32px rgba(0,0,0,.10)}
+.dialog-title{font-size:16px;color:var(--text);margin-bottom:4px}
+.dialog-sub{font-size:11px;color:var(--text3);margin-bottom:14px}
+.dialog-label{font-size:9px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.dialog-msg{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:11px 12px;font-size:11px;color:var(--text);line-height:1.65;margin-bottom:14px;min-height:90px;font-family:'Manrope',sans-serif}
+.dialog-actions{display:flex;gap:8px;justify-content:flex-end}
+.dialog-field{width:100%;padding:7px 10px;margin-bottom:10px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:11px;font-family:'Manrope',sans-serif;background:var(--surface);color:var(--text);outline:none}
+.dialog-field:focus{border-color:var(--cobalt)}
+.dialog-select{width:100%;padding:7px 10px;margin-bottom:10px;border:1px solid var(--border-md);border-radius:var(--radius);font-size:11px;font-family:'Manrope',sans-serif;background:var(--surface);color:var(--text);outline:none}
+.anomalie-icon{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:5px;transition:background .12s}
+.anomalie-icon:hover{background:var(--coral-p)}
+.anomalie-icon.has-anomalie{background:var(--coral-p)}
+.inline-edit-btn{opacity:0;cursor:pointer;transition:opacity .12s;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px}
+.inline-edit-btn:hover{background:var(--cobalt-p)}
+tr:hover .inline-edit-btn{opacity:1}
+.destruction-record{background:var(--coral-p);border:1px solid #FFBCBC;border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;font-size:11px}
+.destruction-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;color:var(--coral-t);margin-bottom:4px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo-area">
+      <div class="logo-row">
+        <div class="logo-icon"><svg viewBox="0 0 14 14" fill="none" stroke="var(--sb-active)" stroke-width="1.5"><path d="M7 1L1 4.5v5L7 13l6-3.5v-5z"/><path d="M7 1v12M1 4.5l6 3.5 6-3.5"/></svg></div>
+        <span class="logo-name">WMSito</span>
+      </div>
+      <div class="logo-sub">Cargonautes · Entrepôt</div>
+    </div>
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="navigate('dashboard',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>Tableau de bord</div>
+    <div class="nav-item" onclick="navigate('reception',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4 7l3 3 3-3"/><path d="M2 12h10"/></svg>Réception</div>
+    <div class="nav-item" onclick="navigate('preparation',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="12" height="10" rx="1"/><path d="M1 6h12"/></svg>Préparation</div>
+    <div class="nav-item" onclick="navigate('expeditions',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 13V4M4 8l3-4 3 4"/><path d="M2 2h10"/></svg>Expéditions</div>
+    <div class="nav-section">Inventaire</div>
+    <div class="nav-item" onclick="navigate('stock',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="12" height="5" rx="1"/><rect x="2" y="4" width="10" height="4" rx="1"/><rect x="4" y="1" width="6" height="3" rx="1"/></svg>Stock & emplacements</div>
+    <div class="nav-item" onclick="navigate('inventaires',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 4h12M1 8h8M1 12h5"/><circle cx="11" cy="10" r="2.5"/><path d="M11 9v1l.7.7"/></svg>Inventaires</div>
+    <div class="nav-item" onclick="navigate('produits',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1L1 4.5v5L7 13l6-3.5v-5z"/><path d="M7 1v12M1 4.5l6 3.5 6-3.5"/></svg>Produits</div>
+    <div class="nav-section">Gestion</div>
+    <div class="nav-item" onclick="navigate('sav',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 9a2 2 0 01-2 2H3l-2 2V3a2 2 0 012-2h8a2 2 0 012 2z"/></svg>SAV / Tickets</div>
+    <div class="nav-item" onclick="navigate('rapports',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 10l3-3 2 2 4-5"/></svg>Rapports</div>
+    <div class="nav-item" onclick="navigate('clients',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="4" r="2.5"/><path d="M1 12c0-2.5 1.8-4 4-4s4 1.5 4 4"/><circle cx="11" cy="4" r="2"/><path d="M13 11c0-1.5-1-3-2-3.5"/></svg>Clients</div>
+    <div class="nav-item" onclick="navigate('transporteurs',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="5" width="9" height="7" rx="1"/><path d="M10 8h2l2 2v2h-4V8z"/><circle cx="3.5" cy="12" r="1.5"/><circle cx="11" cy="12" r="1.5"/></svg>Transporteurs</div>
+    <div class="nav-item" onclick="navigate('config',this)"><svg class="nav-ico" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="2"/><path d="M7 1v2M7 11v2M1 7h2M11 7h2M2.5 2.5l1.5 1.5M10 10l1.5 1.5M11.5 2.5L10 4M4 10l-1.5 1.5"/></svg>Configuration</div>
+    <div class="sidebar-footer">
+      <div class="user-avatar">AD</div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text2)">Administrateur</div><div style="font-size:10px;color:var(--text3)">Cargonautes</div></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Tableau de bord</div>
+      <div class="topbar-right">
+        <span class="badge br">3 tickets ouverts</span>
+        <span style="font-size:11px;color:var(--text3)">mercredi 2 avril 2026</span>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-label">Réceptions aujourd'hui</div><div class="kpi-val" style="color:var(--cobalt-t)">7</div><div class="kpi-sub">2 avec anomalie</div></div>
+          <div class="kpi"><div class="kpi-label">Préparations en cours</div><div class="kpi-val" style="color:var(--amber-t)">12</div><div class="kpi-sub">4 cutoff &lt;13h</div></div>
+          <div class="kpi"><div class="kpi-label">Expéditions du jour</div><div class="kpi-val" style="color:var(--mint-t)">9</div><div class="kpi-sub">1 en attente</div></div>
+          <div class="kpi"><div class="kpi-label">Tickets SAV ouverts</div><div class="kpi-val" style="color:var(--coral-t)">3</div><div class="kpi-sub">1 sans réponse +48h</div></div>
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="section-title">Planning préparations</div>
+            <div class="prep-day" id="day-0">
+              <div class="prep-day-header" onclick="toggleDay('day-0')"><span>Mercredi 2 avril — aujourd'hui</span><div style="display:flex;align-items:center;gap:8px"><span>4 préparations</span><span class="chevron">▾</span></div></div>
+              <div class="prep-day-body" style="max-height:300px">
+                <div class="prep-row">
+                  <div class="prep-name" onmouseenter="showTip('tip1')" onmouseleave="hideTip('tip1')">PREP-2026-142<div class="tooltip" id="tip1"><div class="tooltip-title">Commande #4521 — Yumi/Paf</div><div class="tooltip-row"><span class="tl">Livraison avant</span><span class="tv">13h00</span></div><div class="tooltip-row"><span class="tl">Destination</span><span class="tv">Paris 11e</span></div><div class="tooltip-row"><span class="tl">Contenu</span><span class="tv">Jus pressé ×90</span></div><div class="tooltip-row"><span class="tl">Poids total</span><span class="tv">27 kg</span></div><div class="tooltip-row"><span class="tl">Volume</span><span class="tv">0.08 m³</span></div><div class="tooltip-row"><span class="tl">Type</span><span class="tv">B2C · Frais</span></div></div></div>
+                  <div class="prep-client">Yumi/Paf</div>
+                  <div class="dropdown-wrap"><span class="badge bm" style="cursor:pointer" onclick="toggleDropdown('dd-s1')">Terminée ▾</span><div class="dropdown-menu" id="dd-s1"><div class="dropdown-item" onclick="setStatus('dd-s1',this,'bm')"><div class="di-dot" style="background:var(--mint-t)"></div>Terminée</div><div class="dropdown-item" onclick="setStatus('dd-s1',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>En cours</div><div class="dropdown-item" onclick="setStatus('dd-s1',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>En attente</div><div class="dropdown-item" onclick="setStatus('dd-s1',this,'br')"><div class="di-dot" style="background:var(--coral-t)"></div>Annulée</div></div></div>
+                  <div class="dropdown-wrap"><span class="badge bc" style="cursor:pointer" onclick="toggleDropdown('dd-c1')">Normal 13h ▾</span><div class="dropdown-menu" id="dd-c1"><div class="dropdown-item" onclick="setStatus('dd-c1',this,'bc')"><div class="di-dot" style="background:var(--cobalt-t)"></div>Normal 13h</div><div class="dropdown-item" onclick="setStatus('dd-c1',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>Premium 17h</div><div class="dropdown-item" onclick="setStatus('dd-c1',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>Sur place</div></div></div>
+                  <div class="prep-actions"><button class="btn sm soft">⎙ BL</button><button class="btn sm soft">⊞ Étiq.</button></div>
+                </div>
+                <div class="prep-row">
+                  <div class="prep-name" onmouseenter="showTip('tip2')" onmouseleave="hideTip('tip2')">PREP-2026-143<div class="tooltip" id="tip2"><div class="tooltip-title">Commande #4522 — Xoco</div><div class="tooltip-row"><span class="tl">Livraison avant</span><span class="tv">17h00</span></div><div class="tooltip-row"><span class="tl">Destination</span><span class="tv">Paris 3e</span></div><div class="tooltip-row"><span class="tl">Contenu</span><span class="tv">Chocolat 100g ×150</span></div><div class="tooltip-row"><span class="tl">Poids total</span><span class="tv">18 kg</span></div><div class="tooltip-row"><span class="tl">Volume</span><span class="tv">0.04 m³</span></div><div class="tooltip-row"><span class="tl">Type</span><span class="tv">B2B · Sec</span></div></div></div>
+                  <div class="prep-client">Xoco</div>
+                  <div class="dropdown-wrap"><span class="badge ba" style="cursor:pointer" onclick="toggleDropdown('dd-s2')">En cours ▾</span><div class="dropdown-menu" id="dd-s2"><div class="dropdown-item" onclick="setStatus('dd-s2',this,'bm')"><div class="di-dot" style="background:var(--mint-t)"></div>Terminée</div><div class="dropdown-item" onclick="setStatus('dd-s2',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>En cours</div><div class="dropdown-item" onclick="setStatus('dd-s2',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>En attente</div><div class="dropdown-item" onclick="setStatus('dd-s2',this,'br')"><div class="di-dot" style="background:var(--coral-t)"></div>Annulée</div></div></div>
+                  <div class="dropdown-wrap"><span class="badge ba" style="cursor:pointer" onclick="toggleDropdown('dd-c2')">Premium 17h ▾</span><div class="dropdown-menu" id="dd-c2"><div class="dropdown-item" onclick="setStatus('dd-c2',this,'bc')"><div class="di-dot" style="background:var(--cobalt-t)"></div>Normal 13h</div><div class="dropdown-item" onclick="setStatus('dd-c2',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>Premium 17h</div><div class="dropdown-item" onclick="setStatus('dd-c2',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>Sur place</div></div></div>
+                  <div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+                  <span style="font-size:10px;color:var(--text3)">45%</span>
+                  <div class="prep-actions"><button class="btn sm soft">⎙ BL</button><button class="btn sm soft">⊞ Étiq.</button></div>
+                </div>
+                <div class="prep-row">
+                  <div class="prep-name" onmouseenter="showTip('tip3')" onmouseleave="hideTip('tip3')">PREP-2026-144<div class="tooltip" id="tip3"><div class="tooltip-title">Commande #4523 — Wil's Déli</div><div class="tooltip-row"><span class="tl">Livraison avant</span><span class="tv">13h00</span></div><div class="tooltip-row"><span class="tl">Destination</span><span class="tv">Paris 9e</span></div><div class="tooltip-row"><span class="tl">Contenu</span><span class="tv">Pastrami 200g ×40</span></div><div class="tooltip-row"><span class="tl">Poids total</span><span class="tv">9 kg</span></div><div class="tooltip-row"><span class="tl">Volume</span><span class="tv">0.02 m³</span></div><div class="tooltip-row"><span class="tl">Type</span><span class="tv">B2C · Frais</span></div></div></div>
+                  <div class="prep-client">Wil's Déli</div>
+                  <div class="dropdown-wrap"><span class="badge bg" style="cursor:pointer" onclick="toggleDropdown('dd-s3')">En attente ▾</span><div class="dropdown-menu" id="dd-s3"><div class="dropdown-item" onclick="setStatus('dd-s3',this,'bm')"><div class="di-dot" style="background:var(--mint-t)"></div>Terminée</div><div class="dropdown-item" onclick="setStatus('dd-s3',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>En cours</div><div class="dropdown-item" onclick="setStatus('dd-s3',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>En attente</div><div class="dropdown-item" onclick="setStatus('dd-s3',this,'br')"><div class="di-dot" style="background:var(--coral-t)"></div>Annulée</div></div></div>
+                  <div class="dropdown-wrap"><span class="badge bc" style="cursor:pointer" onclick="toggleDropdown('dd-c3')">Normal 13h ▾</span><div class="dropdown-menu" id="dd-c3"><div class="dropdown-item" onclick="setStatus('dd-c3',this,'bc')"><div class="di-dot" style="background:var(--cobalt-t)"></div>Normal 13h</div><div class="dropdown-item" onclick="setStatus('dd-c3',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>Premium 17h</div><div class="dropdown-item" onclick="setStatus('dd-c3',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>Sur place</div></div></div>
+                  <div class="prep-actions"><button class="btn sm soft">⎙ BL</button><button class="btn sm soft">⊞ Étiq.</button></div>
+                </div>
+              </div>
+            </div>
+            <div class="prep-day" id="day-1">
+              <div class="prep-day-header collapsed" onclick="toggleDay('day-1')"><span>Jeudi 3 avril</span><div style="display:flex;align-items:center;gap:8px"><span>5 préparations</span><span class="chevron" style="transform:rotate(-90deg)">▾</span></div></div>
+              <div class="prep-day-body collapsed" style="max-height:0">
+                <div class="prep-row"><div class="prep-name">PREP-2026-150</div><div class="prep-client">Yumi/Paf</div><span class="badge bg">En attente</span><span class="badge bc">Normal 13h</span><div class="prep-actions"><button class="btn sm soft">⎙ BL</button></div></div>
+                <div class="prep-row"><div class="prep-name">PREP-2026-151</div><div class="prep-client">Re-belle</div><span class="badge bg">En attente</span><span class="badge bg">Sur place</span></div>
+              </div>
+            </div>
+            <div class="prep-day" id="day-2">
+              <div class="prep-day-header collapsed" onclick="toggleDay('day-2')"><span>Vendredi 4 avril</span><div style="display:flex;align-items:center;gap:8px"><span>3 préparations</span><span class="chevron" style="transform:rotate(-90deg)">▾</span></div></div>
+              <div class="prep-day-body collapsed" style="max-height:0">
+                <div class="prep-row"><div class="prep-name">PREP-2026-158</div><div class="prep-client">Lemon Tri</div><span class="badge bg">En attente</span><span class="badge bc">Normal 13h</span></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="section-title">Tickets SAV ouverts</div>
+            <div class="card">
+              <div class="ticket-item"><div class="ticket-dot" style="background:var(--coral-t)"></div><div style="flex:1"><div class="ticket-title">Carton éclaté — PAL-2026-0891</div><div class="ticket-meta">Yumi/Paf · STEF · 52h · sans réponse client</div></div><span class="badge br">Urgent</span></div>
+              <div class="ticket-item"><div class="ticket-dot" style="background:var(--amber-t)"></div><div><div class="ticket-title">Température non conforme à réception</div><div class="ticket-meta">Wil's Déli · STG · 18h · en cours</div></div></div>
+              <div class="ticket-item"><div class="ticket-dot" style="background:var(--amber-t)"></div><div><div class="ticket-title">Quantité reçue &lt; ASN déclaré</div><div class="ticket-meta">Xoco · STEF · 6h · nouveau</div></div></div>
+            </div>
+            <div class="section-title" style="margin-top:4px">Alertes DLC</div>
+            <div class="card">
+              <div class="alr-row">
+                <div style="flex:1;font-weight:600;font-size:12px">Jus pressé Yumi/Paf</div>
+                <span class="badge br">8 jours</span>
+                <button class="btn sm notify-urgent" onclick="openNotifDialog('Jus pressé 25cl','Yumi/Paf','Alexandra GUIGNARD','8 jours','08/04/2026')">Notifier client</button>
+              </div>
+              <div class="alr-row">
+                <div style="flex:1;font-weight:600;font-size:12px">Pastrami Wil's Déli</div>
+                <span class="badge ba">14 jours</span>
+                <button class="btn sm notify" onclick="openNotifDialog('Pastrami 200g','Wil\'s Déli','Thibault Sempéré','14 jours','16/04/2026')">Notifier client</button>
+              </div>
+              <div class="alr-row">
+                <div style="flex:1;font-weight:600;font-size:12px">Chocolat Xoco</div>
+                <span class="badge ba">21 jours</span>
+                <div class="notif-sent"><svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="12" height="9" rx="1"/><path d="M1 3l6 5 6-5"/></svg>Envoyé<div class="notif-tooltip">Envoyé le 01/04/2026 à 09h14<br>Par : Sophie Bernard</div></div>
+              </div>
+            </div>
+            <div class="section-title" style="margin-top:4px">Destruction récente</div>
+            <div class="destruction-record">
+              <div class="destruction-title">Destruction enregistrée</div>
+              <div style="color:var(--coral-t);line-height:1.7"><strong>Produit :</strong> Jus pressé 25cl — Yumi/Paf<br><strong>Quand :</strong> 25/03/2026 à 14h32<br><strong>Qui :</strong> Antoine Greneche<br><strong>Comment :</strong> Déchets alimentaires<br><strong>Autorisé par :</strong> Alexandra GUIGNARD (email 20/03)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECEPTION -->
+      <div class="page" id="page-reception">
+        <div class="filter-bar">
+          <input type="text" placeholder="Rechercher client, transporteur...">
+          <select><option>Tous les statuts</option><option>Entrée</option><option>Sortie</option></select>
+          <select><option>Tous les clients</option><option>Yumi/Paf</option><option>Xoco</option></select>
+          <button class="btn primary" style="margin-left:auto">+ Nouvelle réception</button>
+        </div>
+        <div class="card-flush">
+          <table class="data-table" id="table-reception">
+            <thead><tr><th onclick="sortTable('table-reception',0)">Date <span class="sort-icon">↕</span></th><th onclick="sortTable('table-reception',1)">Client <span class="sort-icon">↕</span></th><th onclick="sortTable('table-reception',2)">Transporteur <span class="sort-icon">↕</span></th><th>Palettes</th><th>EUR reçues</th><th>EUR rendues</th><th>Type</th><th>État</th><th>Anomalie</th><th>Agent</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="mono">01/04/26</td><td style="font-weight:600">Yumi/Paf</td><td class="dim">STEF</td><td>3</td><td>3</td><td>3</td><td><span class="badge bc">Frais</span></td><td><span class="badge bm">Entrée</span></td><td><div class="anomalie-icon has-anomalie" onclick="openAnomalieView('Yumi/Paf','01/04/26','Carton éclaté à réception — palette #2 endommagée. Signalé sur CMR transporteur.')"><svg width="14" height="14" viewBox="0 0 14 14" fill="var(--coral-t)"><path d="M7 1.5L1 12.5h12L7 1.5zm0 3.2L10.8 11.5H3.2L7 4.7zM6.5 7h1v2h-1zm0 2.8h1v1h-1z"/></svg></div></td><td class="dim">Sophie B.</td><td><span class="inline-edit-btn" onclick="openEditReception('Yumi/Paf','01/04/26')"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="var(--cobalt-t)" stroke-width="1.5"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/></svg></span></td></tr>
+              <tr><td class="mono">01/04/26</td><td style="font-weight:600">Re-belle</td><td class="dim">Chronofresh</td><td>4</td><td>4</td><td>4</td><td><span class="badge bp">BIO</span></td><td><span class="badge bm">Entrée</span></td><td><div class="anomalie-icon" onclick="openAnomalieForm('Re-belle','01/04/26')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--text3)" stroke-width="1.2"><path d="M7 1.5L1 12.5h12L7 1.5z"/><path d="M7 6v2.5M7 10v.5"/></svg></div></td><td class="dim">Antoine G.</td><td><span class="inline-edit-btn" onclick="openEditReception('Re-belle','01/04/26')"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="var(--cobalt-t)" stroke-width="1.5"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/></svg></span></td></tr>
+              <tr><td class="mono">01/04/26</td><td style="font-weight:600">Xoco</td><td class="dim">STEF</td><td>2</td><td>2</td><td>2</td><td><span class="badge bg">Sec</span></td><td><span class="badge ba">Sortie</span></td><td><div class="anomalie-icon" onclick="openAnomalieForm('Xoco','01/04/26')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--text3)" stroke-width="1.2"><path d="M7 1.5L1 12.5h12L7 1.5z"/><path d="M7 6v2.5M7 10v.5"/></svg></div></td><td class="dim">Marc D.</td><td><span class="inline-edit-btn" onclick="openEditReception('Xoco','01/04/26')"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="var(--cobalt-t)" stroke-width="1.5"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/></svg></span></td></tr>
+              <tr><td class="mono">31/03/26</td><td style="font-weight:600">Wil's Déli</td><td class="dim">STG</td><td>1</td><td>1</td><td>1</td><td><span class="badge bc">Frais</span></td><td><span class="badge bm">Entrée</span></td><td><div class="anomalie-icon has-anomalie" onclick="openAnomalieView('Wil\'s Déli','31/03/26','Température hors norme : 6.8°C relevé, seuil max 4°C. Signalé sur documents transporteur.')"><svg width="14" height="14" viewBox="0 0 14 14" fill="var(--coral-t)"><path d="M7 1.5L1 12.5h12L7 1.5zm0 3.2L10.8 11.5H3.2L7 4.7zM6.5 7h1v2h-1zm0 2.8h1v1h-1z"/></svg></div></td><td class="dim">Antoine G.</td><td><span class="inline-edit-btn" onclick="openEditReception('Wil\'s Déli','31/03/26')"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="var(--cobalt-t)" stroke-width="1.5"><path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/></svg></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:14px"><div class="section-title">ASN — Réceptions attendues</div><div class="card-flush"><table class="data-table"><thead><tr><th>Client</th><th>Date prévue</th><th>Palettes att.</th><th>EUR att.</th><th>Origine</th><th>Statut</th></tr></thead><tbody><tr><td style="font-weight:600">Yumi/Paf</td><td class="mono">02/04/26</td><td>5</td><td>5</td><td><span class="badge bc">Import CSV</span></td><td><span class="badge ba">En attente</span></td></tr><tr><td style="font-weight:600">Lemon Tri</td><td class="mono">03/04/26</td><td>2</td><td>2</td><td><span class="badge bg">Manuel</span></td><td><span class="badge ba">En attente</span></td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- INVENTAIRES -->
+      <div class="page" id="page-inventaires">
+
+        <!-- KPIs -->
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+          <div class="kpi">
+            <div class="kpi-label">Inventaires ce mois</div>
+            <div class="kpi-val" style="color:var(--cobalt-t)">7</div>
+            <div class="kpi-sub">5 ciblés · 2 tournants</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Écarts détectés</div>
+            <div class="kpi-val" style="color:var(--amber-t)">3</div>
+            <div class="kpi-sub">2 ajustés · 1 en attente</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">En cours</div>
+            <div class="kpi-val" style="color:var(--mint-t)">1</div>
+            <div class="kpi-sub">Yumi/Paf · Antoine G.</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Facturé ce mois</div>
+            <div class="kpi-val" style="color:var(--text);font-size:22px">94 €</div>
+            <div class="kpi-sub">5 × 15€ + 1 TH × 19€</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="display:flex;gap:8px">
+            <div class="filter-bar" style="margin-bottom:0">
+              <select><option>Tous les clients</option><option>Yumi / Paf</option><option>Xoco</option><option>Re-belle</option></select>
+              <select><option>Tous les types</option><option>Ciblé</option><option>Tournant</option><option>Annuel</option></select>
+              <select><option>Tous les statuts</option><option>En cours</option><option>Terminé</option><option>Écart en attente</option></select>
+            </div>
+          </div>
+          <div style="display:flex;gap:7px">
+            <button class="btn soft" onclick="openOverlay('overlay-inv-tournant')">+ Inventaire tournant</button>
+            <button class="btn primary" onclick="openOverlay('overlay-inv-cible')">+ Vérification ciblée</button>
+          </div>
+        </div>
+
+        <!-- INVENTAIRE EN COURS -->
+        <div class="section-title">En cours</div>
+        <div class="card" style="border-color:var(--cobalt);border-width:1.5px;margin-bottom:14px">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+            <div>
+              <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:15px">INV-2026-007 — Vérification ciblée</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:2px">Yumi/Paf · Amour BIO 240ml · Zone CF2 · PAL-2026-0893</div>
+            </div>
+            <span class="badge bc">En cours</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;background:var(--bg);border-radius:var(--radius);padding:10px 12px;margin-bottom:10px;font-size:12px">
+            <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px">Stock théorique</div><div style="font-weight:700;font-size:16px">288 u.</div></div>
+            <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px">PAV comptés</div><div style="font-weight:700;font-size:16px;color:var(--cobalt-t)">22 PAV</div></div>
+            <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px">Unités ouvertes</div><div style="font-weight:700;font-size:16px;color:var(--cobalt-t)">—</div></div>
+            <div><div style="font-size:10px;color:var(--text3);margin-bottom:2px">Agent</div><div style="font-weight:700;font-size:13px">Antoine G.</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Démarré à 14h32 · 12 min en cours · Lot 6 013 078 · DLC 18/03/2026</div>
+          <div style="display:flex;gap:7px">
+            <button class="btn sm soft">Voir le détail</button>
+            <button class="btn sm danger">Signaler un écart</button>
+          </div>
+        </div>
+
+        <!-- HISTORIQUE -->
+        <div class="section-title">Historique — avril 2026</div>
+        <div class="card-flush">
+          <table class="data-table" id="table-inv">
+            <thead>
+              <tr>
+                <th onclick="sortTable('table-inv',0)">N° <span class="sort-icon">↕</span></th>
+                <th onclick="sortTable('table-inv',1)">Date <span class="sort-icon">↕</span></th>
+                <th>Client</th>
+                <th>Type</th>
+                <th>Portée</th>
+                <th>Stock WMS</th>
+                <th>Comptage</th>
+                <th>Écart</th>
+                <th>Agent</th>
+                <th>Facturé</th>
+                <th>Statut</th>
+                <th style="width:30px"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">INV-2026-006</td>
+                <td class="mono">01/04/26</td>
+                <td style="font-weight:600">Yumi/Paf</td>
+                <td><span class="badge bc">Ciblé</span></td>
+                <td style="font-size:11px;color:var(--text2)">Force BIO 240ml · CF2</td>
+                <td>432 u.</td>
+                <td>432 u.</td>
+                <td><span class="badge bm">0</span></td>
+                <td class="dim">Sophie B.</td>
+                <td class="mono">15,00 €</td>
+                <td><span class="badge bm">Clôturé</span></td>
+                <td><span class="inline-edit-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="var(--cobalt-t)" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 5v2l1 1"/></svg></span></td>
+              </tr>
+              <tr>
+                <td class="mono">INV-2026-005</td>
+                <td class="mono">31/03/26</td>
+                <td style="font-weight:600">Yumi/Paf</td>
+                <td><span class="badge bp">Tournant</span></td>
+                <td style="font-size:11px;color:var(--text2)">Zone CF2 — complète</td>
+                <td>1 840 u.</td>
+                <td>1 821 u.</td>
+                <td><span class="badge br">−19 u.</span></td>
+                <td class="dim">Antoine G.</td>
+                <td class="mono">57,00 €</td>
+                <td><span class="badge ba">Écart en attente</span></td>
+                <td><button class="btn sm danger" onclick="openOverlay('overlay-ecart')">Ajuster</button></td>
+              </tr>
+              <tr>
+                <td class="mono">INV-2026-004</td>
+                <td class="mono">28/03/26</td>
+                <td style="font-weight:600">Xoco</td>
+                <td><span class="badge bc">Ciblé</span></td>
+                <td style="font-size:11px;color:var(--text2)">MR621C 10kg · Z-SEC</td>
+                <td>80 u.</td>
+                <td>82 u.</td>
+                <td><span class="badge ba">+2 u.</span></td>
+                <td class="dim">Marc D.</td>
+                <td class="mono">15,00 €</td>
+                <td><span class="badge bm">Ajusté</span></td>
+                <td><span class="inline-edit-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="var(--cobalt-t)" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 5v2l1 1"/></svg></span></td>
+              </tr>
+              <tr>
+                <td class="mono">INV-2026-003</td>
+                <td class="mono">25/03/26</td>
+                <td style="font-weight:600">Yumi/Paf</td>
+                <td><span class="badge bc">Ciblé</span></td>
+                <td style="font-size:11px;color:var(--text2)">Shot gingembre 6cl · Z-SEC</td>
+                <td>1200 u.</td>
+                <td>1200 u.</td>
+                <td><span class="badge bm">0</span></td>
+                <td class="dim">Sophie B.</td>
+                <td class="mono">15,00 €</td>
+                <td><span class="badge bm">Clôturé</span></td>
+                <td><span class="inline-edit-btn"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="var(--cobalt-t)" stroke-width="1.5"><circle cx="7" cy="7" r="5"/><path d="M7 5v2l1 1"/></svg></span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- VUE STOCK DYNAMIQUE -->
+        <div style="margin-top:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+            <div class="section-title" style="margin-bottom:0">Vue stock dynamique — Yumi/Paf · semaine 14</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn sm" style="font-weight:600;background:var(--cobalt-p);border-color:#B8CEFF;color:var(--cobalt-t)">Hebdo</button>
+              <button class="btn sm">Mensuel</button>
+              <button class="btn sm">⎙ PV PDF</button>
+            </div>
+          </div>
+          <div class="card-flush">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Référence</th>
+                  <th>Lot</th>
+                  <th>DLC</th>
+                  <th>Stock déb. sem.</th>
+                  <th>+ Entrées</th>
+                  <th>− Sorties</th>
+                  <th>± Ajust.</th>
+                  <th>Stock fin sem.</th>
+                  <th>Alerte</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:600">Amour BIO 240ml</td>
+                  <td class="mono">6 013 078</td>
+                  <td class="mono" style="color:var(--amber-t)">18/03/26</td>
+                  <td>432</td>
+                  <td style="color:var(--mint-t)">+0</td>
+                  <td style="color:var(--coral-t)">−36</td>
+                  <td>—</td>
+                  <td style="font-weight:700">396</td>
+                  <td><span class="badge ba">DLC −12j</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600">Force BIO 240ml</td>
+                  <td class="mono">6 013 074</td>
+                  <td class="mono">18/03/26</td>
+                  <td>432</td>
+                  <td style="color:var(--mint-t)">+0</td>
+                  <td style="color:var(--coral-t)">−24</td>
+                  <td>—</td>
+                  <td style="font-weight:700">408</td>
+                  <td><span class="badge bm">OK</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600">Shot gingembre 6cl</td>
+                  <td class="mono">6 025 110</td>
+                  <td class="mono">30/04/26</td>
+                  <td>1200</td>
+                  <td style="color:var(--mint-t)">+0</td>
+                  <td style="color:var(--coral-t)">−180</td>
+                  <td>—</td>
+                  <td style="font-weight:700">1020</td>
+                  <td><span class="badge bm">OK</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600">Jus pressé 25cl</td>
+                  <td class="mono">5 363 153</td>
+                  <td class="mono" style="color:var(--coral-t)">08/04/26</td>
+                  <td>576</td>
+                  <td style="color:var(--mint-t)">+0</td>
+                  <td style="color:var(--coral-t)">−60</td>
+                  <td>—</td>
+                  <td style="font-weight:700">516</td>
+                  <td><span class="badge br">DLC −6j ⚠</span></td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600">Jus betterave 33cl</td>
+                  <td class="mono">5 364 094</td>
+                  <td class="mono">22/04/26</td>
+                  <td>432</td>
+                  <td style="color:var(--mint-t)">+288</td>
+                  <td style="color:var(--coral-t)">−60</td>
+                  <td style="color:var(--amber-t)">−19</td>
+                  <td style="font-weight:700">641</td>
+                  <td><span class="badge bm">OK</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-top:6px">Calculé automatiquement depuis les mouvements réels WMSito · Dernière mise à jour : 02/04/2026 16:45</div>
+        </div>
+      </div>
+      <div class="page" id="page-preparation">
+        <div class="filter-bar">
+          <input type="text" placeholder="Rechercher numéro ou code-barres...">
+          <select><option>Tous les statuts</option><option>En attente</option><option>En cours</option><option>Terminée</option><option>Annulée</option></select>
+          <select><option>Tous les cutoffs</option><option>Premium 17h</option><option>Normal 13h</option><option>Sur place</option></select>
+          <select><option>Tous les clients</option><option>Yumi/Paf</option><option>Xoco</option></select>
+          <button class="btn primary" style="margin-left:auto">+ Nouvelle préparation</button>
+        </div>
+        <div class="prep-day" id="pday-0">
+          <div class="prep-day-header" onclick="toggleDay('pday-0')"><span>Mercredi 2 avril — aujourd'hui</span><div style="display:flex;align-items:center;gap:8px"><span>4 préparations</span><span class="chevron">▾</span></div></div>
+          <div class="prep-day-body" style="max-height:400px">
+            <div class="prep-row">
+              <div class="prep-name" onmouseenter="showTip('pt1')" onmouseleave="hideTip('pt1')">PREP-2026-142<div class="tooltip" id="pt1"><div class="tooltip-title">Commande #4521 — Yumi/Paf</div><div class="tooltip-row"><span class="tl">Livraison avant</span><span class="tv">13h00</span></div><div class="tooltip-row"><span class="tl">Contenu</span><span class="tv">Jus pressé ×90</span></div><div class="tooltip-row"><span class="tl">Poids</span><span class="tv">27 kg</span></div><div class="tooltip-row"><span class="tl">Durée réelle</span><span class="tv">23 min</span></div></div></div>
+              <div class="prep-client">Yumi/Paf</div>
+              <div class="dropdown-wrap"><span class="badge bm" style="cursor:pointer" onclick="toggleDropdown('pp-s1')">Terminée ▾</span><div class="dropdown-menu" id="pp-s1"><div class="dropdown-item" onclick="setStatus('pp-s1',this,'bm')"><div class="di-dot" style="background:var(--mint-t)"></div>Terminée</div><div class="dropdown-item" onclick="setStatus('pp-s1',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>En cours</div><div class="dropdown-item" onclick="setStatus('pp-s1',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>En attente</div><div class="dropdown-item" onclick="setStatus('pp-s1',this,'br')"><div class="di-dot" style="background:var(--coral-t)"></div>Annulée</div></div></div>
+              <div class="dropdown-wrap"><span class="badge bc" style="cursor:pointer" onclick="toggleDropdown('pp-c1')">Normal 13h ▾</span><div class="dropdown-menu" id="pp-c1"><div class="dropdown-item" onclick="setStatus('pp-c1',this,'bc')"><div class="di-dot" style="background:var(--cobalt-t)"></div>Normal 13h</div><div class="dropdown-item" onclick="setStatus('pp-c1',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>Premium 17h</div><div class="dropdown-item" onclick="setStatus('pp-c1',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>Sur place</div></div></div>
+              <span style="font-size:10px;color:var(--text3)">Sophie B. · 23 min</span>
+              <div class="prep-actions"><button class="btn sm soft">⎙ BL</button><button class="btn sm soft">⊞ Étiq.</button></div>
+            </div>
+            <div class="prep-row">
+              <div class="prep-name">PREP-2026-143</div><div class="prep-client">Xoco</div>
+              <div class="dropdown-wrap"><span class="badge ba" style="cursor:pointer" onclick="toggleDropdown('pp-s2')">En cours ▾</span><div class="dropdown-menu" id="pp-s2"><div class="dropdown-item" onclick="setStatus('pp-s2',this,'bm')"><div class="di-dot" style="background:var(--mint-t)"></div>Terminée</div><div class="dropdown-item" onclick="setStatus('pp-s2',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>En cours</div><div class="dropdown-item" onclick="setStatus('pp-s2',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>En attente</div><div class="dropdown-item" onclick="setStatus('pp-s2',this,'br')"><div class="di-dot" style="background:var(--coral-t)"></div>Annulée</div></div></div>
+              <div class="dropdown-wrap"><span class="badge ba" style="cursor:pointer" onclick="toggleDropdown('pp-c2')">Premium 17h ▾</span><div class="dropdown-menu" id="pp-c2"><div class="dropdown-item" onclick="setStatus('pp-c2',this,'bc')"><div class="di-dot" style="background:var(--cobalt-t)"></div>Normal 13h</div><div class="dropdown-item" onclick="setStatus('pp-c2',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>Premium 17h</div><div class="dropdown-item" onclick="setStatus('pp-c2',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>Sur place</div></div></div>
+              <div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+              <span style="font-size:10px;color:var(--text3)">90/150 items</span>
+              <div class="prep-actions"><button class="btn sm soft">⎙ BL</button><button class="btn sm soft">⊞ Étiq.</button></div>
+            </div>
+            <div class="prep-row">
+              <div class="prep-name">PREP-2026-144</div><div class="prep-client">Wil's Déli</div>
+              <div class="dropdown-wrap"><span class="badge bg" style="cursor:pointer" onclick="toggleDropdown('pp-s3')">En attente ▾</span><div class="dropdown-menu" id="pp-s3"><div class="dropdown-item" onclick="setStatus('pp-s3',this,'bm')"><div class="di-dot" style="background:var(--mint-t)"></div>Terminée</div><div class="dropdown-item" onclick="setStatus('pp-s3',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>En cours</div><div class="dropdown-item" onclick="setStatus('pp-s3',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>En attente</div><div class="dropdown-item" onclick="setStatus('pp-s3',this,'br')"><div class="di-dot" style="background:var(--coral-t)"></div>Annulée</div></div></div>
+              <div class="dropdown-wrap"><span class="badge bc" style="cursor:pointer" onclick="toggleDropdown('pp-c3')">Normal 13h ▾</span><div class="dropdown-menu" id="pp-c3"><div class="dropdown-item" onclick="setStatus('pp-c3',this,'bc')"><div class="di-dot" style="background:var(--cobalt-t)"></div>Normal 13h</div><div class="dropdown-item" onclick="setStatus('pp-c3',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>Premium 17h</div><div class="dropdown-item" onclick="setStatus('pp-c3',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>Sur place</div></div></div>
+              <span style="font-size:10px;color:var(--text3)">Non assigné</span>
+              <div class="prep-actions"><button class="btn sm soft">⎙ BL</button><button class="btn sm soft">⊞ Étiq.</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="prep-day" id="pday-1">
+          <div class="prep-day-header collapsed" onclick="toggleDay('pday-1')"><span>Jeudi 3 avril</span><div style="display:flex;align-items:center;gap:8px"><span>5 préparations</span><span class="chevron" style="transform:rotate(-90deg)">▾</span></div></div>
+          <div class="prep-day-body collapsed" style="max-height:0">
+            <div class="prep-row"><div class="prep-name">PREP-2026-150</div><div class="prep-client">Yumi/Paf</div><span class="badge bg">En attente</span><span class="badge bc">Normal 13h</span></div>
+            <div class="prep-row"><div class="prep-name">PREP-2026-151</div><div class="prep-client">Re-belle</div><span class="badge bg">En attente</span><span class="badge bg">Sur place</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXPEDITIONS -->
+      <div class="page" id="page-expeditions">
+        <div class="filter-bar"><input type="text" placeholder="Rechercher numéro, transporteur, tracking..."><select><option>Tous les statuts</option><option>Créé</option><option>Expédié</option><option>Anomalie</option></select><button class="btn primary" style="margin-left:auto">+ Nouvelle expédition</button></div>
+        <div class="card-flush"><table class="data-table" id="table-exp"><thead><tr><th onclick="sortTable('table-exp',0)">Numéro <span class="sort-icon">↕</span></th><th onclick="sortTable('table-exp',1)">Client <span class="sort-icon">↕</span></th><th>Transporteur</th><th onclick="sortTable('table-exp',3)">Date <span class="sort-icon">↕</span></th><th>Palettes</th><th>Poids</th><th>Type</th><th>Statut</th></tr></thead><tbody><tr><td class="mono">SHIP-4926572989</td><td style="font-weight:600">Organic Solutions</td><td class="dim">STEF Paris</td><td class="mono">02/04/26</td><td>2 EUR</td><td>235 kg</td><td><span class="badge bp">BIO</span></td><td><span class="badge bc">Créé</span></td></tr><tr><td class="mono">SHIP-4926572801</td><td style="font-weight:600">Yumi/Paf</td><td class="dim">Chronofresh</td><td class="mono">01/04/26</td><td>4 EUR</td><td>412 kg</td><td><span class="badge bc">Frais</span></td><td><span class="badge bm">Expédié</span></td></tr><tr><td class="mono">SHIP-4926572756</td><td style="font-weight:600">Xoco</td><td class="dim">STEF</td><td class="mono">31/03/26</td><td>1 EUR</td><td>180 kg</td><td><span class="badge bg">Sec</span></td><td><span class="badge br">Anomalie</span></td></tr></tbody></table></div>
+      </div>
+
+      <!-- STOCK -->
+      <div class="page" id="page-stock">
+        <div class="zone-grid">
+          <div class="zone-card"><div class="zone-name">CF2 — Stockage</div><div class="zone-stat">41 palettes · 70.5 m²</div><div class="zone-bar"><div class="zone-fill" style="width:82%;background:var(--cobalt-t)"></div></div></div>
+          <div class="zone-card"><div class="zone-name">Zone BIO</div><div class="zone-stat">12 palettes · certif. BIO</div><div class="zone-bar"><div class="zone-fill" style="width:60%;background:var(--purple-t)"></div></div></div>
+          <div class="zone-card"><div class="zone-name">Stockage sec</div><div class="zone-stat">18 palettes</div><div class="zone-bar"><div class="zone-fill" style="width:45%;background:var(--amber-t)"></div></div></div>
+          <div class="zone-card"><div class="zone-name">CF1 — Expédition</div><div class="zone-stat">5 palettes · racks futur</div><div class="zone-bar"><div class="zone-fill" style="width:25%;background:var(--teal-t)"></div></div></div>
+          <div class="zone-card"><div class="zone-name">CF3 — Préparation</div><div class="zone-stat">3 palettes · racks futur</div><div class="zone-bar"><div class="zone-fill" style="width:15%;background:var(--mint-t)"></div></div></div>
+          <div class="zone-card"><div class="zone-name">Zone Réception</div><div class="zone-stat">7 palettes · transit</div><div class="zone-bar"><div class="zone-fill" style="width:35%;background:var(--gray-t)"></div></div></div>
+          <div class="zone-card"><div class="zone-name">Prépa. Tempérée</div><div class="zone-stat">2 palettes · frais</div><div class="zone-bar"><div class="zone-fill" style="width:10%;background:var(--cobalt-t)"></div></div></div>
+          <div class="zone-card"><div class="zone-name">Parking vélo</div><div class="zone-stat">Transit · sans racks</div><div class="zone-bar"><div class="zone-fill" style="width:0%"></div></div></div>
+        </div>
+        <div class="section-title">Palettes en stock</div>
+        <div class="card-flush"><table class="data-table" id="table-stock"><thead><tr><th onclick="sortTable('table-stock',0)">Code-barres <span class="sort-icon">↕</span></th><th onclick="sortTable('table-stock',1)">Client <span class="sort-icon">↕</span></th><th>Zone</th><th>Produit</th><th>DLC</th><th>Certification</th><th>Rotation</th><th>Arrivée</th></tr></thead><tbody><tr><td class="mono">PAL-2026-0891</td><td style="font-weight:600">Yumi/Paf</td><td><span class="badge bc">Z-STO</span></td><td>Jus pressé 25cl</td><td class="mono" style="color:var(--coral-t)">08/04/26</td><td>—</td><td>FIFO</td><td class="mono">28/03/26</td></tr><tr><td class="mono">PAL-2026-0892</td><td style="font-weight:600">Re-belle</td><td><span class="badge bp">Z-BIO</span></td><td>Huile d'olive BIO</td><td class="mono">15/06/26</td><td><span class="badge bp">BIO</span></td><td>LIFO</td><td class="mono">01/04/26</td></tr><tr><td class="mono">PAL-2026-0893</td><td style="font-weight:600">Xoco</td><td><span class="badge ba">Z-SEC</span></td><td>Chocolat noir 70%</td><td class="mono">30/09/26</td><td>—</td><td>FIFO</td><td class="mono">25/03/26</td></tr><tr><td class="mono">PAL-2026-0894</td><td style="font-weight:600">Remyx Vodka</td><td><span class="badge bt">Z-ALC</span></td><td>Vodka 70cl</td><td class="mono">—</td><td><span class="badge bt">Alcool</span></td><td>FIFO</td><td class="mono">15/03/26</td></tr></tbody></table></div>
+      </div>
+
+      <!-- PRODUITS -->
+      <div class="page" id="page-produits">
+        <div class="filter-bar"><input type="text" placeholder="Rechercher produit, EAN, référence..."><select><option>Tous les clients</option><option>Yumi/Paf</option><option>Xoco</option></select><select><option>Tous types</option><option>Frais</option><option>Sec</option><option>BIO</option></select></div>
+        <div class="card-flush"><table class="data-table"><thead><tr><th>Produit</th><th>Référence</th><th>Client</th><th>Type</th><th>Unité</th><th>Groupage</th><th>Poids unit.</th><th>Certif.</th><th>DLC</th><th>Zone req.</th></tr></thead><tbody><tr><td style="font-weight:600">Jus pressé à froid 25cl</td><td class="mono">YP-JUS-25</td><td class="dim">Yumi/Paf</td><td><span class="badge bc">Frais</span></td><td>Unité</td><td>12u/carton · 48c/pal.</td><td>0.3 kg</td><td>—</td><td><span class="badge bm">Oui</span></td><td>Z-STO</td></tr><tr><td style="font-weight:600">Chocolat noir 70% 100g</td><td class="mono">XC-CHOC-100</td><td class="dim">Xoco</td><td><span class="badge bg">Sec</span></td><td>Carton</td><td>24c/pal.</td><td>2.5 kg</td><td>—</td><td><span class="badge bm">Oui</span></td><td>Z-SEC</td></tr><tr><td style="font-weight:600">Huile d'olive BIO 500ml</td><td class="mono">RB-HUILE-500</td><td class="dim">Re-belle</td><td><span class="badge bg">Sec</span></td><td>Unité</td><td>6u/carton</td><td>0.6 kg</td><td><span class="badge bp">BIO</span></td><td><span class="badge bm">Oui</span></td><td>Z-BIO</td></tr><tr><td style="font-weight:600">Vodka 70cl</td><td class="mono">RX-VODKA-70</td><td class="dim">Remyx Vodka</td><td><span class="badge bg">Sec</span></td><td>Unité</td><td>12u/carton</td><td>1.1 kg</td><td><span class="badge bt">Alcool</span></td><td>—</td><td>Z-ALC</td></tr></tbody></table></div>
+      </div>
+
+      <!-- SAV -->
+      <div class="page" id="page-sav">
+        <div class="filter-bar"><input type="text" placeholder="Rechercher ticket..."><select><option>Tous les statuts</option><option>Ouvert</option><option>En cours</option><option>Clôturé</option></select><select><option>Tous les clients</option><option>Yumi/Paf</option></select><button class="btn primary" style="margin-left:auto">+ Nouveau ticket</button></div>
+        <div class="card-flush"><table class="data-table" id="table-sav"><thead><tr><th onclick="sortTable('table-sav',0)">Ticket <span class="sort-icon">↕</span></th><th onclick="sortTable('table-sav',1)">Client <span class="sort-icon">↕</span></th><th>Objet</th><th>Réf.</th><th>Transporteur</th><th>Moment</th><th>Créé il y a</th><th>Transp. confirmé</th><th>Statut</th></tr></thead><tbody><tr><td class="mono">TKT-2026-089</td><td style="font-weight:600">Yumi/Paf</td><td>Carton éclaté</td><td class="mono">PAL-2026-0891</td><td class="dim">STEF</td><td><span class="badge bg">Réception</span></td><td style="color:var(--coral-t)">52h</td><td><span class="badge bm">Oui</span></td><td><span class="badge br">Sans réponse</span></td></tr><tr><td class="mono">TKT-2026-088</td><td style="font-weight:600">Wil's Déli</td><td>Température non conforme</td><td class="mono">REC-2026-312</td><td class="dim">STG</td><td><span class="badge bg">Réception</span></td><td>18h</td><td><span class="badge bm">Oui</span></td><td><span class="badge ba">En cours</span></td></tr><tr><td class="mono">TKT-2026-087</td><td style="font-weight:600">Xoco</td><td>Quantité &lt; ASN</td><td class="mono">ASN-2026-041</td><td class="dim">STEF</td><td><span class="badge bc">A posteriori</span></td><td>6h</td><td><span class="badge ba">En attente</span></td><td><span class="badge ba">Nouveau</span></td></tr><tr><td class="mono">TKT-2026-071</td><td style="font-weight:600">Xoco</td><td>Palette incomplète</td><td class="mono">SHIP-4926572756</td><td class="dim">STEF</td><td><span class="badge ba">Expédition</span></td><td>12 jours</td><td><span class="badge bm">Oui</span></td><td><span class="badge bm">Clôturé</span></td></tr></tbody></table></div>
+      </div>
+
+      <!-- RAPPORTS -->
+      <div class="page" id="page-rapports">
+        <div class="filter-bar"><select><option>Mars 2026</option><option>Février 2026</option><option>Janvier 2026</option></select><button class="btn soft">Export CSV</button><button class="btn soft">Export PDF</button></div>
+        <div class="kpi-grid">
+          <div class="kpi"><div class="kpi-label">CA préparation</div><div class="kpi-val" style="color:var(--mint-t)">7 617 €</div><div class="kpi-sub">+8% vs fév. 2026</div></div>
+          <div class="kpi"><div class="kpi-label">Commandes totales</div><div class="kpi-val">580</div><div class="kpi-sub">871 unités expédiées</div></div>
+          <div class="kpi"><div class="kpi-label">Temps moyen prépa</div><div class="kpi-val">9 min</div><div class="kpi-sub">par commande</div></div>
+          <div class="kpi"><div class="kpi-label">Destructions ce mois</div><div class="kpi-val" style="color:var(--coral-t)">3</div><div class="kpi-sub">produits périmés</div></div>
+        </div>
+        <div class="section-title">Récapitulatif clients — Mars 2026</div>
+        <div class="card">
+          <div class="recap-header"><div style="flex:1">Client</div><div class="rv">Commandes</div><div class="rv">kg/l</div><div class="rv">B2B</div><div class="rv">B2C</div><div class="rv">Temps</div><div class="rv">CA prépa</div><div class="rv">%</div></div>
+          <div class="recap-row"><div class="rc">Yumi/Paf</div><div class="rv">142</div><div class="rv">4 200</div><div class="rv">12%</div><div class="rv">88%</div><div class="rv">23h40</div><div class="rv bold">1 840 €</div><div class="rv"><span class="badge bm">34%</span></div></div>
+          <div class="recap-row"><div class="rc">Xoco</div><div class="rv">87</div><div class="rv">2 100</div><div class="rv">100%</div><div class="rv">—</div><div class="rv">18h15</div><div class="rv bold">920 €</div><div class="rv"><span class="badge bc">17%</span></div></div>
+          <div class="recap-row"><div class="rc">Wil's Déli</div><div class="rv">63</div><div class="rv">1 800</div><div class="rv">45%</div><div class="rv">55%</div><div class="rv">14h30</div><div class="rv bold">780 €</div><div class="rv"><span class="badge ba">14%</span></div></div>
+          <div class="recap-row"><div class="rc">Re-belle</div><div class="rv">41</div><div class="rv">980</div><div class="rv">—</div><div class="rv">100%</div><div class="rv">8h20</div><div class="rv bold">650 €</div><div class="rv"><span class="badge bg">12%</span></div></div>
+          <div class="recap-row" style="border-top:1px solid var(--border-md);margin-top:4px;padding-top:8px"><div class="rc">Total</div><div class="rv bold">580</div><div class="rv bold">14 300</div><div class="rv">—</div><div class="rv">—</div><div class="rv bold">87h10</div><div class="rv bold" style="font-size:14px">7 617 €</div><div class="rv">100%</div></div>
+        </div>
+        <div class="section-title" style="margin-top:4px">Destructions — Mars 2026</div>
+        <div class="card-flush"><table class="data-table"><thead><tr><th>Date & heure</th><th>Client</th><th>Produit</th><th>Quantité</th><th>Méthode</th><th>Responsable</th><th>Autorisé par</th><th>Ticket origine</th></tr></thead><tbody><tr><td class="mono">25/03/26 14:32</td><td style="font-weight:600">Yumi/Paf</td><td>Jus pressé 25cl</td><td>90 unités</td><td><span class="badge bg">Déchets alim.</span></td><td>Antoine G.</td><td class="dim">Alexandra G. (email)</td><td class="mono">TKT-2026-062</td></tr><tr><td class="mono">18/03/26 10:15</td><td style="font-weight:600">Wil's Déli</td><td>Pastrami 200g</td><td>24 unités</td><td><span class="badge bg">Déchets alim.</span></td><td>Sophie B.</td><td class="dim">Thibault S. (email)</td><td class="mono">TKT-2026-051</td></tr><tr><td class="mono">05/03/26 09:00</td><td style="font-weight:600">Re-belle</td><td>Huile olive 500ml</td><td>12 unités</td><td><span class="badge bp">Don alimentaire</span></td><td>Marc D.</td><td class="dim">Emilie L. (portail)</td><td class="mono">TKT-2026-038</td></tr></tbody></table></div>
+      </div>
+
+      <!-- CLIENTS -->
+      <div class="page" id="page-clients">
+        <div class="filter-bar"><input type="text" placeholder="Rechercher client..."><select><option>Toutes certifications</option><option>BIO</option><option>Alcool</option><option>Batteries</option><option>Toxique</option></select><select><option>Tous statuts</option><option>Actif</option><option>Archivé</option></select><button class="btn primary" style="margin-left:auto">+ Nouveau client</button></div>
+        <div class="card-flush"><table class="data-table" id="table-clients"><thead><tr><th onclick="sortTable('table-clients',0)">Client <span class="sort-icon">↕</span></th><th>Certifications</th><th>Rotation</th><th>Alerte DLC</th><th>ERP connecté</th><th onclick="sortTable('table-clients',5)">Palettes <span class="sort-icon">↕</span></th><th onclick="sortTable('table-clients',6)">CA mars 26 <span class="sort-icon">↕</span></th><th>Statut</th></tr></thead><tbody><tr><td style="font-weight:600">Yumi/Paf</td><td><div class="cert-badges"><span class="badge bp">BIO</span></div></td><td>FIFO</td><td>15 jours</td><td><span class="badge bc">TeamDesk</span></td><td>41</td><td style="font-weight:600">1 840 €</td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">Xoco</td><td>—</td><td>FIFO</td><td>30 jours</td><td>—</td><td>18</td><td style="font-weight:600">920 €</td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">Re-belle</td><td><div class="cert-badges"><span class="badge bp">BIO</span></div></td><td>LIFO</td><td>30 jours</td><td>—</td><td>12</td><td style="font-weight:600">650 €</td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">Wil's Déli</td><td>—</td><td>FIFO</td><td>14 jours</td><td>—</td><td>8</td><td style="font-weight:600">780 €</td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">Lemon Tri</td><td><div class="cert-badges"><span class="badge bp">BIO</span><span class="badge bpk">Toxique</span></div></td><td>FIFO</td><td>30 jours</td><td>—</td><td>3</td><td style="font-weight:600">765 €</td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">Remyx Vodka</td><td><div class="cert-badges"><span class="badge bt">Alcool</span></div></td><td>FIFO</td><td>—</td><td>—</td><td>4</td><td style="font-weight:600">76 €</td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">Cyclo Nova</td><td><div class="cert-badges"><span class="badge ba">Batteries</span></div></td><td>FIFO</td><td>—</td><td>—</td><td>6</td><td style="font-weight:600">280 €</td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">Celler Catala</td><td><div class="cert-badges"><span class="badge bt">Alcool</span></div></td><td>LIFO</td><td>—</td><td>—</td><td>0</td><td style="color:var(--text3)">—</td><td><span class="badge bg">Archivé</span></td></tr></tbody></table></div>
+      </div>
+
+      <!-- TRANSPORTEURS -->
+      <div class="page" id="page-transporteurs">
+        <div class="tabs"><button class="tab active" onclick="switchTab('tv',this)">Vue globale</button><button class="tab" onclick="switchTab('tm',this)">Mouvements palettes</button></div>
+        <div id="tab-tv"><div class="card-flush"><table class="data-table" id="table-trans"><thead><tr><th onclick="sortTable('table-trans',0)">Transporteur <span class="sort-icon">↕</span></th><th onclick="sortTable('table-trans',1)">Réceptions (mois) <span class="sort-icon">↕</span></th><th>Expéditions</th><th>EUR reçues</th><th>EUR rendues</th><th onclick="sortTable('table-trans',5)">Perdues <span class="sort-icon">↕</span></th><th onclick="sortTable('table-trans',6)">Anomalies <span class="sort-icon">↕</span></th><th>Statut</th></tr></thead><tbody><tr><td style="font-weight:600">STEF</td><td>54</td><td>38</td><td>87</td><td>81</td><td style="color:var(--coral-t);font-weight:600">6</td><td><span class="badge ba">3</span></td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">Chronofresh</td><td>41</td><td>29</td><td>62</td><td>62</td><td>0</td><td><span class="badge bm">0</span></td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">STG</td><td>18</td><td>12</td><td>24</td><td>22</td><td style="color:var(--coral-t);font-weight:600">2</td><td><span class="badge br">1</span></td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">RATP</td><td>12</td><td>8</td><td>15</td><td>15</td><td>0</td><td><span class="badge bm">0</span></td><td><span class="badge bm">Actif</span></td></tr><tr><td style="font-weight:600">Cargonautes</td><td>—</td><td>415</td><td>—</td><td>—</td><td>—</td><td><span class="badge bm">0</span></td><td><span class="badge bm">Actif</span></td></tr></tbody></table></div></div>
+        <div id="tab-tm" style="display:none"><div class="filter-bar"><select><option>Tous les transporteurs</option><option>STEF</option><option>Chronofresh</option></select><select><option>Tous mouvements</option><option>Réception</option><option>Expédition</option></select><select><option>Avril 2026</option><option>Mars 2026</option></select></div><div class="card-flush"><table class="data-table"><thead><tr><th>Date</th><th>Heure</th><th>Transporteur</th><th>Client</th><th>Mouvement</th><th>Type palette</th><th>Nb pal.</th><th>EUR</th><th>Certif.</th><th>Agent</th></tr></thead><tbody><tr><td class="mono">01/04/26</td><td class="mono">09:14</td><td style="font-weight:600">STEF</td><td class="dim">Yumi/Paf</td><td><span class="badge bm">Réception</span></td><td>Palette EUR</td><td>3</td><td>3</td><td>—</td><td class="dim">Sophie B.</td></tr><tr><td class="mono">01/04/26</td><td class="mono">11:32</td><td style="font-weight:600">Chronofresh</td><td class="dim">Yumi/Paf</td><td><span class="badge ba">Expédition</span></td><td>Palette EUR</td><td>4</td><td>4</td><td><span class="badge bp">BIO</span></td><td class="dim">Antoine G.</td></tr><tr><td class="mono">31/03/26</td><td class="mono">08:45</td><td style="font-weight:600">STG</td><td class="dim">Wil's Déli</td><td><span class="badge bm">Réception</span></td><td>Palette sol</td><td>1</td><td>0</td><td>—</td><td class="dim">Marc D.</td></tr></tbody></table></div></div>
+      </div>
+
+      <!-- CONFIG -->
+      <div class="page" id="page-config">
+        <div class="two-col">
+          <div>
+            <div class="section-title">Certifications</div>
+            <div class="card-flush" style="margin-bottom:14px"><table class="data-table"><thead><tr><th>Certification</th><th>Code zone</th><th>Clients concernés</th><th>Statut</th></tr></thead><tbody><tr><td><span class="badge bp">BIO</span></td><td class="mono">Z-BIO</td><td class="dim">Yumi/Paf, Re-belle, Lemon Tri</td><td><span class="badge bm">Actif</span></td></tr><tr><td><span class="badge bt">Alcool</span></td><td class="mono">Z-ALC</td><td class="dim">Remyx Vodka, Celler Catala</td><td><span class="badge bm">Actif</span></td></tr><tr><td><span class="badge ba">Batteries</span></td><td class="mono">Z-BAT</td><td class="dim">Cyclo Nova</td><td><span class="badge ba">Prévu</span></td></tr><tr><td><span class="badge bpk">Toxique</span></td><td class="mono">Z-TOX</td><td class="dim">Lemon Tri</td><td><span class="badge ba">Prévu</span></td></tr></tbody></table></div>
+            <div class="section-title">Zones & emplacements</div>
+            <div class="card-flush"><table class="data-table"><thead><tr><th>Zone</th><th>Type</th><th>Racks</th><th>Certifications</th></tr></thead><tbody><tr><td style="font-weight:600">Z-REC — Réception</td><td><span class="badge bg">Transit</span></td><td class="dim">Jamais</td><td>—</td></tr><tr><td style="font-weight:600">Z-STO — Stockage</td><td><span class="badge bc">Stockage</span></td><td class="dim">Futur</td><td>—</td></tr><tr><td style="font-weight:600">Z-BIO — Zone BIO</td><td><span class="badge bc">Stockage</span></td><td class="dim">Futur</td><td><span class="badge bp">BIO</span></td></tr><tr><td style="font-weight:600">Z-SEC — Stockage sec</td><td><span class="badge bc">Stockage</span></td><td class="dim">Futur</td><td>—</td></tr><tr><td style="font-weight:600">Z-EXP — Expédition</td><td><span class="badge bm">Opérationnel</span></td><td class="dim">Futur</td><td>—</td></tr><tr><td style="font-weight:600">Z-PRE — Préparation</td><td><span class="badge bm">Opérationnel</span></td><td class="dim">Futur</td><td>—</td></tr><tr><td style="font-weight:600">Z-PKG — Parking vélo</td><td><span class="badge bg">Transit</span></td><td class="dim">Jamais</td><td>—</td></tr></tbody></table></div>
+          </div>
+          <div>
+            <div class="section-title">APIs connectées</div>
+            <div class="card" style="margin-bottom:14px">
+              <div class="row"><div style="flex:1;font-weight:600">Cyke TMS</div><div style="font-size:11px;color:var(--text3);margin-right:8px">mouvements · livraison · pénalités</div><span class="badge bm">Connecté</span></div>
+              <div class="row"><div style="flex:1;font-weight:600">Sellsy</div><div style="font-size:11px;color:var(--text3);margin-right:8px">facturation mensuelle</div><span class="badge bm">Connecté</span></div>
+              <div class="row"><div style="flex:1;font-weight:600">TeamDesk (Yumi/Paf)</div><div style="font-size:11px;color:var(--text3);margin-right:8px">B2B/B2C · commandes</div><span class="badge bm">Connecté</span></div>
+            </div>
+            <div class="section-title">Transporteurs actifs</div>
+            <div class="card">
+              <div class="row"><div style="flex:1;font-weight:600">STEF</div><span class="badge bm">Actif</span></div>
+              <div class="row"><div style="flex:1;font-weight:600">Chronofresh</div><span class="badge bm">Actif</span></div>
+              <div class="row"><div style="flex:1;font-weight:600">STG</div><span class="badge bm">Actif</span></div>
+              <div class="row"><div style="flex:1;font-weight:600">RATP</div><span class="badge bm">Actif</span></div>
+              <div class="row"><div style="flex:1;font-weight:600">MYTROOPERS</div><span class="badge bg">Inactif</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAYS -->
+<div class="overlay" id="overlay-notif">
+  <div class="dialog">
+    <div class="dialog-title">Notifier le client — Alerte DLC</div>
+    <div class="dialog-sub" id="notif-sub"></div>
+    <div class="dialog-label">Destinataire</div>
+    <select class="dialog-select"><option>Alexandra GUIGNARD — Responsable opérations</option><option>Thibault Sempéré — Responsable B2B/B2C</option></select>
+    <div class="dialog-label">Message pré-rempli</div>
+    <div class="dialog-msg" id="notif-msg" contenteditable="true"></div>
+    <div style="background:var(--amber-p);border:1px solid #F5D080;border-radius:var(--radius);padding:8px 10px;font-size:10px;color:var(--amber-t);margin-bottom:12px">Sans réponse avant la date d'expiration, la marchandise sera détruite conformément à notre procédure.</div>
+    <div class="dialog-actions"><button class="btn" onclick="closeOverlay('overlay-notif')">Annuler</button><button class="btn primary" onclick="sendNotif()">Envoyer la notification</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-anomalie-form">
+  <div class="dialog">
+    <div class="dialog-title">Déclarer une anomalie</div>
+    <div class="dialog-sub" id="anomalie-form-sub"></div>
+    <div class="dialog-label">Type d'anomalie</div>
+    <select class="dialog-select"><option>Carton endommagé</option><option>Température non conforme</option><option>Quantité incorrecte</option><option>Produit non conforme</option><option>Étiquetage manquant</option><option>Autre</option></select>
+    <div class="dialog-label">Description</div>
+    <textarea class="dialog-field" rows="3" placeholder="Décrivez l'anomalie constatée..."></textarea>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 10px;background:var(--coral-p);border:1px solid #FFBCBC;border-radius:var(--radius)">
+      <input type="checkbox" id="check-transporteur" style="accent-color:var(--coral-t)">
+      <label for="check-transporteur" style="font-size:11px;color:var(--coral-t);font-weight:500;cursor:pointer">Je confirme que l'anomalie a été notée sur les documents remis au transporteur</label>
+    </div>
+    <div class="dialog-label">Photos (optionnel)</div>
+    <input type="file" class="dialog-field" accept="image/*" multiple style="padding:5px">
+    <div class="dialog-actions"><button class="btn" onclick="closeOverlay('overlay-anomalie-form')">Annuler</button><button class="btn danger" onclick="saveAnomalie()">Enregistrer l'anomalie</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-anomalie-view">
+  <div class="dialog">
+    <div class="dialog-title">Anomalie enregistrée</div>
+    <div class="dialog-sub" id="anomalie-view-sub"></div>
+    <div style="background:var(--coral-p);border:1px solid #FFBCBC;border-radius:var(--radius);padding:12px;margin-bottom:14px;font-size:12px;color:var(--coral-t);line-height:1.6" id="anomalie-view-content"></div>
+    <div style="font-size:10px;color:var(--text3);margin-bottom:14px;line-height:1.7"><strong style="color:var(--text2)">Historique :</strong><br>01/04/2026 09:32 — Anomalie déclarée par Sophie Bernard<br>01/04/2026 09:33 — Notification envoyée au client<br>01/04/2026 14:15 — Client a pris action (ticket SAV ouvert)</div>
+    <div class="dialog-actions"><button class="btn" onclick="closeOverlay('overlay-anomalie-view')">Fermer</button><button class="btn soft">✏ Modifier</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-edit-reception">
+  <div class="dialog">
+    <div class="dialog-title">Éditer la réception</div>
+    <div class="dialog-sub" id="edit-reception-sub"></div>
+    <div class="dialog-label">Transporteur</div>
+    <select class="dialog-select"><option>STEF</option><option>Chronofresh</option><option>STG</option><option>RATP</option></select>
+    <div class="dialog-label">Nb palettes reçues</div>
+    <input type="number" class="dialog-field" value="3">
+    <div class="dialog-label">Nb palettes EUR reçues</div>
+    <input type="number" class="dialog-field" value="3">
+    <div class="dialog-label">Nb palettes EUR rendues</div>
+    <input type="number" class="dialog-field" value="3">
+    <div class="dialog-label">Notes</div>
+    <textarea class="dialog-field" rows="2" placeholder="Notes complémentaires..."></textarea>
+    <div style="font-size:10px;color:var(--text3);margin-bottom:12px">Toute modification sera enregistrée dans l'historique avec horodatage.</div>
+    <div class="dialog-actions"><button class="btn" onclick="closeOverlay('overlay-edit-reception')">Annuler</button><button class="btn primary" onclick="closeOverlay('overlay-edit-reception')">Enregistrer</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-inv-cible">
+  <div class="dialog" style="width:420px">
+    <div class="dialog-title">Vérification ciblée</div>
+    <div class="dialog-sub">Contrôle sur une référence ou palette spécifique</div>
+    <div class="dialog-label">Client</div>
+    <select class="dialog-select"><option>Yumi / Paf</option><option>Xoco</option><option>Re-belle</option><option>Wil's Déli</option></select>
+    <div class="dialog-label">Référence produit</div>
+    <select class="dialog-select"><option>Amour BIO 240ml</option><option>Force BIO 240ml</option><option>Shot gingembre 6cl</option><option>Jus pressé 25cl</option></select>
+    <div class="dialog-label">Palette (optionnel)</div>
+    <input type="text" class="dialog-field" placeholder="PAL-2026-XXXX — ou vide pour toute la référence">
+    <div class="dialog-label">Zone</div>
+    <select class="dialog-select"><option>CF2 — Stockage frais</option><option>CF3 — Préparation</option><option>Z-SEC</option><option>Z-BIO</option></select>
+    <div class="dialog-label">Agent assigné</div>
+    <select class="dialog-select"><option>Antoine Greneche</option><option>Sophie Bernard</option><option>Marc Dubois</option></select>
+    <div style="background:var(--cobalt-p);border-radius:var(--radius);padding:9px 12px;font-size:11px;color:var(--cobalt-t);margin-top:10px;margin-bottom:4px;font-weight:500">Tarif : 15,00 € · Ajouté au récap facturation du mois</div>
+    <div class="dialog-label">Déclencheur</div>
+    <select class="dialog-select"><option>Demande opérationnel</option><option>Demande client</option><option>Alerte DLC</option><option>Alerte écart picking</option></select>
+    <div class="dialog-actions">
+      <button class="btn" onclick="closeOverlay('overlay-inv-cible')">Annuler</button>
+      <button class="btn primary" onclick="closeOverlay('overlay-inv-cible')">Créer la vérification</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-inv-tournant">
+  <div class="dialog" style="width:420px">
+    <div class="dialog-title">Inventaire tournant</div>
+    <div class="dialog-sub">Comptage complet d'une zone</div>
+    <div class="dialog-label">Client</div>
+    <select class="dialog-select"><option>Yumi / Paf</option><option>Xoco</option><option>Tous les clients</option></select>
+    <div class="dialog-label">Zone à inventorier</div>
+    <select class="dialog-select"><option>CF2 — Stockage frais</option><option>CF3 — Préparation</option><option>Z-SEC</option><option>Z-BIO</option></select>
+    <div class="dialog-label">Date planifiée</div>
+    <input type="date" class="dialog-field" value="2026-04-05">
+    <div class="dialog-label">Agent assigné</div>
+    <select class="dialog-select"><option>Antoine Greneche</option><option>Sophie Bernard</option><option>Marc Dubois</option></select>
+    <div style="background:var(--amber-p);border-radius:var(--radius);padding:9px 12px;font-size:11px;color:var(--amber-t);margin-top:10px;margin-bottom:4px;font-weight:500">Tarif : TH × temps réel · Estimé ~57 € (3h × 19 €/h) · Ajusté à la clôture</div>
+    <div class="dialog-label">Générer PV d'inventaire (Ecocert / fiscal)</div>
+    <select class="dialog-select"><option>Oui — générer le PV PDF</option><option>Non — suivi interne uniquement</option></select>
+    <div class="dialog-actions">
+      <button class="btn" onclick="closeOverlay('overlay-inv-tournant')">Annuler</button>
+      <button class="btn primary" onclick="closeOverlay('overlay-inv-tournant')">Planifier l'inventaire</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-ecart">
+  <div class="dialog" style="width:440px">
+    <div class="dialog-title">Ajustement d'écart</div>
+    <div class="dialog-sub">INV-2026-005 · Zone CF2 · Yumi/Paf · −19 unités détectées</div>
+    <div style="background:var(--coral-p);border:1px solid #FFBCBC;border-radius:var(--radius);padding:10px 12px;font-size:12px;margin-bottom:14px">
+      <div style="font-weight:700;color:var(--coral-t);margin-bottom:6px">Écarts par référence</div>
+      <div style="display:grid;grid-template-columns:1fr 60px 60px 60px;font-size:11px;font-weight:600;color:var(--coral-t);border-bottom:1px solid #FFBCBC;padding-bottom:4px;margin-bottom:4px"><div>Référence</div><div>WMS</div><div>Physique</div><div>Écart</div></div>
+      <div style="display:grid;grid-template-columns:1fr 60px 60px 60px;font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,188,188,.4)"><div>Amour BIO 240ml</div><div>432</div><div>425</div><div style="color:var(--coral-t);font-weight:700">−7</div></div>
+      <div style="display:grid;grid-template-columns:1fr 60px 60px 60px;font-size:11px;padding:3px 0"><div>Force BIO 240ml</div><div>432</div><div>420</div><div style="color:var(--coral-t);font-weight:700">−12</div></div>
+    </div>
+    <div class="dialog-label">Motif de l'écart</div>
+    <select class="dialog-select"><option>Erreur de comptage réception</option><option>Casse non déclarée</option><option>Sortie non enregistrée</option><option>Vol / disparition</option><option>Erreur WMSito</option><option>Autre</option></select>
+    <div class="dialog-label">Détail (optionnel)</div>
+    <textarea class="dialog-field" rows="2" placeholder="Précisez si nécessaire..."></textarea>
+    <div class="dialog-label">Validation client requise ?</div>
+    <select class="dialog-select"><option>Oui — notifier Yumi/Paf avant ajustement</option><option>Non — ajustement immédiat</option></select>
+    <div style="background:var(--bg);border-radius:var(--radius);padding:9px 12px;font-size:11px;color:var(--text2);margin:10px 0 4px">Enregistré dans le LOG immuable · Flag Ecocert automatique (produit BIO)</div>
+    <div class="dialog-actions">
+      <button class="btn" onclick="closeOverlay('overlay-ecart')">Annuler</button>
+      <button class="btn danger" onclick="closeOverlay('overlay-ecart')">Confirmer l'ajustement</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-destruction">
+  <div class="dialog">
+    <div class="dialog-title">Enregistrer une destruction</div>
+    <div class="dialog-sub">Marchandise périmée — action irréversible et tracée</div>
+    <div class="dialog-label">Produit / Palette</div>
+    <input type="text" class="dialog-field" placeholder="Ex: PAL-2026-0891 — Jus pressé 25cl">
+    <div class="dialog-label">Quantité détruite</div>
+    <input type="text" class="dialog-field" placeholder="Ex: 90 unités">
+    <div class="dialog-label">Méthode de destruction</div>
+    <select class="dialog-select"><option>Mise en déchets alimentaires</option><option>Don alimentaire</option><option>Compostage</option><option>Retour client</option><option>Autre</option></select>
+    <div class="dialog-label">Responsable</div>
+    <select class="dialog-select"><option>Antoine Greneche</option><option>Sophie Bernard</option><option>Marc Dubois</option></select>
+    <div class="dialog-label">Autorisation client</div>
+    <select class="dialog-select"><option>Email client (joint au dossier)</option><option>Réponse portail WMSito</option><option>Aucune action — délai expiré</option></select>
+    <div class="dialog-actions"><button class="btn" onclick="closeOverlay('overlay-destruction')">Annuler</button><button class="btn danger" onclick="closeOverlay('overlay-destruction')">Confirmer la destruction</button></div>
+  </div>
+</div>
+
+<script>
+const titles={dashboard:'Tableau de bord',reception:'Réception',preparation:'Préparation',expeditions:'Expéditions',stock:'Stock & emplacements',inventaires:'Inventaires',produits:'Produits',sav:'SAV / Tickets',rapports:'Rapports',clients:'Clients',transporteurs:'Transporteurs',config:'Configuration'};
+function navigate(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');el.classList.add('active');document.getElementById('page-title').textContent=titles[page];closeAllDropdowns()}
+function toggleDay(id){const day=document.getElementById(id);const header=day.querySelector('.prep-day-header');const body=day.querySelector('.prep-day-body');const chevron=header.querySelector('.chevron');const collapsed=header.classList.contains('collapsed');if(collapsed){header.classList.remove('collapsed');chevron.style.transform='';body.classList.remove('collapsed');body.style.maxHeight=body.scrollHeight+'px'}else{header.classList.add('collapsed');chevron.style.transform='rotate(-90deg)';body.classList.add('collapsed');body.style.maxHeight='0'}}
+function showTip(id){const t=document.getElementById(id);if(t)t.style.display='block'}
+function hideTip(id){const t=document.getElementById(id);if(t)t.style.display='none'}
+function closeAllDropdowns(){document.querySelectorAll('.dropdown-menu').forEach(m=>m.classList.remove('open'))}
+function toggleDropdown(id){const menu=document.getElementById(id);const wasOpen=menu.classList.contains('open');closeAllDropdowns();if(!wasOpen)menu.classList.add('open')}
+function setStatus(ddId,item,badgeClass){const menu=document.getElementById(ddId);const badge=menu.previousElementSibling;const label=item.querySelector('.di-dot').nextSibling.textContent.trim();badge.textContent=label+' ▾';badge.className='badge '+badgeClass;badge.style.cursor='pointer';menu.classList.remove('open')}
+document.addEventListener('click',function(e){if(!e.target.closest('.dropdown-wrap'))closeAllDropdowns()});
+function openOverlay(id){document.getElementById(id).classList.add('open')}
+function closeOverlay(id){document.getElementById(id).classList.remove('open')}
+function openNotifDialog(produit,client,contact,jours,date){document.getElementById('notif-sub').textContent=contact+' · '+client+' · Stock';document.getElementById('notif-msg').innerHTML='Bonjour '+contact.split(' ')[0]+',<br><br>Nous vous informons que le produit <strong>'+produit+'</strong> arrive à expiration dans <strong>'+jours+'</strong> (échéance : '+date+').<br><br>Merci de nous indiquer la marche à suivre. Sans réponse avant la date d\'expiration, nous procéderons à la destruction de la marchandise conformément à notre procédure.<br><br>Cordialement,<br>L\'équipe Cargonautes';openOverlay('overlay-notif')}
+function sendNotif(){closeOverlay('overlay-notif');alert('Notification envoyée — enregistrée dans l\'historique WMSito')}
+function openAnomalieForm(client,date){document.getElementById('anomalie-form-sub').textContent='Réception · '+client+' · '+date;openOverlay('overlay-anomalie-form')}
+function openAnomalieView(client,date,description){document.getElementById('anomalie-view-sub').textContent='Réception · '+client+' · '+date;document.getElementById('anomalie-view-content').textContent=description;openOverlay('overlay-anomalie-view')}
+function saveAnomalie(){closeOverlay('overlay-anomalie-form');alert('Anomalie enregistrée dans l\'historique WMSito')}
+function openEditReception(client,date){document.getElementById('edit-reception-sub').textContent=client+' · '+date;openOverlay('overlay-edit-reception')}
+function switchTab(tab,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-tv').style.display=tab==='tv'?'block':'none';document.getElementById('tab-tm').style.display=tab==='tm'?'block':'none'}
+function sortTable(tableId,col){const table=document.getElementById(tableId);const tbody=table.querySelector('tbody');const rows=Array.from(tbody.querySelectorAll('tr'));const th=table.querySelectorAll('th')[col];const asc=th.dataset.sort!=='asc';table.querySelectorAll('th').forEach(h=>{h.classList.remove('sorted');delete h.dataset.sort;if(h.querySelector('.sort-icon'))h.querySelector('.sort-icon').textContent='↕'});th.classList.add('sorted');th.dataset.sort=asc?'asc':'desc';if(th.querySelector('.sort-icon'))th.querySelector('.sort-icon').textContent=asc?'↑':'↓';rows.sort((a,b)=>{const av=a.cells[col]?.textContent.trim()||'';const bv=b.cells[col]?.textContent.trim()||'';const an=parseFloat(av.replace(/[^0-9.]/g,''));const bn=parseFloat(bv.replace(/[^0-9.]/g,''));if(!isNaN(an)&&!isNaN(bn))return asc?an-bn:bn-an;return asc?av.localeCompare(bv,'fr'):bv.localeCompare(av,'fr')});rows.forEach(r=>tbody.appendChild(r))}
+document.querySelectorAll('.overlay').forEach(ov=>{ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('open')})});
+</script>
+</body>
+</html>
