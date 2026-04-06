@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WMSito — Yumi/Paf</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Manrope:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F6F8;--surface:#FFF;--border:#E4E7EC;--border-md:#CDD3DE;--text:#1C2330;--text2:#5A6478;--text3:#9BA8BC;--cobalt:#3B4FD8;--cobalt-p:#EEF2FF;--cobalt-t:#2B5AB8;--mint:#1A7A66;--mint-p:#D6F5EF;--mint-t:#1A7A66;--coral:#B83838;--coral-p:#FFE0E0;--coral-t:#B83838;--amber:#9A6010;--amber-p:#FFF0D6;--amber-t:#9A6010;--purple:#5040A0;--purple-p:#EDE8FF;--purple-t:#5040A0;--gray-p:#EEF0F4;--gray-t:#4A5568;--jam:#7A3010;--jam-p:#FDEBD0;--jam-t:#A0400A;--r:8px;--rl:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;height:100vh;overflow:hidden}
+h1,h2,h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:700}
+.mono{font-family:'DM Mono',monospace;font-size:11px}
+.app{display:flex;height:100vh}
+.sidebar{width:210px;min-width:210px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.sb-logo{padding:16px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.sb-logo-icon{width:30px;height:30px;border-radius:var(--r);background:var(--cobalt-p);display:flex;align-items:center;justify-content:center}
+.sb-logo-name{font-size:14px;font-weight:700}
+.sb-logo-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.sb-section{padding:12px 14px 3px;font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 14px;font-size:12px;color:var(--text3);cursor:pointer;border-left:2px solid transparent;transition:all .12s;user-select:none}
+.nav-item:hover{background:var(--bg);color:var(--text2)}
+.nav-item.active{background:var(--cobalt-p);color:var(--cobalt);border-left-color:var(--cobalt);font-weight:600}
+.nav-item svg{width:14px;height:14px;flex-shrink:0;opacity:.6}
+.nav-item.active svg{opacity:1}
+.sb-footer{margin-top:auto;padding:12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:var(--cobalt-p);color:var(--cobalt);flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:50px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;flex-shrink:0}
+.topbar-title{font-size:17px}
+.content{flex:1;overflow-y:auto;padding:16px 20px;background:var(--bg)}
+.page{display:none}.page.active{display:block}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--r);font-size:11px;font-weight:600;font-family:'Manrope',sans-serif;cursor:pointer;border:1px solid var(--border-md);background:transparent;color:var(--text2);transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--bg)}
+.btn.primary{background:var(--cobalt);border-color:var(--cobalt);color:#fff}.btn.primary:hover{background:var(--cobalt-t)}
+.btn.soft{background:var(--cobalt-p);border-color:#B8CEFF;color:var(--cobalt-t)}.btn.soft:hover{background:#d8e8ff}
+.btn.danger{background:var(--coral-p);border-color:#FFBCBC;color:var(--coral-t)}
+.btn.sm{padding:4px 9px;font-size:10px}
+.b{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.bc{background:var(--cobalt-p);color:var(--cobalt-t)}.bm{background:var(--mint-p);color:var(--mint-t)}.br{background:var(--coral-p);color:var(--coral-t)}.ba{background:var(--amber-p);color:var(--amber-t)}.bp{background:var(--purple-p);color:var(--purple-t)}.bg2{background:var(--gray-p);color:var(--gray-t)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;margin-bottom:12px}
+.card-flush{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:12px}
+.sec-label{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{padding:7px 12px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);background:var(--bg);border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.04em}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover{background:#FAFBFD}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:13px 15px;position:relative;cursor:default}
+.kpi-label{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.kpi-val{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:26px;line-height:1;color:var(--text)}
+.kpi-sub{font-size:10px;color:var(--text3);margin-top:3px}
+/* TOOLTIP */
+.kpi-tooltip{display:none;position:fixed;background:var(--text);color:#fff;border-radius:var(--rl);padding:12px 14px;font-size:11px;line-height:1.6;z-index:9999;width:220px;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.kpi:hover .kpi-tooltip{display:block}
+.tt-title{font-size:12px;font-weight:700;margin-bottom:7px;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:5px;font-family:'Bricolage Grotesque',sans-serif}
+.tt-row{display:flex;justify-content:space-between;gap:10px;padding:2px 0}
+.tt-label{opacity:.7}.tt-val{font-weight:600}
+.tt-alert{background:var(--coral-p);color:var(--coral-t);border-radius:4px;padding:4px 7px;font-size:10px;font-weight:600;margin-top:6px;display:block}
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.filter-bar input,.filter-bar select{padding:6px 9px;border:1px solid var(--border);border-radius:var(--r);font-size:11px;font-family:'Manrope',sans-serif;background:var(--surface);color:var(--text);outline:none}
+.filter-bar input{flex:1}.filter-bar input:focus,.filter-bar select:focus{border-color:var(--cobalt)}
+/* SPLIT */
+.split-dashboard{display:grid;grid-template-columns:1fr 1.15fr;gap:16px;height:calc(100vh - 100px)}
+.split-left{display:flex;flex-direction:column;gap:12px;overflow-y:auto;padding-right:4px}
+.split-right{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow-y:auto;padding:18px}
+/* CUTOFF */
+.cutoff-banner{border-radius:var(--rl);padding:14px 16px;border:1.5px solid;transition:background .5s,border-color .5s}
+.cutoff-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.cutoff-time-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:2px}
+.cutoff-countdown{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:32px;line-height:1;letter-spacing:-1px}
+.cutoff-sublabel{font-size:11px;margin-top:3px;opacity:.8}
+.cutoff-bar-wrap{height:5px;background:rgba(0,0,0,.1);border-radius:3px;overflow:hidden;margin-bottom:8px}
+.cutoff-bar{height:100%;border-radius:3px;transition:width 1s linear}
+/* FORM */
+.form-section{margin-bottom:12px}
+.form-label{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:block}
+.form-input,.form-select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:12px;font-family:'Manrope',sans-serif;background:var(--bg);color:var(--text);outline:none;transition:border-color .12s}
+.form-input:focus,.form-select:focus{border-color:var(--cobalt);background:var(--surface)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.form-row-cp{display:grid;grid-template-columns:100px 1fr;gap:8px}
+/* EXPEDITION */
+.exp-recap{border-radius:var(--r);padding:10px 13px;margin-bottom:10px;border:1.5px solid}
+.exp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;margin-bottom:7px}
+.exp-fl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.65;margin-bottom:3px}
+.exp-fv{font-weight:700;font-size:12px}
+.exp-note{font-size:10px;opacity:.7;border-top:1px solid rgba(0,0,0,.1);padding-top:6px}
+/* PALETTE */
+.pal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.pal-card{border:1.5px solid var(--border);border-radius:var(--r);padding:10px;cursor:pointer;transition:all .12s}
+.pal-card.sel{border-color:var(--cobalt);background:var(--cobalt-p)}
+.pal-card:hover:not(.sel){border-color:var(--border-md);background:var(--bg)}
+.pal-title{font-size:12px;font-weight:700;margin-bottom:2px}
+.pal-price{font-size:17px;font-weight:700;color:var(--cobalt-t);font-family:'Bricolage Grotesque',sans-serif}
+.pal-desc{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.4}
+.info-btn{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--cobalt-p);color:var(--cobalt-t);font-size:9px;font-weight:700;cursor:help;margin-left:3px;position:relative;vertical-align:middle}
+.info-btn .bubble{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;border-radius:var(--r);padding:8px 10px;font-size:10px;font-weight:400;line-height:1.5;width:190px;z-index:500;white-space:normal;text-align:left;pointer-events:none}
+.info-btn:hover .bubble{display:block}
+/* AUTOCOMPLETE */
+.ac-wrap{position:relative}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border-md);border-radius:0 0 var(--r) var(--r);box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:300;max-height:160px;overflow-y:auto;display:none}
+.ac-list.open{display:block}
+.ac-item{padding:8px 10px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border)}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover{background:var(--cobalt-p)}
+.ac-main{font-weight:600}.ac-sub{font-size:10px;color:var(--text3);margin-top:1px}
+/* PRODUITS */
+.ph{display:grid;grid-template-columns:1fr 60px 80px 55px 28px;gap:6px;padding:5px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase}
+.pr-rows{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);overflow:hidden;min-height:40px}
+.pr{display:grid;grid-template-columns:1fr 60px 80px 55px 28px;gap:6px;padding:7px 10px;border-bottom:1px solid var(--border);align-items:center;font-size:12px;background:var(--surface)}
+.pr:last-child{border-bottom:none}
+.pr-empty{padding:14px;text-align:center;font-size:12px;color:var(--text3);background:var(--surface)}
+/* ADD PROD */
+.add-panel{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px}
+.lot-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:9px 11px;margin-bottom:8px}
+.lot-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px}
+.lfl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.lfv{font-weight:700;font-size:13px}
+/* LOT SELECTOR */
+.lot-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+.lot-row{display:grid;grid-template-columns:16px 1fr auto auto;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;transition:all .12s;background:var(--surface)}
+.lot-row:hover{border-color:var(--border-md);background:var(--bg)}
+.lot-row.sel{border-color:var(--cobalt);background:var(--cobalt-p)}
+.lot-row.dlc-warn{border-color:#FFD080}
+.lot-row.dlc-danger{border-color:#FFBCBC}
+.lot-row.dlc-warn.sel{border-color:var(--amber-t);background:var(--amber-p)}
+.lot-row.dlc-danger.sel{border-color:var(--coral-t);background:var(--coral-p)}
+.lot-radio{width:13px;height:13px;border-radius:50%;border:2px solid var(--border-md);background:var(--surface);flex-shrink:0;transition:all .12s}
+.lot-row.sel .lot-radio{border-color:var(--cobalt);background:var(--cobalt);box-shadow:inset 0 0 0 2px var(--surface)}
+.lot-row.dlc-warn.sel .lot-radio{border-color:var(--amber-t);background:var(--amber-t)}
+.lot-row.dlc-danger.sel .lot-radio{border-color:var(--coral-t);background:var(--coral-t)}
+.lot-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);font-weight:500}
+.lot-stk{font-size:10px;color:var(--text3)}
+.lot-week-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;text-align:right}
+.lot-dlc-line{font-size:10px;color:var(--text3);margin-top:1px}
+/* UNITE */
+.u-picker{display:flex;gap:7px;margin-bottom:8px}
+.u-opt{flex:1;border:1.5px solid var(--border);border-radius:var(--r);padding:9px 10px;cursor:pointer;transition:all .12s}
+.u-opt.sel{border-color:var(--cobalt);background:var(--cobalt-p)}
+.u-opt-title{font-size:12px;font-weight:700;color:var(--text2)}
+.u-opt.sel .u-opt-title{color:var(--cobalt-t)}
+.u-opt-sub{font-size:10px;color:var(--text3);margin-top:2px}
+/* PROD EDIT */
+.pname-btn{background:none;border:none;font-weight:600;font-size:12px;color:var(--text);cursor:pointer;padding:0;text-decoration:underline dotted;text-underline-offset:3px}
+.pname-btn:hover{color:var(--cobalt-t)}
+.prod-edit{background:var(--cobalt-p);border:1px solid #B8CEFF;border-radius:var(--r);padding:10px 12px;margin-top:6px;display:none}
+.prod-edit.open{display:block}
+.pe-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+/* NOTIF */
+.notif{background:var(--amber-p);border:1px solid #FFD080;border-radius:var(--rl);padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px}
+/* INFO BOX */
+.info-box{background:var(--cobalt-p);border:1px solid #B8CEFF;border-radius:var(--r);padding:9px 12px;font-size:11px;color:var(--cobalt-t);margin:6px 0}
+/* PLAN */
+.plan-filter{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .12s;font-family:'Manrope',sans-serif}
+.plan-filter.active{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+::-webkit-scrollbar{width:4px;height:4px}
+/* PREVIEW BANNER */
+#preview-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:var(--amber-t);color:#fff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;padding:8px 20px;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+#preview-banner.visible{display:flex}
+body.preview-mode{padding-top:38px}
+body.preview-mode .sidebar{top:38px;height:calc(100vh - 38px)}
+body.preview-mode .main{height:calc(100vh - 38px)}
+::-webkit-scrollbar-thumb{background:var(--border-md);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon"><svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="var(--cobalt)" stroke-width="1.5"><path d="M7 1L1 4.5v5L7 13l6-3.5v-5z"/><path d="M7 1v12M1 4.5l6 3.5 6-3.5"/></svg></div>
+    <div><div class="sb-logo-name">Yumi / Paf</div><div class="sb-logo-sub">Portail client · WMSito</div></div>
+  </div>
+  <div class="sb-section">Principal</div>
+  <div class="nav-item active" onclick="nav('dashboard',this)"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>Vue d'ensemble</div>
+  <div class="nav-item" onclick="nav('stock',this)"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="8" width="12" height="5" rx="1"/><rect x="2" y="4" width="10" height="4" rx="1"/><rect x="4" y="1" width="6" height="3" rx="1"/></svg>Mon stock</div>
+  <div class="nav-item" onclick="nav('commandes',this)"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="12" height="10" rx="1"/><path d="M1 6h12"/></svg>Commandes</div>
+  <div class="nav-item" onclick="nav('receptions',this)"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1v9M4 7l3 3 3-3"/><path d="M2 12h10"/></svg>Réceptions (ASN)</div>
+  <div class="nav-item" onclick="nav('expeditions',this)"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 13V4M4 8l3-4 3 4"/><path d="M2 2h10"/></svg>Expéditions</div>
+  <div class="nav-item" onclick="nav('sav',this)"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 9a2 2 0 01-2 2H3l-2 2V3a2 2 0 012-2h8a2 2 0 012 2z"/></svg>SAV / Tickets</div>
+  <div class="nav-item" onclick="nav('catalogue',this)"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1L1 4.5v5L7 13l6-3.5v-5z"/><path d="M7 1v12M1 4.5l6 3.5 6-3.5"/></svg>Catalogue produits</div>
+  <div class="nav-item" onclick="nav('config',this)"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="2"/><path d="M7 1v2M7 11v2M1 7h2M11 7h2"/></svg>Configuration</div>
+  <div class="sb-footer">
+    <div class="av">YP</div>
+    <div><div style="font-size:12px;font-weight:600;color:var(--text2)">Alexandra G.</div><div style="font-size:10px;color:var(--text3)">Responsable ops</div></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <h1 class="topbar-title" id="page-title" style="font-size:17px">Vue d'ensemble</h1>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="b br">⚠ DLC proche · Jus pressé 25cl</span>
+      <span style="font-size:11px;color:var(--text3)">mercredi 2 avril 2026</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="split-dashboard">
+
+      <!-- LEFT -->
+      <div class="split-left">
+        <div class="notif">
+          <span style="font-size:16px">⚠</span>
+          <div style="flex:1"><div style="font-weight:600">Alerte DLC — action requise</div><div style="font-size:11px;color:var(--amber-t);margin-top:1px">Jus pressé 25cl expire dans 8 jours (08/04/2026).</div></div>
+          <button class="btn danger sm">Répondre</button>
+        </div>
+
+        <!-- CUTOFF -->
+        <div class="cutoff-banner" id="cb" style="background:var(--mint-p);border-color:#A8E8DC">
+          <div class="cutoff-top">
+            <div>
+              <div class="cutoff-time-label" id="cb-label" style="color:var(--mint-t)">Prochain cutoff</div>
+              <div class="cutoff-countdown" id="cb-time" style="color:var(--mint-t)">--:--:--</div>
+              <div class="cutoff-sublabel" id="cb-sub" style="color:var(--mint-t)">Normal 13h00 · 1,00 €/u</div>
+            </div>
+          </div>
+          <div class="cutoff-bar-wrap"><div class="cutoff-bar" id="cb-bar" style="width:70%;background:var(--mint-t)"></div></div>
+          <div style="font-size:12px;font-weight:500;color:var(--mint-t)" id="cb-msg">Commandez avant 13h00 pour le tarif Normal.</div>
+          <div style="font-size:10px;opacity:.65;color:var(--mint-t);margin-top:2px" id="cb-note">Après 13h → +10% (avant 15h) ou +25% (avant 17h) · lun–ven</div>
+        </div>
+
+        <!-- KPIs -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="kpi" onmousemove="postt(event,'tt1')">
+            <div class="kpi-label">Palettes en stock</div>
+            <div class="kpi-val" style="color:var(--cobalt-t)">41</div>
+            <div class="kpi-sub">3 zones · FIFO</div>
+            <div class="kpi-tooltip" id="tt1">
+              <div class="tt-title">📦 Stock actuel</div>
+              <div class="tt-row"><span class="tt-label">CF2 — Stockage frais</span><span class="tt-val">12 pal.</span></div>
+              <div class="tt-row"><span class="tt-label">Zone BIO (Z-BIO)</span><span class="tt-val">8 pal.</span></div>
+              <div class="tt-row"><span class="tt-label">Stockage sec (Z-STO)</span><span class="tt-val">21 pal.</span></div>
+              <div class="tt-row" style="border-top:1px solid rgba(255,255,255,.15);padding-top:4px;margin-top:3px"><span class="tt-label">Prochaine réception</span><span class="tt-val">5 pal. · 05/04</span></div>
+              <span class="tt-alert">⚠ PAL-0891 DLC dans 8 jours</span>
+            </div>
+          </div>
+          <div class="kpi" onmousemove="postt(event,'tt2')">
+            <div class="kpi-label">Commandes ce mois</div>
+            <div class="kpi-val" style="color:var(--mint-t)">142</div>
+            <div class="kpi-sub">88% B2C · 12% B2B</div>
+            <div class="kpi-tooltip" id="tt2">
+              <div class="tt-title">📋 Commandes avril</div>
+              <div class="tt-row"><span class="tt-label">B2C</span><span class="tt-val">125</span></div>
+              <div class="tt-row"><span class="tt-label">GMS</span><span class="tt-val">8</span></div>
+              <div class="tt-row"><span class="tt-label">CHR</span><span class="tt-val">6</span></div>
+              <div class="tt-row"><span class="tt-label">Autres</span><span class="tt-val">3</span></div>
+              <div class="tt-row" style="border-top:1px solid rgba(255,255,255,.15);padding-top:4px;margin-top:3px"><span class="tt-label">Moyenne / jour</span><span class="tt-val">71 cmd</span></div>
+            </div>
+          </div>
+          <div class="kpi" onmousemove="postt(event,'tt3')">
+            <div class="kpi-label">Expéd. Cargonautes</div>
+            <div class="kpi-val" style="color:var(--cobalt-t)">83</div>
+            <div class="kpi-sub">58% du total</div>
+            <div class="kpi-tooltip" id="tt3">
+              <div class="tt-title">🚲 Cargonautes</div>
+              <div class="tt-row"><span class="tt-label">Paris intramuros</span><span class="tt-val">67</span></div>
+              <div class="tt-row"><span class="tt-label">Petite couronne</span><span class="tt-val">16</span></div>
+              <div class="tt-row"><span class="tt-label">Délai moyen</span><span class="tt-val">2h14</span></div>
+              <div class="tt-row"><span class="tt-label">Incidents</span><span class="tt-val" style="color:#4ade80">0</span></div>
+            </div>
+          </div>
+          <div class="kpi" onmousemove="postt(event,'tt4')">
+            <div class="kpi-label">Tickets SAV</div>
+            <div class="kpi-val" style="color:var(--coral-t)">2</div>
+            <div class="kpi-sub">1 sans réponse</div>
+            <div class="kpi-tooltip" id="tt4">
+              <div class="tt-title">🎫 Tickets actifs</div>
+              <div class="tt-row"><span class="tt-label">TKT-089 Carton éclaté</span><span class="tt-val" style="color:#f87171">+52h ⚠</span></div>
+              <div class="tt-row"><span class="tt-label">TKT-087 Qté ASN</span><span class="tt-val" style="color:#fb923c">+28h</span></div>
+              <div class="tt-row" style="border-top:1px solid rgba(255,255,255,.15);padding-top:4px;margin-top:3px"><span class="tt-label">En attente réponse</span><span class="tt-val" style="color:#f87171">1</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STOCK DLC -->
+        <div>
+          <div class="sec-label">Stock critique — DLC proches</div>
+          <div class="card-flush">
+            <table class="tbl">
+              <thead><tr><th>Produit</th><th>Lot</th><th>DLC</th><th>Stock</th><th>Alerte</th></tr></thead>
+              <tbody>
+                <tr><td style="font-weight:500">Jus pressé 25cl</td><td class="mono">5 363 153</td><td class="mono" style="color:var(--coral-t);font-weight:600">08/04/26</td><td>576 u.</td><td><span class="b br">8 jours</span></td></tr>
+                <tr><td style="font-weight:500">Force BIO 240ml</td><td class="mono">6 013 074</td><td class="mono" style="color:var(--amber-t)">18/03/26</td><td>408 u.</td><td><span class="b ba">14 jours</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT — COMMANDE FORM -->
+      <div class="split-right">
+        <div style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+          <h3 style="font-size:15px">Nouvelle commande</h3>
+          <span style="font-size:10px;color:var(--text3)">Yumi / Paf · défaut 13h</span>
+        </div>
+
+        <!-- CANAL -->
+        <div class="form-section" id="canal-section">
+          <label class="form-label">Canal de distribution</label>
+          <select class="form-select" id="sel-canal" onchange="updateExp(this)">
+            <option value="b2c">B2C — Particuliers</option>
+            <option value="gms">GMS — Grandes surfaces</option>
+            <option value="gss">GSS — Bio spécialisé</option>
+            <option value="chr">CHR — Café / Hôtel / Restaurant</option>
+            <option value="bureaux">Bureaux — Office wellness</option>
+            <option value="animation">Animation — Dégustation</option>
+          </select>
+        </div>
+
+        <!-- EXP RECAP -->
+        <div class="exp-recap" id="exp-recap" style="background:var(--cobalt-p);border-color:#B8CEFF;color:var(--cobalt-t);margin-bottom:10px">
+          <div class="exp-grid">
+            <div>
+              <div class="exp-fl" id="exp-fl-t">Transporteur</div>
+              <select id="exp-t" class="form-select" style="padding:3px 7px;font-size:11px;font-weight:600;border-color:#B8CEFF;background:transparent;color:var(--cobalt-t)">
+                <option>Chronofresh</option><option>Cargonautes</option><option>STEF</option><option>UPS</option><option>STG</option>
+              </select>
+            </div>
+            <div><div class="exp-fl" id="exp-fl-c">Conditionnement</div><div class="exp-fv" id="exp-c">Carton</div></div>
+            <div><div class="exp-fl" id="exp-fl-p">Unité picking</div><div class="exp-fv" id="exp-p">Bouteille</div></div>
+          </div>
+          <div class="exp-note" id="exp-note">Picking unitaire à la bouteille · carton refermé</div>
+        </div>
+
+        <!-- PALETTES (GMS) -->
+        <div id="pal-section" style="display:none" class="form-section">
+          <label class="form-label">Type de palette
+            <span class="info-btn">?<span class="bubble">Le type de palette influe sur la facturation. La palette Europe est consignable avec le transporteur si accord préalable.</span></span>
+          </label>
+          <div class="pal-grid">
+            <div class="pal-card sel" id="pal-euro" onclick="selPal('euro')">
+              <div style="display:flex;justify-content:space-between"><div class="pal-title">Palette Europe</div><span class="info-btn">ℹ<span class="bubble">Format 80×120cm. Robuste, empilable, standardisée. Peut être récupérée en consigne avec le transporteur.</span></span></div>
+              <div class="pal-price">20 €/pal.</div>
+              <div class="pal-desc">EUR standard · stable · lourde<br>Consigne possible avec transporteur</div>
+            </div>
+            <div class="pal-card" id="pal-perdue" onclick="selPal('perdue')">
+              <div style="display:flex;justify-content:space-between"><div class="pal-title">Palette perdue</div><span class="info-btn">ℹ<span class="bubble">Palette légère non récupérée. Adaptée aux produits non fragiles et légers. Non consignable.</span></span></div>
+              <div class="pal-price">9 €/pal.</div>
+              <div class="pal-desc">Légère · usage unique<br>Produits non fragiles, non lourds</div>
+            </div>
+          </div>
+          <div class="form-row-2" style="margin-bottom:6px">
+            <div><label class="form-label">Nb pal. Europe</label><input type="number" class="form-input" id="nb-euro" value="0" min="0" oninput="updatePalCost()"></div>
+            <div><label class="form-label">Nb pal. perdues</label><input type="number" class="form-input" id="nb-perdue" value="0" min="0" oninput="updatePalCost()"></div>
+          </div>
+          <div id="pal-cost" style="display:none;font-size:11px;color:var(--cobalt-t);background:var(--cobalt-p);padding:6px 10px;border-radius:var(--r)"></div>
+        </div>
+
+        <!-- DATE + CRÉNEAU -->
+        <div class="form-section">
+          <div class="form-row-2">
+            <div><label class="form-label">Date souhaitée</label><input type="date" class="form-input" value="2026-04-03"></div>
+            <div>
+              <label class="form-label">Créneau</label>
+              <select class="form-select" id="sel-creneau" onchange="updateSim()">
+                <option value="1.00" id="opt-normal">Normal · 1,00 €/u ★</option>
+                <option value="0.95" id="opt-t11">Avant 11h · 0,95 €/u (-5%)</option>
+                <option value="1.10" id="opt-t15">Avant 15h · 1,10 €/u (+10%)</option>
+                <option value="1.25" id="opt-t17">Avant 17h · 1,25 €/u (+25%)</option>
+                <option value="1.50" id="opt-urgence">Urgence · 1,50 €/u (+50%)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUITS -->
+        <div class="form-section">
+          <label class="form-label">Produits</label>
+          <div class="ph"><div>Produit</div><div>Unité</div><div>Lot</div><div>Qté</div><div></div></div>
+          <div class="pr-rows" id="pr-rows"><div class="pr-empty">Aucun produit ajouté</div></div>
+          <button class="btn soft sm" style="margin-top:7px;width:100%;justify-content:center" onclick="toggleAddPanel()">+ Ajouter un produit</button>
+
+          <div class="add-panel" id="add-panel" style="display:none;margin-top:8px">
+            <label class="form-label">Référence</label>
+            <select class="form-select" id="sel-produit" onchange="onProdChange(this)" style="margin-bottom:8px">
+              <option value="">— Choisir —</option>
+              <optgroup label="Shots">
+              <option value="s60">Shot gingembre 60ml — PAV×8</option>
+              </optgroup>
+              <optgroup label="Petits formats">
+              <option value="j237">Jus carotte 237ml — PAV×6</option>
+              <option value="jp">Jus pressé 25cl — PAV×6</option>
+              <option value="jb">Jus betterave 33cl — PAV×6</option>
+              <option value="jg">Jus pomme gingembre 33cl — PAV×6</option>
+              <option value="jc">Jus orange carotte 33cl — PAV×6</option>
+              </optgroup>
+              <optgroup label="Formats moyens">
+              <option value="j300">Force BIO 300ml — PAV×6</option>
+              <option value="j500">Jus détox 500ml — PAV×6</option>
+              </optgroup>
+              <optgroup label="Grand format">
+              <option value="j1l">Jus pressé 1000ml — unité seulement</option>
+              </optgroup>
+            </select>
+            <div id="lot-panel" style="display:none">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                <div style="font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Lots disponibles — choisir</div>
+                <div style="font-size:9px;color:var(--text3)">FIFO pré-sélectionné</div>
+              </div>
+              <div class="lot-list" id="lot-list"><!-- rendered by JS --></div>
+              <div id="lot-pav-info" style="font-size:11px;color:var(--cobalt-t);background:var(--cobalt-p);padding:5px 9px;border-radius:var(--r);margin-bottom:8px;display:none"></div>
+              <label class="form-label">Unité de picking</label>
+              <div class="u-picker">
+                <div class="u-opt sel" id="u-pav" onclick="selUnite('pav')"><div class="u-opt-title">PAV — carton</div><div class="u-opt-sub" id="pav-sub">1 PAV = 12 u.</div></div>
+                <div class="u-opt" id="u-unit" onclick="selUnite('unite')"><div class="u-opt-title">Unité</div><div class="u-opt-sub">picking bouteille</div></div>
+              </div>
+              <div class="form-row-2" style="margin-bottom:8px">
+                <div><label class="form-label" id="qte-lbl">Quantité (PAV)</label><input type="number" class="form-input" id="inp-qte" value="1" min="1" oninput="updEquiv()"></div>
+                <div style="display:flex;align-items:flex-end;padding-bottom:3px"><div style="font-size:11px;color:var(--text3)" id="qte-equiv"></div></div>
+              </div>
+              <div style="display:flex;gap:7px">
+                <button class="btn primary sm" style="flex:1" onclick="addProd()">Ajouter</button>
+                <button class="btn sm" onclick="toggleAddPanel()">Annuler</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESTINATAIRE -->
+        <div class="form-section">
+          <label class="form-label">Destinataire</label>
+          <div class="form-row-2" style="margin-bottom:7px">
+            <input type="text" class="form-input" placeholder="Prénom">
+            <input type="text" class="form-input" placeholder="Nom">
+          </div>
+          <div class="form-row-2" style="margin-bottom:7px">
+            <input type="tel" class="form-input" placeholder="Téléphone">
+            <input type="email" class="form-input" placeholder="Email">
+          </div>
+          <div class="ac-wrap" style="margin-bottom:7px">
+            <input type="text" class="form-input" id="inp-adr" placeholder="Adresse (ex: 12 rue de la Paix)" oninput="acAdr(this)" autocomplete="off">
+            <div class="ac-list" id="ac-list"></div>
+          </div>
+          <div class="form-row-cp">
+            <input type="text" class="form-input" id="inp-cp" placeholder="CP">
+            <input type="text" class="form-input" id="inp-ville" placeholder="Ville">
+          </div>
+        </div>
+
+        <!-- INSTRUCTIONS -->
+        <div class="form-section">
+          <label class="form-label">Instructions livraison <span style="font-size:9px;color:var(--text3);font-weight:400">(pour le livreur)</span></label>
+          <textarea class="form-input" style="min-height:50px;resize:vertical" placeholder="Ex: 3e étage sans ascenseur. Sonner 2 fois. Laisser en bas si absent."></textarea>
+        </div>
+        <div class="form-section">
+          <label class="form-label" style="color:var(--cobalt-t)">Instructions préparateur <span style="font-size:9px;font-weight:400;color:var(--text3)">(interne · non visible client final)</span></label>
+          <textarea class="form-input" style="min-height:50px;resize:vertical;border-color:#B8CEFF;background:var(--cobalt-p)" placeholder="Ex: Étiquette face visible. Emballer individuellement pour La Défense. Max 2 cartons empilés."></textarea>
+        </div>
+
+        <!-- STOCK -->
+        <div class="form-section">
+          <label class="form-label">Stock disponible ?</label>
+          <div style="display:flex;gap:8px;margin-bottom:7px">
+            <label style="flex:1;display:flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:12px">
+              <input type="radio" name="stk" value="oui" checked onchange="onStk('oui')" style="width:auto">
+              <div><div style="font-weight:500">Disponible</div><div style="font-size:10px;color:var(--text3)">En entrepôt</div></div>
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:12px">
+              <input type="radio" name="stk" value="non" onchange="onStk('non')" style="width:auto">
+              <div><div style="font-weight:500">En transit</div><div style="font-size:10px;color:var(--text3)">Pas encore arrivé</div></div>
+            </label>
+          </div>
+          <div id="stk-info" style="display:none" class="info-box">Commande en attente jusqu'à réception. <a href="#" style="color:var(--cobalt-t)">Déclarer un ASN →</a></div>
+        </div>
+
+        <!-- COÛT -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:11px;color:var(--text2)">Coût estimé</div>
+          <div style="display:flex;align-items:baseline;gap:6px">
+            <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:24px" id="sim-total">0,00 €</span>
+            <span style="font-size:11px;color:var(--text3)" id="sim-detail">0 items × 1,00 €</span>
+          </div>
+        </div>
+        <button class="btn primary" style="width:100%;justify-content:center;padding:10px;font-size:13px" onclick="confirmer()">Confirmer la commande →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STOCK PAGE -->
+  <div class="page" id="page-stock">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+      <div class="kpi"><div class="kpi-label">Total palettes</div><div class="kpi-val" style="color:var(--cobalt-t)">41</div><div class="kpi-sub">3 zones · FIFO</div></div>
+      <div class="kpi"><div class="kpi-label">Rotation</div><div class="kpi-val" style="font-size:20px">FIFO</div><div class="kpi-sub">Premier entré premier sorti</div></div>
+      <div class="kpi"><div class="kpi-label">Prochaine DLC</div><div class="kpi-val" style="color:var(--coral-t);font-size:20px">08/04</div><div class="kpi-sub">Jus pressé 25cl</div></div>
+    </div>
+    <div style="display:flex;gap:3px;margin-bottom:14px;background:var(--bg);padding:3px;border-radius:var(--r);border:1px solid var(--border);width:fit-content">
+      <button id="tb-liste" onclick="switchStock('liste')" class="btn sm" style="background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.08);border:none">≡ Liste</button>
+      <button id="tb-plan" onclick="switchStock('plan')" class="btn sm" style="background:transparent;color:var(--text3);border:none">⊞ Plan</button>
+    </div>
+    <!-- LISTE -->
+    <div id="st-liste">
+      <div class="filter-bar">
+        <input type="text" id="stock-search" placeholder="Rechercher référence, palette, lot..." oninput="filterStock(this.value)" style="flex:1">
+        <select id="stock-zone-filter" onchange="filterStock(document.getElementById('stock-search').value)">
+          <option value="">Toutes zones</option><option value="CF2">CF2 — Frais</option><option value="Z-BIO">Z-BIO</option><option value="Z-STO">Z-STO</option>
+        </select>
+        <select id="stock-etat-filter" onchange="filterStock(document.getElementById('stock-search').value)">
+          <option value="">Tous états</option><option value="DLC">Alertes DLC</option><option value="BIO">BIO</option><option value="OK">OK</option>
+        </select>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px" id="stock-count">50 palettes · <span style="color:var(--coral-t)">5 alertes DLC</span> · <span style="color:var(--purple-t)">12 BIO</span> · 16 palettes multi-références</div>
+      <div class="card-flush">
+        <table class="tbl">
+          <thead><tr><th>Palette</th><th>Produit(s) · Lot</th><th>Zone</th><th>DLC</th><th>Qté</th><th>Cert.</th><th>État</th></tr></thead>
+          <tbody id="stock-tbody">
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0891</td>
+              <td><span style="font-size:12px;font-weight:500">ABSOLU 60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 110</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:var(--coral-t);font-weight:600">08/04/26</td>
+              <td style="font-size:11px">1 200 u.</td>
+              <td>—</td>
+              <td><span class="b br">DLC critique</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0892</td>
+              <td><span style="font-size:12px;font-weight:500">ATTRACTION 60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 118</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">22/04/26</td>
+              <td style="font-size:11px">1 400 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0893</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">AMOUR 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">PURETE 240ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 082</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:var(--coral-t);font-weight:600">15/04/26</td>
+              <td style="font-size:11px">720 u.</td>
+              <td>—</td>
+              <td><span class="b br">DLC proche</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0894</td>
+              <td><span style="font-size:12px;font-weight:500">FORCE 240ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 014 021</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">10/05/26</td>
+              <td style="font-size:11px">480 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0895</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">CONFIANCE 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">JOIE 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">BONHEUR 240ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×3 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 091</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">28/04/26</td>
+              <td style="font-size:11px">900 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0896</td>
+              <td><span style="font-size:12px;font-weight:500">AMOUR 1000ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 020 093</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">12/05/26</td>
+              <td style="font-size:11px">96 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0897</td>
+              <td><span style="font-size:12px;font-weight:500">COUP DE FOUDRE 60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 201</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">30/06/26</td>
+              <td style="font-size:11px">1 600 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0898</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">GARDE DU CORPS 60ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">PETIT FRISSON 60ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 195</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:var(--coral-t);font-weight:600">14/04/26</td>
+              <td style="font-size:11px">960 u.</td>
+              <td>—</td>
+              <td><span class="b br">DLC proche</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0899</td>
+              <td><span style="font-size:12px;font-weight:500">ELEVATION 60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 220</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">25/05/26</td>
+              <td style="font-size:11px">1 200 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0900</td>
+              <td><span style="font-size:12px;font-weight:500">BONHEUR 1000ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 020 105</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">20/05/26</td>
+              <td style="font-size:11px">144 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0901</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">VITALITE 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">LEGERETE 240ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 014 055</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">05/06/26</td>
+              <td style="font-size:11px">600 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0902</td>
+              <td><span style="font-size:12px;font-weight:500">ARCHIE 60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 212</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:var(--amber-t);font-weight:600">18/04/26</td>
+              <td style="font-size:11px">1 600 u.</td>
+              <td>—</td>
+              <td><span class="b ba">Sem. 2</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0903</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">ELIXIR 60ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">ULTIME 60ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 233</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">02/05/26</td>
+              <td style="font-size:11px">1 200 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0904</td>
+              <td><span style="font-size:12px;font-weight:500">SERENITE 240ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 014 088</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">15/06/26</td>
+              <td style="font-size:11px">480 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0905</td>
+              <td><span style="font-size:12px;font-weight:500">ECLIPSE 240ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 110</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">08/05/26</td>
+              <td style="font-size:11px">600 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0906</td>
+              <td><span style="font-size:12px;font-weight:500">LA FESSEE 60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 240</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">20/06/26</td>
+              <td style="font-size:11px">1 600 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0907</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">GRATITUDE 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">ECLIPSE 240ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 099</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:var(--amber-t);font-weight:600">22/04/26</td>
+              <td style="font-size:11px">720 u.</td>
+              <td>—</td>
+              <td><span class="b ba">Sem. 3</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0908</td>
+              <td><span style="font-size:12px;font-weight:500">GINGEMBRE 1000ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 020 118</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">30/05/26</td>
+              <td style="font-size:11px">132 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0909</td>
+              <td><span style="font-size:12px;font-weight:500">PRELUDE 300ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 015 033</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">10/07/26</td>
+              <td style="font-size:11px">360 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0910</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">COMME UN REVE 60ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">LA PEPITE 60ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 249</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">15/05/26</td>
+              <td style="font-size:11px">1 600 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0911</td>
+              <td><span style="font-size:12px;font-weight:500">PLENITUDE 300ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 015 041</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">25/06/26</td>
+              <td style="font-size:11px">360 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0912</td>
+              <td><span style="font-size:12px;font-weight:500">ALLUMETTE 240ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 078</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:var(--amber-t);font-weight:600">12/04/26</td>
+              <td style="font-size:11px">600 u.</td>
+              <td>—</td>
+              <td><span class="b ba">Sem. 1</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0913</td>
+              <td><span style="font-size:12px;font-weight:500">CITRON 1000ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 020 130</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">28/06/26</td>
+              <td style="font-size:11px">66 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0914</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">FORCE 1000ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">JOIE 1000ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 020 122</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">15/06/26</td>
+              <td style="font-size:11px">180 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0915</td>
+              <td><span style="font-size:12px;font-weight:500">NO STRESS 240ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 088</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:var(--amber-t);font-weight:600">20/04/26</td>
+              <td style="font-size:11px">600 u.</td>
+              <td>—</td>
+              <td><span class="b ba">Sem. 2</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0916</td>
+              <td><span style="font-size:12px;font-weight:500">ABSOLU MAXI 300ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 015 050</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">30/05/26</td>
+              <td style="font-size:11px">480 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0917</td>
+              <td><span style="font-size:12px;font-weight:500">PRES REPAS 60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 260</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">10/06/26</td>
+              <td style="font-size:11px">1 600 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0918</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">COUP DE SOLEIL 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">ANTIDOTE 240ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 095</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">25/04/26</td>
+              <td style="font-size:11px">720 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0919</td>
+              <td><span style="font-size:12px;font-weight:500">HARMONIE 300ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 015 058</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">20/07/26</td>
+              <td style="font-size:11px">360 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0920</td>
+              <td><span style="font-size:12px;font-weight:500">ORANGE 1000ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 020 140</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">15/07/26</td>
+              <td style="font-size:11px">66 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0921</td>
+              <td><span style="font-size:12px;font-weight:500">LA FLAMME 60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 180</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:var(--coral-t);font-weight:600">05/04/26</td>
+              <td style="font-size:11px">1 200 u.</td>
+              <td>—</td>
+              <td><span class="b br">DLC critique</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0922</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">ETINCELLE 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">PETITE GATERIE 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">JOIE 240ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×3 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 103</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">02/05/26</td>
+              <td style="font-size:11px">900 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0923</td>
+              <td><span style="font-size:12px;font-weight:500">LEGERETE 1000ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 020 148</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">01/06/26</td>
+              <td style="font-size:11px">96 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0924</td>
+              <td><span style="font-size:12px;font-weight:500">VITALITE MAXI 300ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 015 066</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">10/08/26</td>
+              <td style="font-size:11px">480 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0925</td>
+              <td><span style="font-size:12px;font-weight:500">GINGEMBRE 4 500ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 018 055</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">30/05/26</td>
+              <td style="font-size:11px">240 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0926</td>
+              <td><span style="font-size:12px;font-weight:500">CONFIANCE 1000ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 020 155</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">20/06/26</td>
+              <td style="font-size:11px">120 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0927</td>
+              <td><span style="font-size:12px;font-weight:500">LA GROSSE FESSEE 300ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 015 020</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">18/05/26</td>
+              <td style="font-size:11px">360 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0928</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">ABSOLU 60ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">ATTRACTION 60ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">ELIXIR 60ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×3 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 025 270</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">25/05/26</td>
+              <td style="font-size:11px">2 400 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0929</td>
+              <td><span style="font-size:12px;font-weight:500">JUS JOYEUX 240ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 115</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">08/06/26</td>
+              <td style="font-size:11px">600 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0930</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">BONHEUR 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">SERENITE 240ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 014 099</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">25/07/26</td>
+              <td style="font-size:11px">600 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0931</td>
+              <td><span style="font-size:12px;font-weight:500">LE GRAND GARDE DU CORPS 300ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 015 028</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">15/05/26</td>
+              <td style="font-size:11px">360 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0932</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">POMME 1000ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">GINGEMBRE 1000ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 020 162</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">10/07/26</td>
+              <td style="font-size:11px">198 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0933</td>
+              <td><span style="font-size:12px;font-weight:500">PACK LA FESSEE 4X60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 030 011</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">30/04/26</td>
+              <td style="font-size:11px">400 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0934</td>
+              <td><span style="font-size:12px;font-weight:500">RESILIENCE 240ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 014 108</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">05/08/26</td>
+              <td style="font-size:11px">480 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0935</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">LE REVE BLEU 300ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">LA VIE EN ROSE 300ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 015 035</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">20/05/26</td>
+              <td style="font-size:11px">480 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0936</td>
+              <td><span style="font-size:12px;font-weight:500">GINGEMBRE FRUITE 4 500ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 018 062</div></td>
+              <td><span class="b bc">CF2</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">15/07/26</td>
+              <td style="font-size:11px">240 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0937</td>
+              <td><div><div style="font-size:11px;font-weight:500;line-height:1.4">PURETE 240ML</div><div style="font-size:11px;font-weight:500;line-height:1.4">GRATITUDE 240ML</div><span class="b bc" style="margin-top:2px;display:inline-flex">×2 réfs</span></div><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 014 115</div></td>
+              <td><span class="b bp">Z-BIO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">30/07/26</td>
+              <td style="font-size:11px">600 u.</td>
+              <td><span class="b bp">BIO</span></td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0938</td>
+              <td><span style="font-size:12px;font-weight:500">PACK COUP DE FOUDRE 4X60ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 030 018</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">30/04/26</td>
+              <td style="font-size:11px">400 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0939</td>
+              <td><span style="font-size:12px;font-weight:500">LA GRANDE ETINCELLE 300ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 015 043</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">25/05/26</td>
+              <td style="font-size:11px">360 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+            <tr>
+              <td class="mono" style="cursor:pointer;color:var(--cobalt-t)">PAL-2026-0940</td>
+              <td><span style="font-size:12px;font-weight:500">CONFIANCE 240ML</span><div style="font-size:10px;color:var(--text3);margin-top:1px">Lot 6 013 120</div></td>
+              <td><span class="b bc">Z-STO</span></td>
+              <td class="mono" style="color:inherit;font-weight:400">10/06/26</td>
+              <td style="font-size:11px">480 u.</td>
+              <td>—</td>
+              <td><span class="b bm">OK</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:11px;color:var(--text3)">Les palettes <strong>×N réfs</strong> contiennent plusieurs références · FIFO actif</div>
+    <!-- PLAN -->
+    <div id="st-plan" style="display:none">
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;gap:6px;margin-bottom:10px">
+            <button class="plan-filter active" onclick="filterPlan('all',this)">Tout</button>
+            <button class="plan-filter" onclick="filterPlan('STO',this)">Sec</button>
+            <button class="plan-filter" onclick="filterPlan('BIO',this)">BIO</button>
+            <button class="plan-filter" onclick="filterPlan('CF',this)">Froid</button>
+          </div>
+          <svg viewBox="0 0 400 540" width="100%" style="display:block;border-radius:var(--rl);border:1px solid var(--border);background:#F8F7F3">
+            <rect x="8" y="8" width="270" height="75" rx="3" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+            <text x="143" y="44" text-anchor="middle" font-size="11" fill="#888780" font-family="Manrope,sans-serif">Mezzanine</text>
+            <rect x="8" y="83" width="125" height="60" fill="#F1EFE8" stroke="#B4B2A9" stroke-width=".8"/>
+            <text x="70" y="115" text-anchor="middle" font-size="9" fill="#888780" font-family="Manrope,sans-serif">Stock sous mezz.</text>
+            <rect x="133" y="83" width="125" height="60" fill="#F1EFE8" stroke="#B4B2A9" stroke-width=".8"/>
+            <text x="195" y="115" text-anchor="middle" font-size="9" fill="#888780" font-family="Manrope,sans-serif">Stock sous mezz.</text>
+            <rect x="258" y="83" width="120" height="60" fill="#EEF0F4" stroke="#888780" stroke-width=".8" stroke-dasharray="4,2"/>
+            <text x="318" y="115" text-anchor="middle" font-size="10" fill="#888780" font-family="Manrope,sans-serif">Atelier vélos</text>
+            <rect x="8" y="152" width="230" height="105" rx="3" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+            <text x="123" y="198" text-anchor="middle" font-size="12" font-weight="500" fill="#5F5E5A" font-family="Manrope,sans-serif">Stockage sec</text>
+            <g id="pm-PAL-0891" class="pal-m" data-zone="STO" style="cursor:pointer" onclick="selPlan('PAL-0891')"><rect x="16" y="232" width="36" height="21" rx="3" fill="#FFE0E0" stroke="#F09595" stroke-width="1.5"/><text x="34" y="246" text-anchor="middle" font-size="7" fill="#791F1F" font-family="DM Mono,monospace">0891 DLC!</text></g>
+            <g id="pm-PAL-0912" class="pal-m" data-zone="STO" style="cursor:pointer" onclick="selPlan('PAL-0912')"><rect x="58" y="232" width="36" height="21" rx="3" fill="#D6F5EF" stroke="#5DCAA5" stroke-width="1"/><text x="76" y="246" text-anchor="middle" font-size="7" fill="#085041" font-family="DM Mono,monospace">0912</text></g>
+            <rect x="8" y="266" width="230" height="85" rx="3" fill="#EDE8FF" stroke="#AFA9EC" stroke-width="1"/>
+            <text x="123" y="307" text-anchor="middle" font-size="12" font-weight="500" fill="#3C3489" font-family="Manrope,sans-serif">Zone BIO · Ecocert</text>
+            <g id="pm-PAL-0893" class="pal-m" data-zone="BIO" style="cursor:pointer" onclick="selPlan('PAL-0893')"><rect x="16" y="320" width="36" height="21" rx="3" fill="#EDE8FF" stroke="#AFA9EC" stroke-width="1.5"/><text x="34" y="334" text-anchor="middle" font-size="7" fill="#3C3489" font-family="DM Mono,monospace">0893 BIO</text></g>
+            <rect x="8" y="360" width="230" height="44" rx="3" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+            <text x="123" y="385" text-anchor="middle" font-size="11" fill="#5F5E5A" font-family="Manrope,sans-serif">Zone réception</text>
+            <rect x="8" y="413" width="230" height="60" rx="3" fill="#F1EFE8" stroke="#B4B2A9" stroke-width="1"/>
+            <text x="123" y="444" text-anchor="middle" font-size="11" fill="#5F5E5A" font-family="Manrope,sans-serif">Zone de départ</text>
+            <rect x="248" y="145" width="130" height="118" rx="3" fill="#E6F1FB" stroke="#378ADD" stroke-width="1"/>
+            <text x="313" y="200" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C" font-family="Manrope,sans-serif">CF3</text>
+            <text x="313" y="215" text-anchor="middle" font-size="10" fill="#185FA5" font-family="Manrope,sans-serif">Préparation</text>
+            <rect x="248" y="271" width="130" height="118" rx="3" fill="#E6F1FB" stroke="#378ADD" stroke-width="1"/>
+            <text x="313" y="326" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C" font-family="Manrope,sans-serif">CF2</text>
+            <text x="313" y="341" text-anchor="middle" font-size="10" fill="#185FA5" font-family="Manrope,sans-serif">Stockage frais</text>
+            <rect x="248" y="397" width="130" height="63" rx="3" fill="#FAEEDA" stroke="#EF9F27" stroke-width="1"/>
+            <text x="313" y="431" text-anchor="middle" font-size="12" font-weight="500" fill="#633806" font-family="Manrope,sans-serif">CF1 · Expédition</text>
+          </svg>
+        </div>
+        <div style="width:175px;flex-shrink:0">
+          <div class="sec-label">Légende</div>
+          <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;margin-bottom:12px">
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:11px;height:11px;border-radius:2px;background:#FFE0E0;border:1px solid #F09595"></div>DLC proche</div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:11px;height:11px;border-radius:2px;background:#D6F5EF;border:1px solid #5DCAA5"></div>Stock OK</div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:11px;height:11px;border-radius:2px;background:#EDE8FF;border:1px solid #AFA9EC"></div>BIO certifié</div>
+          </div>
+          <div class="sec-label">Vos palettes</div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px">
+            <div id="lp-PAL-0891" onclick="selPlan('PAL-0891')" style="display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:var(--r);border:1px solid var(--border);cursor:pointer;font-size:11px;background:var(--surface)"><div style="width:7px;height:7px;border-radius:50%;background:#F09595"></div><div style="flex:1;font-weight:500">PAL-0891</div><span style="font-size:10px;color:var(--coral-t);font-weight:600">DLC!</span></div>
+            <div id="lp-PAL-0912" onclick="selPlan('PAL-0912')" style="display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:var(--r);border:1px solid var(--border);cursor:pointer;font-size:11px;background:var(--surface)"><div style="width:7px;height:7px;border-radius:50%;background:#5DCAA5"></div><div style="flex:1;font-weight:500">PAL-0912</div><span style="font-size:10px;color:var(--text3)">STO</span></div>
+            <div id="lp-PAL-0893" onclick="selPlan('PAL-0893')" style="display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:var(--r);border:1px solid var(--border);cursor:pointer;font-size:11px;background:var(--surface)"><div style="width:7px;height:7px;border-radius:50%;background:#AFA9EC"></div><div style="flex:1;font-weight:500">PAL-0893</div><span style="font-size:10px;color:var(--purple-t)">BIO</span></div>
+          </div>
+          <div id="plan-detail" style="display:none;border:1px solid var(--border);border-radius:var(--rl);padding:10px;font-size:11px;background:var(--surface)">
+            <div style="font-weight:700;font-size:12px;margin-bottom:6px" id="pd-title"></div>
+            <div id="pd-body"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- COMMANDES -->
+  <div class="page" id="page-commandes">
+    <div class="filter-bar"><input type="text" placeholder="Rechercher..."><select><option>Tous statuts</option><option>En cours</option><option>Expédiée</option></select></div>
+    <div class="card-flush"><table class="tbl"><thead><tr><th>Numéro</th><th>Date</th><th>Canal</th><th>Destinataire</th><th>Transporteur</th><th>Statut</th></tr></thead><tbody>
+      <tr><td class="mono">CMD-2026-0892</td><td class="mono">02/04/26</td><td><span class="b bc">B2C</span></td><td>Marie D. · Paris 11e</td><td>Chronofresh</td><td><span class="b ba">En prépa</span></td></tr>
+      <tr><td class="mono">CMD-2026-0891</td><td class="mono">01/04/26</td><td><span class="b bp">GMS</span></td><td>Naturalia Bastille</td><td>STEF</td><td><span class="b bm">Expédiée</span></td></tr>
+    </tbody></table></div>
+  </div>
+
+  <!-- RÉCEPTIONS ASN -->
+  <div class="page" id="page-receptions">
+
+    <!-- EXPLICATION ASN -->
+    <div style="background:var(--cobalt-p);border:1px solid #B8CEFF;border-radius:var(--rl);padding:12px 16px;margin-bottom:14px;display:flex;gap:12px;align-items:flex-start">
+      <div style="font-size:20px;flex-shrink:0">📦</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--cobalt-t);margin-bottom:3px">Qu'est-ce qu'un ASN ?</div>
+        <div style="font-size:12px;color:var(--cobalt-t);line-height:1.6">Un <strong>ASN (Advanced Shipping Notice)</strong> — ou avis d'expédition préalable — est un document que vous envoyez à Cargonautes <em>avant</em> qu'une livraison arrive à l'entrepôt. Il permet à l'équipe de préparer la réception : espace disponible, ressources humaines, vérification des lots et DLC à l'arrivée. Sans ASN, la réception peut être refusée ou retardée.</div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+      <div class="kpi"><div class="kpi-label">ASN en attente</div><div class="kpi-val" style="color:var(--amber-t)">3</div><div class="kpi-sub">dont 1 cette semaine</div></div>
+      <div class="kpi"><div class="kpi-label">Réceptions ce mois</div><div class="kpi-val" style="color:var(--mint-t)">7</div><div class="kpi-sub">28 palettes reçues</div></div>
+      <div class="kpi"><div class="kpi-label">Écarts détectés</div><div class="kpi-val" style="color:var(--coral-t)">1</div><div class="kpi-sub">TKT-087 ouvert</div></div>
+    </div>
+
+    <!-- ASN EN COURS -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div class="sec-label" style="margin-bottom:0">ASN déclarés</div>
+      <button class="btn primary sm" onclick="toggleASNForm()">+ Déclarer une réception</button>
+    </div>
+
+    <!-- FORMULAIRE ASN (caché par défaut) -->
+    <div id="asn-form" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px">Nouvelle réception attendue</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+        <div><label class="form-label">Date d'arrivée prévue</label><input type="date" class="form-input" value="2026-04-08"></div>
+        <div><label class="form-label">Créneau horaire</label>
+          <select class="form-select"><option>Matin (8h–12h)</option><option>Après-midi (13h–17h)</option><option>Journée complète</option></select>
+        </div>
+        <div><label class="form-label">Nombre de palettes</label><input type="number" class="form-input" placeholder="ex: 6" min="1"></div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label class="form-label">Transporteur / chauffeur</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <input type="text" class="form-input" placeholder="Transporteur (ex: Chronofresh, propre véhicule…)">
+          <input type="text" class="form-input" placeholder="Immatriculation ou nom chauffeur (optionnel)">
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label class="form-label">Produits attendus <span style="font-size:9px;font-weight:400;color:var(--text3)">(ajouter autant de lignes que nécessaire)</span></label>
+        <div id="asn-lines">
+          <div class="asn-line" style="display:grid;grid-template-columns:1fr 80px 120px 120px 28px;gap:6px;margin-bottom:5px;align-items:center">
+            <select class="form-select" style="font-size:11px">
+              <option value="">— Référence —</option>
+              <option>ABSOLU 60ML</option><option>ATTRACTION 60ML</option><option>AMOUR 240ML</option>
+              <option>FORCE 240ML</option><option>CONFIANCE 240ML</option><option>AMOUR 1000ML</option>
+              <option>COUP DE FOUDRE 60ML</option><option>PRELUDE 300ML</option><option>HARMONIE 300ML</option>
+              <option>GINGEMBRE 4 500ML</option><option>ARCHIE 60ML</option><option>PURETE 240ML</option>
+            </select>
+            <input type="number" class="form-input" placeholder="Qté" style="font-size:11px;padding:5px 7px">
+            <input type="text" class="form-input" placeholder="N° lot" style="font-size:11px;padding:5px 7px">
+            <input type="date" class="form-input" placeholder="DLC" style="font-size:11px;padding:5px 7px">
+            <button onclick="removeASNLine(this)" style="width:24px;height:24px;border:none;background:var(--coral-p);color:var(--coral-t);border-radius:5px;cursor:pointer;font-size:14px">×</button>
+          </div>
+        </div>
+        <button class="btn soft sm" onclick="addASNLine()" style="margin-top:4px">+ Ligne</button>
+      </div>
+      <div style="margin-bottom:12px">
+        <label class="form-label">Notes pour l'équipe de réception</label>
+        <textarea class="form-input" style="min-height:50px;resize:vertical" placeholder="Ex: palettes filmées, présence de colis fragiles, température de transport…"></textarea>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" onclick="submitASN()">Envoyer l'ASN →</button>
+        <button class="btn" onclick="toggleASNForm()">Annuler</button>
+      </div>
+    </div>
+
+    <!-- LISTE ASN -->
+    <div class="card-flush">
+      <table class="tbl">
+        <thead><tr><th>Référence ASN</th><th>Arrivée prévue</th><th>Palettes</th><th>Produits attendus</th><th>Lot / DLC</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="mono" style="color:var(--cobalt-t);font-weight:600">ASN-2026-047</td>
+            <td class="mono">08/04/26 · matin</td>
+            <td>6 pal.</td>
+            <td style="font-size:11px">ABSOLU 60ML × 2 400<br>ATTRACTION 60ML × 1 600</td>
+            <td class="mono" style="font-size:10px">6 025 280<br>DLC 30/06/26</td>
+            <td><span class="b ba">Attendue J+4</span></td>
+            <td><button class="btn sm">Modifier</button></td>
+          </tr>
+          <tr>
+            <td class="mono" style="color:var(--cobalt-t);font-weight:600">ASN-2026-046</td>
+            <td class="mono">10/04/26 · après-midi</td>
+            <td>4 pal.</td>
+            <td style="font-size:11px">AMOUR 240ML × 480<br>PURETE 240ML × 480<br>FORCE 240ML × 240</td>
+            <td class="mono" style="font-size:10px">6 014 130<br>DLC 15/07/26</td>
+            <td><span class="b ba">Attendue J+6</span></td>
+            <td><button class="btn sm">Modifier</button></td>
+          </tr>
+          <tr>
+            <td class="mono" style="color:var(--cobalt-t);font-weight:600">ASN-2026-045</td>
+            <td class="mono">12/04/26 · matin</td>
+            <td>8 pal.</td>
+            <td style="font-size:11px">AMOUR 1000ML × 192<br>CONFIANCE 1000ML × 144<br>GINGEMBRE 4 500ML × 480</td>
+            <td class="mono" style="font-size:10px">6 020 178<br>DLC 20/07/26</td>
+            <td><span class="b ba">Attendue J+8</span></td>
+            <td><button class="btn sm">Modifier</button></td>
+          </tr>
+          <tr style="opacity:.7">
+            <td class="mono">ASN-2026-044</td>
+            <td class="mono">01/04/26</td>
+            <td>5 pal.</td>
+            <td style="font-size:11px">COUP DE FOUDRE 60ML × 2 000<br>ARCHIE 60ML × 800</td>
+            <td class="mono" style="font-size:10px">6 025 201<br>DLC 30/06/26</td>
+            <td><span class="b bm">Reçue ✓</span></td>
+            <td><button class="btn sm">Voir détail</button></td>
+          </tr>
+          <tr style="opacity:.7">
+            <td class="mono">ASN-2026-043</td>
+            <td class="mono">25/03/26</td>
+            <td>3 pal.</td>
+            <td style="font-size:11px">PRELUDE 300ML × 360<br>HARMONIE 300ML × 360</td>
+            <td class="mono" style="font-size:10px">6 015 058<br>DLC 20/07/26</td>
+            <td><span class="b br">Écart · TKT-087</span></td>
+            <td><button class="btn sm danger">Voir ticket</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="font-size:11px;color:var(--text3)">Les ASN en attente sont transmis à l'équipe Cargonautes dès validation · Modifiable jusqu'à J-1</div>
+  </div>
+
+  <!-- EXPÉDITIONS -->
+  <div class="page" id="page-expeditions">
+    <div class="card-flush"><table class="tbl"><thead><tr><th>Expédition</th><th>Date</th><th>Transporteur</th><th>Palettes</th><th>Statut</th></tr></thead><tbody>
+      <tr><td class="mono">EXP-2026-0413</td><td class="mono">02/04/26</td><td>Cargonautes</td><td>2 EUR</td><td><span class="b bm">Livrée</span></td></tr>
+    </tbody></table></div>
+  </div>
+
+  <!-- SAV -->
+  <div class="page" id="page-sav">
+    <div class="card-flush"><table class="tbl"><thead><tr><th>Ticket</th><th>Sujet</th><th>Statut</th><th>Dernière réponse</th></tr></thead><tbody>
+      <tr><td class="mono" style="color:var(--cobalt-t);cursor:pointer">TKT-2026-089</td><td>Carton éclaté réception 01/04</td><td><span class="b br">Ouvert · +52h</span></td><td>02/04 · Cargonautes</td></tr>
+    </tbody></table></div>
+    <button class="btn primary sm">+ Nouveau ticket</button>
+  </div>
+
+  <!-- CATALOGUE -->
+  <div class="page" id="page-catalogue">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Cliquez sur un nom de produit pour modifier ses paramètres. Le conditionnement PAV est hérité par tous les canaux sauf 1000ml (unité seulement).</div>
+    <div class="card-flush"><table class="tbl"><thead><tr><th>Référence</th><th>Format</th><th>Poids</th><th>PAV (u./carton)</th><th>PAV dispo</th><th>Cyke ID</th></tr></thead><tbody>
+      <tr>
+        <td><button class="pname-btn" onclick="togEdit('ce-s60')">Shot gingembre 60ml ▾</button>
+        <div class="prod-edit" id="ce-s60"><div class="pe-grid">
+          <div><label class="form-label" style="font-size:9px">Nom</label><input type="text" class="form-input" value="Shot gingembre 60ml" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">Poids (kg)</label><input type="number" class="form-input" value="0.08" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">PAV (u./carton)</label><input type="number" class="form-input" value="8" id="pav-s60" style="font-size:11px;padding:4px 7px" oninput="updCatPav('s60',this.value)"></div>
+          <div><label class="form-label" style="font-size:9px">Cyke ID</label><input type="text" class="form-input" value="cyke-shot60" style="font-size:11px;padding:4px 7px"></div>
+        </div><div style="display:flex;gap:6px;margin-top:7px"><button class="btn primary sm" onclick="togEdit('ce-s60')">Enregistrer</button><button class="btn sm" onclick="togEdit('ce-s60')">Annuler</button></div></div>
+        </td><td>60ml</td><td>0,08 kg</td><td><span class="mono" id="pavdisp-s60">8</span> u.</td><td><span class="b bc">PAV ×8</span></td><td class="mono">cyke-shot60</td>
+      </tr>
+      <tr>
+        <td><button class="pname-btn" onclick="togEdit('ce-jp')">Jus pressé 25cl ▾</button>
+        <div class="prod-edit" id="ce-jp"><div class="pe-grid">
+          <div><label class="form-label" style="font-size:9px">Nom</label><input type="text" class="form-input" value="Jus pressé 25cl" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">Poids (kg)</label><input type="number" class="form-input" value="0.30" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">PAV (u./carton)</label><input type="number" class="form-input" value="6" id="pav-jp" style="font-size:11px;padding:4px 7px" oninput="updCatPav('jp',this.value)"></div>
+          <div><label class="form-label" style="font-size:9px">Cyke ID</label><input type="text" class="form-input" value="cyke-jus25" style="font-size:11px;padding:4px 7px"></div>
+        </div><div style="display:flex;gap:6px;margin-top:7px"><button class="btn primary sm" onclick="togEdit('ce-jp')">Enregistrer</button><button class="btn sm" onclick="togEdit('ce-jp')">Annuler</button></div></div>
+        </td><td>25cl</td><td>0,30 kg</td><td><span class="mono" id="pavdisp-jp">6</span> u.</td><td><span class="b bc">PAV ×6</span></td><td class="mono">cyke-jus25</td>
+      </tr>
+      <tr>
+        <td><button class="pname-btn" onclick="togEdit('ce-jb')">Jus betterave 33cl ▾</button>
+        <div class="prod-edit" id="ce-jb"><div class="pe-grid">
+          <div><label class="form-label" style="font-size:9px">Nom</label><input type="text" class="form-input" value="Jus betterave 33cl" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">Poids (kg)</label><input type="number" class="form-input" value="0.38" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">PAV (u./carton)</label><input type="number" class="form-input" value="6" id="pav-jb" style="font-size:11px;padding:4px 7px" oninput="updCatPav('jb',this.value)"></div>
+          <div><label class="form-label" style="font-size:9px">Cyke ID</label><input type="text" class="form-input" value="cyke-jus33b" style="font-size:11px;padding:4px 7px"></div>
+        </div><div style="display:flex;gap:6px;margin-top:7px"><button class="btn primary sm" onclick="togEdit('ce-jb')">Enregistrer</button><button class="btn sm" onclick="togEdit('ce-jb')">Annuler</button></div></div>
+        </td><td>33cl</td><td>0,38 kg</td><td><span class="mono" id="pavdisp-jb">6</span> u.</td><td><span class="b bc">PAV ×6</span></td><td class="mono">cyke-jus33b</td>
+      </tr>
+      <tr>
+        <td><button class="pname-btn" onclick="togEdit('ce-jg')">Jus pomme gingembre 33cl ▾</button>
+        <div class="prod-edit" id="ce-jg"><div class="pe-grid">
+          <div><label class="form-label" style="font-size:9px">Nom</label><input type="text" class="form-input" value="Jus pomme gingembre 33cl" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">PAV (u./carton)</label><input type="number" class="form-input" value="6" id="pav-jg" style="font-size:11px;padding:4px 7px" oninput="updCatPav('jg',this.value)"></div>
+          <div><label class="form-label" style="font-size:9px">Cyke ID</label><input type="text" class="form-input" value="cyke-jus33g" style="font-size:11px;padding:4px 7px"></div>
+        </div><div style="display:flex;gap:6px;margin-top:7px"><button class="btn primary sm" onclick="togEdit('ce-jg')">Enregistrer</button><button class="btn sm" onclick="togEdit('ce-jg')">Annuler</button></div></div>
+        </td><td>33cl</td><td>0,38 kg</td><td><span class="mono" id="pavdisp-jg">6</span> u.</td><td><span class="b bc">PAV ×6</span></td><td class="mono">cyke-jus33g</td>
+      </tr>
+      <tr>
+        <td><button class="pname-btn" onclick="togEdit('ce-j300')">Force BIO 300ml ▾</button>
+        <div class="prod-edit" id="ce-j300"><div class="pe-grid">
+          <div><label class="form-label" style="font-size:9px">Nom</label><input type="text" class="form-input" value="Force BIO 300ml" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">Poids (kg)</label><input type="number" class="form-input" value="0.34" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">PAV (u./carton)</label><input type="number" class="form-input" value="6" id="pav-j300" style="font-size:11px;padding:4px 7px" oninput="updCatPav('j300',this.value)"></div>
+          <div><label class="form-label" style="font-size:9px">Cyke ID</label><input type="text" class="form-input" value="cyke-bio300" style="font-size:11px;padding:4px 7px"></div>
+        </div><div style="display:flex;gap:6px;margin-top:7px"><button class="btn primary sm" onclick="togEdit('ce-j300')">Enregistrer</button><button class="btn sm" onclick="togEdit('ce-j300')">Annuler</button></div></div>
+        </td><td>300ml</td><td>0,34 kg</td><td><span class="mono" id="pavdisp-j300">6</span> u.</td><td><span class="b bc">PAV ×6</span></td><td class="mono">cyke-bio300</td>
+      </tr>
+      <tr>
+        <td><button class="pname-btn" onclick="togEdit('ce-j500')">Jus détox 500ml ▾</button>
+        <div class="prod-edit" id="ce-j500"><div class="pe-grid">
+          <div><label class="form-label" style="font-size:9px">Nom</label><input type="text" class="form-input" value="Jus détox 500ml" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">Poids (kg)</label><input type="number" class="form-input" value="0.55" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">PAV (u./carton)</label><input type="number" class="form-input" value="6" id="pav-j500" style="font-size:11px;padding:4px 7px" oninput="updCatPav('j500',this.value)"></div>
+          <div><label class="form-label" style="font-size:9px">Cyke ID</label><input type="text" class="form-input" value="cyke-jus500" style="font-size:11px;padding:4px 7px"></div>
+        </div><div style="display:flex;gap:6px;margin-top:7px"><button class="btn primary sm" onclick="togEdit('ce-j500')">Enregistrer</button><button class="btn sm" onclick="togEdit('ce-j500')">Annuler</button></div></div>
+        </td><td>500ml</td><td>0,55 kg</td><td><span class="mono" id="pavdisp-j500">6</span> u.</td><td><span class="b bc">PAV ×6</span></td><td class="mono">cyke-jus500</td>
+      </tr>
+      <tr>
+        <td><button class="pname-btn" onclick="togEdit('ce-j1l')">Jus pressé 1000ml ▾</button>
+        <div class="prod-edit" id="ce-j1l"><div class="pe-grid">
+          <div><label class="form-label" style="font-size:9px">Nom</label><input type="text" class="form-input" value="Jus pressé 1000ml" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">Poids (kg)</label><input type="number" class="form-input" value="1.10" style="font-size:11px;padding:4px 7px"></div>
+          <div><label class="form-label" style="font-size:9px">Cyke ID</label><input type="text" class="form-input" value="cyke-jus1l" style="font-size:11px;padding:4px 7px"></div>
+        </div><div style="display:flex;gap:6px;margin-top:7px"><button class="btn primary sm" onclick="togEdit('ce-j1l')">Enregistrer</button><button class="btn sm" onclick="togEdit('ce-j1l')">Annuler</button></div></div>
+        </td><td>1000ml</td><td>1,10 kg</td><td style="color:var(--text3);font-size:11px">—</td><td><span class="b bg2">Unité seule</span></td><td class="mono">cyke-jus1l</td>
+      </tr>
+    </tbody></table></div>
+    <button class="btn primary sm">+ Nouveau produit</button>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="page" id="page-config">
+    <div class="card"><div class="sec-label">Paramètres compte</div><div style="font-size:12px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Cutoff préparation</span><span style="font-weight:600">Normal 13h00 · Lun–Ven</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Alerte DLC</span><span style="font-weight:600">15 jours avant</span></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--text2)">Rotation stock</span><span style="font-weight:600">FIFO</span></div>
+    </div></div></div>
+  </div>
+
+  </div><!-- content -->
+</div><!-- main -->
+</div><!-- app -->
+
+<script>
+// NAV
+const titles={dashboard:"Vue d'ensemble",stock:"Mon stock",commandes:"Commandes",receptions:"Réceptions (ASN)",expeditions:"Expéditions",sav:"SAV / Tickets",catalogue:"Catalogue produits",config:"Configuration"};
+function nav(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+page);
+  if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('page-title').textContent=titles[page]||page;
+}
+
+// TOOLTIP
+function postt(e,id){
+  const t=document.getElementById(id);if(!t)return;
+  t.style.left=(e.clientX+14)+'px';t.style.top=(e.clientY-8)+'px';
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  CLIENT_CONFIG — seul bloc à modifier par client         ║
+// ║  Changer CLIENT_ID pour switcher de profil               ║
+// ╚══════════════════════════════════════════════════════════╝
+const CLIENTS = {
+  'yumi': {
+    nom:           'Yumi / Paf',
+    emoji:         '🥤',
+    accentVar:     'cobalt',        // CSS var prefix: --cobalt / --cobalt-p / --cobalt-t
+    contact:       'Alexandra G.',
+    role:          'Responsable ops',
+    cutoff:        {h:13, m:0, days:[1,2,3,4,5], exc:{}},
+    tarifs:        {normal:1.00, t11:0.95, t15:1.10, t17:1.25, urgence:1.50},
+    hasPAV:        true,
+    hasCanaux:     true,
+    hasStockCible: false,
+    dlcMode:       'short',         // 'short' = semaines, 'long' = mois/ans
+    transporteurs: ['Chronofresh','Cargonautes','STEF','UPS','STG'],
+    exportTarget:  'cyke',
+  },
+  'rebelle': {
+    nom:           'Re-Belle',
+    emoji:         '🍓',
+    accentVar:     'jam',
+    contact:       'Alexandre Casi',
+    role:          'Responsable logistique',
+    cutoff:        {h:17, m:0, days:[1,2,3,4,5], exc:{}},
+    tarifs:        {normal:1.00, t11:0.95, t15:1.10, t17:1.25, urgence:1.50},
+    hasPAV:        false,
+    hasCanaux:     false,
+    hasStockCible: true,
+    dlcMode:       'long',
+    transporteurs: ['Cargonautes','MyTroopers','Génial','ANDES','Ayad Transport','Retrait sur place'],
+    exportTarget:  'zapier',
+  },
+  'xoco': {
+    nom:           'Xoco',
+    emoji:         '🍫',
+    accentVar:     'purple',
+    contact:       'Responsable Xoco',
+    role:          'Logistique',
+    cutoff:        {h:17, m:0, days:[1,2,3,4,5], exc:{}},
+    tarifs:        {normal:1.00, t11:0.95, t15:1.10, t17:1.25, urgence:1.50},
+    hasPAV:        true,
+    hasCanaux:     false,
+    hasStockCible: false,
+    dlcMode:       'long',
+    transporteurs: ['Cargonautes','Chronofresh'],
+    exportTarget:  null,
+  },
+};
+
+// ── CHOISIR LE CLIENT ACTIF ─────────────────────────────
+const CLIENT_ID   = 'yumi';   // ← changer ici pour switcher de client
+const CFG         = CLIENTS[CLIENT_ID];
+
+// ── CUTOFF (lu depuis CFG) ──────────────────────────────
+const ccfg = {h: CFG.cutoff.h, m: CFG.cutoff.m, days: CFG.cutoff.days, exc: CFG.cutoff.exc};
+function getNextCutoff(){
+  const now=new Date();
+  for(let d=0;d<7;d++){
+    const dt=new Date(now);dt.setDate(now.getDate()+d);
+    const dow=dt.getDay(),ds=dt.toISOString().slice(0,10);
+    const exc=ccfg.exc[ds];
+    if(exc&&exc.closed)continue;
+    if(!ccfg.days.includes(dow))continue;
+    const h=exc?exc.h:ccfg.h,m=exc?exc.m||0:ccfg.m;
+    const co=new Date(dt);co.setHours(h,m,0,0);
+    if(d===0&&co<=now)continue;
+    return{date:co,isToday:d===0,h,m};
+  }return null;
+}
+function updCutoff(){
+  const cb=document.getElementById('cb');if(!cb)return;
+  const now=new Date(),next=getNextCutoff();if(!next)return;
+  const diff=next.date-now;
+  const pct=Math.min(100,Math.max(0,Math.round(diff/(5*3600000)*100)));
+  const hh=Math.floor(diff/3600000),mm=Math.floor((diff%3600000)/60000),ss=Math.floor((diff%60000)/1000);
+  const cl=String(next.h).padStart(2,'0')+'h'+String(next.m).padStart(2,'0');
+  const isTmr=!next.isToday,isUrg=diff<3600000,isVUrg=diff<1800000;
+  document.getElementById('cb-time').textContent=isTmr?cl:`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+  document.getElementById('cb-sub').textContent=`Normal ${cl} · ${CFG.tarifs.normal.toFixed(2).replace('.',',')} €/u`;
+  document.getElementById('cb-bar').style.width=pct+'%';
+  let bg,bc,col,msg,note,cta;
+  if(isTmr){bg='var(--surface)';bc='var(--border)';col='var(--text)';document.getElementById('cb-label').textContent='Prochain cutoff — demain';msg='Cutoff passé. Prochaine prépa demain.';note='Commande maintenant → traitée demain matin.';}
+  else if(isVUrg){bg='var(--coral-p)';bc='var(--coral-t)';col='var(--coral-t)';document.getElementById('cb-label').textContent='⚠ Moins de 30 min !';msg='Passez votre commande immédiatement !';note='Après '+cl+' → tarif urgence +50%';}
+  else if(isUrg){bg='var(--amber-p)';bc='#FFD080';col='var(--amber-t)';document.getElementById('cb-label').textContent='⚡ Moins d\'une heure';msg='Agissez vite pour garder le tarif Normal.';note='Après '+cl+' → +10% minimum';}
+  else{bg='var(--mint-p)';bc='#A8E8DC';col='var(--mint-t)';document.getElementById('cb-label').textContent='Prochain cutoff';msg='Commandez avant '+cl+' pour le tarif Normal ('+CFG.tarifs.normal.toFixed(2).replace('.',',')+'  €/u).';const t15=(CFG.tarifs.t15*100-100).toFixed(0),t17=(CFG.tarifs.t17*100-100).toFixed(0);note='Après '+cl+' → +'+t15+'% (avant 15h) ou +'+t17+'% (avant 17h) · lun–ven';}
+  cb.style.background=bg;cb.style.borderColor=bc;
+  ['cb-label','cb-time','cb-sub','cb-msg','cb-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.color=col;});
+  document.getElementById('cb-bar').style.background=col;
+  document.getElementById('cb-msg').textContent=msg;
+  document.getElementById('cb-note').textContent=note;
+}
+updCutoff();setInterval(updCutoff,1000);
+
+// ── APPLY CLIENT CONFIG ON LOAD ──────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Read ?client= URL param
+  const params = new URLSearchParams(window.location.search);
+  const urlClient = params.get('client');
+  const previewMode = params.get('mode') === 'preview';
+
+  if(urlClient && CLIENTS[urlClient]){
+    // Override CLIENT_ID from URL
+    Object.assign(CFG, CLIENTS[urlClient]);
+    // Update ccfg with new client's cutoff
+    Object.assign(ccfg, {h: CFG.cutoff.h, m: CFG.cutoff.m||0, days: CFG.cutoff.days, exc: CFG.cutoff.exc||{}});
+  }
+
+  applyClientConfig();
+
+  if(previewMode){
+    const banner = document.getElementById('preview-banner');
+    const nameEl = document.getElementById('preview-client-name');
+    if(banner){ banner.classList.add('visible'); }
+    if(nameEl) nameEl.textContent = CFG.nom;
+    document.body.classList.add('preview-mode');
+    // Disable confirmation buttons in preview mode
+    document.querySelectorAll('.btn.primary').forEach(btn => {
+      if(btn.textContent.includes('Confirmer') || btn.textContent.includes('Commander')){
+        btn.style.opacity = '.4';
+        btn.style.pointerEvents = 'none';
+        btn.title = 'Désactivé en mode visualisation';
+      }
+    });
+  }
+});
+
+// EXPEDITION
+const expCfg={
+  b2c:{t:'Chronofresh',c:'Carton',p:'Bouteille',n:"Picking unitaire à la bouteille · carton refermé",bg:'var(--cobalt-p)',bc:'#B8CEFF',cl:'var(--cobalt-t)',pal:false,def:'unite'},
+  gms:{t:'STEF',c:'Palette complète',p:'PAV — carton',n:"Pas d'ouverture de carton · palette filmée",bg:'var(--amber-p)',bc:'#FFD080',cl:'var(--amber-t)',pal:true,def:'pav'},
+  gss:{t:'Chronofresh',c:'Carton',p:'PAV — carton',n:"Cartons complets · pas de picking bouteille sauf exception",bg:'var(--mint-p)',bc:'#A8E8DC',cl:'var(--mint-t)',pal:false,def:'pav'},
+  chr:{t:'Cargonautes',c:'Carton mixte',p:'Bouteille (1L)',n:"Picking bouteille · surtout grands formats 1L",bg:'var(--purple-p)',bc:'#C4BAEE',cl:'var(--purple-t)',pal:false,def:'unite'},
+  bureaux:{t:'Cargonautes',c:'Carton',p:'PAV — carton',n:"Cartons complets PAV · livraison directe en entreprise",bg:'var(--cobalt-p)',bc:'#B8CEFF',cl:'var(--cobalt-t)',pal:false,def:'pav'},
+  animation:{t:'Cargonautes',c:'Variable',p:'Défini par Yumi',n:"⚠ Conditionnement libre — précisez dans les instructions",bg:'var(--gray-p)',bc:'var(--border)',cl:'var(--gray-t)',pal:false,def:'pav'}
+};
+let curCanal='b2c';
+function updateExp(sel){
+  const cfg=expCfg[sel.value];if(!cfg)return;
+  const r=document.getElementById('exp-recap');
+  r.style.background=cfg.bg;r.style.borderColor=cfg.bc;
+  const ts=document.getElementById('exp-t');
+  for(let o of ts.options)if(o.text===cfg.t){o.selected=true;break;}
+  ts.style.color=cfg.cl;
+  ['exp-fl-t','exp-fl-c','exp-fl-p'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.color=cfg.cl;});
+  const ec=document.getElementById('exp-c'),ep=document.getElementById('exp-p'),en=document.getElementById('exp-note');
+  ec.textContent=cfg.c;ec.style.color=cfg.cl;
+  ep.textContent=cfg.p;ep.style.color=cfg.cl;
+  en.textContent=cfg.n;en.style.color=cfg.cl;en.style.borderTopColor=cfg.bc;
+  document.getElementById('pal-section').style.display=cfg.pal?'block':'none';
+  curCanal=sel.value;
+}
+
+// PALETTE
+function selPal(t){
+  document.getElementById('pal-euro').classList.toggle('sel',t==='euro');
+  document.getElementById('pal-perdue').classList.toggle('sel',t==='perdue');
+}
+function updatePalCost(){
+  const e=parseInt(document.getElementById('nb-euro').value)||0;
+  const p=parseInt(document.getElementById('nb-perdue').value)||0;
+  const el=document.getElementById('pal-cost');
+  if(e>0||p>0){el.style.display='block';el.textContent=`${e} pal. Europe (${e*20}€) + ${p} pal. perdues (${p*9}€) = ${e*20+p*9}€`;}
+  else el.style.display='none';
+}
+
+// CATALOGUE
+// ── CATALOGUE — lots[] est trié FIFO (DLC croissante)
+// Chaque lot: {num, dlc:'YYYY-MM-DD', stk (unités)}
+const cat={
+  s60: {nom:'Shot gingembre 60ml',    format:'60ml',   pav:8,  pavDispo:true,  lots:[
+    {num:'6 025 110', dlc:'2026-04-30', stk:480},
+    {num:'6 025 218', dlc:'2026-05-28', stk:720},
+  ]},
+  j237:{nom:'Jus carotte 237ml',      format:'237ml',  pav:6,  pavDispo:true,  lots:[
+    {num:'6 013 078', dlc:'2026-05-10', stk:360},
+  ]},
+  jp:  {nom:'Jus pressé 25cl',        format:'25cl',   pav:6,  pavDispo:true,  lots:[
+    {num:'5 363 153', dlc:'2026-04-08', stk:576},
+    {num:'5 363 201', dlc:'2026-04-22', stk:432},
+    {num:'5 363 289', dlc:'2026-05-15', stk:864},
+  ]},
+  jb:  {nom:'Jus betterave 33cl',     format:'33cl',   pav:6,  pavDispo:true,  lots:[
+    {num:'5 364 094', dlc:'2026-04-22', stk:432},
+    {num:'5 364 187', dlc:'2026-05-20', stk:288},
+  ]},
+  jg:  {nom:'Jus pomme gingembre 33cl',format:'33cl',  pav:6,  pavDispo:true,  lots:[
+    {num:'6 012 093', dlc:'2026-05-15', stk:288},
+  ]},
+  jc:  {nom:'Jus orange carotte 33cl', format:'33cl',  pav:6,  pavDispo:true,  lots:[
+    {num:'6 014 021', dlc:'2026-05-20', stk:216},
+    {num:'6 014 109', dlc:'2026-06-10', stk:432},
+  ]},
+  j300:{nom:'Force BIO 300ml',         format:'300ml', pav:6,  pavDispo:true,  lots:[
+    {num:'6 013 074', dlc:'2026-04-14', stk:408},
+    {num:'6 013 155', dlc:'2026-05-12', stk:288},
+  ]},
+  j500:{nom:'Jus détox 500ml',         format:'500ml', pav:6,  pavDispo:true,  lots:[
+    {num:'6 018 055', dlc:'2026-05-25', stk:144},
+  ]},
+  j1l: {nom:'Jus pressé 1000ml',       format:'1000ml',pav:null,pavDispo:false, lots:[
+    {num:'6 020 093', dlc:'2026-05-12', stk:96},
+  ]},
+};
+let curUnite='pav',prods=[];
+
+function toggleAddPanel(){
+  const p=document.getElementById('add-panel');
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+
+// ── DLC HELPERS ──────────────────────────────────────────
+function dlcDaysFrom(dlcStr){
+  // dlcStr = 'YYYY-MM-DD'
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(dlcStr); d.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+function dlcWeekLabel(days){
+  if(days < 0)  return {label:'Expiré',    cls:'dlc-danger', color:'var(--coral-t)',  bg:'var(--coral-p)'};
+  if(days < 7)  return {label:'< 7 jours', cls:'dlc-danger', color:'var(--coral-t)',  bg:'var(--coral-p)'};
+  const w = Math.floor(days / 7);
+  const cls = w <= 2 ? 'dlc-warn' : '';
+  const color = w <= 2 ? 'var(--amber-t)' : 'var(--mint-t)';
+  const bg    = w <= 2 ? 'var(--amber-p)' : 'var(--mint-p)';
+  return {label:'Sem. '+w, cls, color, bg};
+}
+function dlcFmtDisplay(dlcStr){
+  // 'YYYY-MM-DD' → 'DD/MM/YY'
+  const [y,m,d] = dlcStr.split('-');
+  return d+'/'+m+'/'+y.slice(2);
+}
+
+// ── CURRENT LOT SELECTION ────────────────────────────────
+let curLotIdx = 0; // index in current product's lots array
+
+function onProdChange(sel){
+  const key=sel.value, lp=document.getElementById('lot-panel');
+  if(!key){lp.style.display='none';return;}
+  const p=cat[key];
+  curLotIdx=0;
+  renderLotList(p);
+  // PAV section
+  const upav=document.getElementById('u-pav');
+  const pavInfo=document.getElementById('lot-pav-info');
+  if(p.pavDispo){
+    document.getElementById('pav-sub').textContent='1 PAV = '+p.pav+' u.';
+    upav.style.display='';
+    pavInfo.style.display='block';
+    pavInfo.textContent='1 PAV = '+p.pav+' unités · '+Math.ceil(p.lots[0].stk/p.pav)+' PAV disponibles (lot FIFO)';
+    selUnite((expCfg[curCanal]||expCfg.b2c).def);
+  } else {
+    upav.style.display='none';
+    pavInfo.style.display='none';
+    selUnite('unite');
+  }
+  lp.style.display='block';
+}
+
+function renderLotList(p){
+  const list=document.getElementById('lot-list');
+  const today=new Date(); today.setHours(0,0,0,0);
+  list.innerHTML=p.lots.map((lot,i)=>{
+    const days=dlcDaysFrom(lot.dlc);
+    const wk=dlcWeekLabel(days);
+    const fifoTag=i===0?' <span style="font-size:9px;color:var(--text3);font-weight:400">(FIFO)</span>':'';
+    const stkFmt=lot.stk>=1000?(lot.stk/1000).toFixed(1)+'k':lot.stk;
+    return `<div class="lot-row${i===curLotIdx?' sel':''} ${wk.cls}" onclick="selLot(${i})" data-idx="${i}">
+      <div class="lot-radio"></div>
+      <div>
+        <div class="lot-num">${lot.num}${fifoTag}</div>
+        <div class="lot-dlc-line">DLC ${dlcFmtDisplay(lot.dlc)} · ${days} j · ${stkFmt} u. dispo</div>
+      </div>
+      <div class="lot-week-badge" style="color:${wk.color};background:${wk.bg}">${wk.label}</div>
+    </div>`;
+  }).join('');
+}
+
+function selLot(idx){
+  const key=document.getElementById('sel-produit').value;
+  const p=cat[key]; if(!p)return;
+  curLotIdx=idx;
+  // update visual selection
+  document.querySelectorAll('#lot-list .lot-row').forEach((row,i)=>{
+    row.classList.toggle('sel',i===idx);
+  });
+  // update PAV info
+  if(p.pavDispo){
+    const lot=p.lots[idx];
+    const pavInfo=document.getElementById('lot-pav-info');
+    pavInfo.textContent='1 PAV = '+p.pav+' unités · '+Math.ceil(lot.stk/p.pav)+' PAV disponibles (lot '+lot.num+')';
+    document.getElementById('pav-sub').textContent='1 PAV = '+p.pav+' u.';
+  }
+}
+
+function selUnite(u){
+  curUnite=u;
+  document.getElementById('u-pav').classList.toggle('sel',u==='pav');
+  document.getElementById('u-unit').classList.toggle('sel',u==='unite');
+  document.getElementById('qte-lbl').textContent=u==='pav'?'Quantité (PAV)':'Quantité (unités)';
+  updEquiv();
+}
+
+function updEquiv(){
+  if(curUnite!=='pav'){document.getElementById('qte-equiv').textContent='';return;}
+  const key=document.getElementById('sel-produit').value;
+  const p=cat[key];const n=parseInt(document.getElementById('inp-qte').value)||0;
+  document.getElementById('qte-equiv').textContent=n+' PAV = '+(n*(p?p.pav:12))+' unités';
+  updateSim();
+}
+
+function addProd(){
+  const key=document.getElementById('sel-produit').value;if(!key)return;
+  const p=cat[key];
+  const lot=p.lots[curLotIdx]||p.lots[0];
+  const qte=parseInt(document.getElementById('inp-qte').value)||1,id=Date.now();
+  const days=dlcDaysFrom(lot.dlc);
+  const wk=dlcWeekLabel(days);
+  prods.push({id,nom:p.nom,unite:curUnite==='pav'?'PAV':'u.',qte,lot:lot.num,dlc:lot.dlc,dlcLabel:wk.label,dlcColor:wk.color});
+  renderProds();updateSim();
+  document.getElementById('sel-produit').value='';
+  document.getElementById('lot-panel').style.display='none';
+  document.getElementById('add-panel').style.display='none';
+}
+
+function renderProds(){
+  const r=document.getElementById('pr-rows');
+  if(!prods.length){r.innerHTML='<div class="pr-empty">Aucun produit ajouté</div>';return;}
+  r.innerHTML=prods.map(p=>{
+    const wkBadge=p.dlcLabel?`<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;color:${p.dlcColor};background:transparent">${p.dlcLabel}</span>`:'';
+    const lotCell=`<div class="mono" style="color:var(--text3);line-height:1.3">${p.lot}${wkBadge?'<br>'+wkBadge:''}</div>`;
+    return `<div class="pr"><div style="font-weight:500;font-size:11px">${p.nom}</div><div style="font-size:10px;color:var(--text3)">${p.unite}</div>${lotCell}<input type="number" value="${p.qte}" min="1" onchange="updQte(${p.id},this.value)" style="width:48px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:11px;font-family:'Manrope',sans-serif;background:var(--bg)"><button onclick="remProd(${p.id})" style="width:24px;height:24px;border:none;background:var(--coral-p);color:var(--coral-t);border-radius:5px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;padding:0">×</button></div>`;
+  }).join('');
+}
+function remProd(id){prods=prods.filter(p=>p.id!==id);renderProds();updateSim();}
+function updQte(id,v){const p=prods.find(p=>p.id===id);if(p){p.qte=parseInt(v)||1;}updateSim();}
+
+function updateSim(){
+  const tot=prods.reduce((s,p)=>s+p.qte,0);
+  const sel=document.getElementById('sel-creneau');
+  const px=parseFloat(sel.value)||1.00;
+  document.getElementById('sim-total').textContent=(tot*px).toFixed(2).replace('.',',')+'  €';
+  document.getElementById('sim-detail').textContent=tot+' items × '+px.toFixed(2).replace('.',',')+'  €';
+}
+
+function onStk(v){document.getElementById('stk-info').style.display=v==='non'?'block':'none';}
+
+function confirmer(){
+  if(!prods.length){alert('Ajoutez au moins un produit avant de confirmer.');return;}
+  alert('Commande confirmée ! Référence CMD-2026-'+Math.floor(Math.random()*9000+1000));
+  prods=[];renderProds();updateSim();
+}
+
+// AUTOCOMPLETE ADRESSE
+let acTo;
+async function acAdr(inp){
+  clearTimeout(acTo);
+  const v=inp.value.trim(),list=document.getElementById('ac-list');
+  if(v.length<4){list.classList.remove('open');return;}
+  acTo=setTimeout(async()=>{
+    try{
+      const res=await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(v)}&limit=5&type=housenumber`);
+      const data=await res.json();
+      const features=data.features||[];
+      if(!features.length){list.classList.remove('open');return;}
+      list.innerHTML=features.map(f=>`<div class="ac-item" onclick="selAdr('${f.properties.name}','${f.properties.postcode}','${f.properties.city}')"><div class="ac-main">${f.properties.label}</div><div class="ac-sub">${f.properties.postcode} ${f.properties.city}</div></div>`).join('');
+      list.classList.add('open');
+    }catch(e){
+      const demos=[{name:'12 Rue de la Paix',cp:'75002',ville:'Paris'},{name:'5 Avenue Montaigne',cp:'75008',ville:'Paris'},{name:'20 Rue du Faubourg Saint-Antoine',cp:'75011',ville:'Paris'}];
+      const filtered=demos.filter(d=>d.name.toLowerCase().includes(v.toLowerCase())||v.toLowerCase().includes('paris'));
+      list.innerHTML=filtered.map(d=>`<div class="ac-item" onclick="selAdr('${d.name}','${d.cp}','${d.ville}')"><div class="ac-main">${d.name}</div><div class="ac-sub">${d.cp} ${d.ville}</div></div>`).join('');
+      if(list.innerHTML)list.classList.add('open');
+    }
+  },300);
+}
+function selAdr(nom,cp,ville){
+  document.getElementById('inp-adr').value=nom;
+  document.getElementById('inp-cp').value=cp;
+  document.getElementById('inp-ville').value=ville;
+  document.getElementById('ac-list').classList.remove('open');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.ac-wrap'))document.getElementById('ac-list').classList.remove('open');});
+
+// PROD EDIT
+// ╔══════════════════════════════════════════════════════════╗
+// ║  applyClientConfig() — applique CFG au DOM au chargement ║
+// ╚══════════════════════════════════════════════════════════╝
+function applyClientConfig(){
+  const cfg = CFG;
+
+  // ── Identité visuelle ────────────────────────────────────
+  // CSS accent color vars: swap cobalt → cfg.accentVar
+  // We inject a <style> override so all var(--cobalt) references work for non-yumi clients
+  if(cfg.accentVar !== 'cobalt'){
+    const style = document.createElement('style');
+    style.textContent = `:root {
+      --cobalt:   var(--${cfg.accentVar});
+      --cobalt-p: var(--${cfg.accentVar}-p);
+      --cobalt-t: var(--${cfg.accentVar}-t);
+    }`;
+    document.head.appendChild(style);
+  }
+
+  // ── Logo / nom ───────────────────────────────────────────
+  const logoName = document.querySelector('.sb-logo-name');
+  const logoSub  = document.querySelector('.sb-logo-sub');
+  const logoIcon = document.querySelector('.sb-logo-icon');
+  if(logoName) logoName.textContent = cfg.nom;
+  if(logoSub)  logoSub.textContent  = 'Portail client · WMSito';
+  if(logoIcon) logoIcon.textContent = cfg.emoji;
+  if(logoIcon) logoIcon.style.background = `var(--${cfg.accentVar}-p)`;
+
+  // ── Footer contact ───────────────────────────────────────
+  const footerName = document.querySelector('.sb-footer div div:first-child');
+  const footerRole = document.querySelector('.sb-footer div div:last-child');
+  if(footerName) footerName.textContent = cfg.contact;
+  if(footerRole) footerRole.textContent = cfg.role;
+
+  // ── Cutoff: update subtitle with correct hour ────────────
+  const h = String(cfg.cutoff.h).padStart(2,'0')+'h'+String(cfg.cutoff.m||0).padStart(2,'0');
+  const sub = document.getElementById('cb-sub');
+  if(sub) sub.textContent = `Normal ${h} · ${cfg.tarifs.normal.toFixed(2).replace('.',',')} €/u`;
+
+  // ── Créneau options: update labels with correct cutoff hour + tarifs ──
+  const optNormal = document.getElementById('opt-normal');
+  const optT15    = document.getElementById('opt-t15');
+  const optT17    = document.getElementById('opt-t17');
+  const optUrg    = document.getElementById('opt-urgence');
+  const optT11    = document.getElementById('opt-t11');
+  if(optNormal) optNormal.textContent = `Normal ${h} · ${cfg.tarifs.normal.toFixed(2).replace('.',',')} €/u ★`;
+  if(optT11)    optT11.textContent    = `Avant 11h · ${cfg.tarifs.t11.toFixed(2).replace('.',',')} €/u (-5%)`;
+  if(optT15)    optT15.textContent    = `Avant 15h · ${cfg.tarifs.t15.toFixed(2).replace('.',',')} €/u (+${Math.round((cfg.tarifs.t15-1)*100)}%)`;
+  if(optT17)    optT17.textContent    = `Avant 17h · ${cfg.tarifs.t17.toFixed(2).replace('.',',')} €/u (+${Math.round((cfg.tarifs.t17-1)*100)}%)`;
+  if(optUrg)    optUrg.textContent    = `Urgence · ${cfg.tarifs.urgence.toFixed(2).replace('.',',')} €/u (+${Math.round((cfg.tarifs.urgence-1)*100)}%)`;
+
+  // ── Canal de distribution (Yumi uniquement) ───────────────
+  const canalSection  = document.getElementById('canal-section');
+  const expRecapBox   = document.getElementById('exp-recap');
+  if(canalSection) canalSection.style.display = cfg.hasCanaux ? 'block' : 'none';
+  if(expRecapBox && !cfg.hasCanaux) {
+    // Remplace le recap d'expédition par un sélecteur simple de transporteur
+    expRecapBox.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.65;margin-bottom:3px">Transporteur</div>
+          <select class="form-select" style="padding:4px 8px;font-size:11px;font-weight:600;border-color:var(--cobalt-p)">
+            ${cfg.transporteurs.map(t=>`<option>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.65;margin-bottom:3px">Conditionnement</div>
+          <select class="form-select" style="padding:4px 8px;font-size:11px">
+            <option>Unité (pot)</option>
+            <option>Carton de 6</option>
+            <option>Carton de 8</option>
+            <option>Carton mixte</option>
+          </select>
+        </div>
+      </div>
+      <div style="font-size:10px;opacity:.7;border-top:1px solid rgba(0,0,0,.1);padding-top:6px;margin-top:8px">Picking unitaire · un produit à la fois</div>`;
+  }
+
+  // ── PAV: masquer le picker PAV si hasPAV=false ────────────
+  // Géré dynamiquement dans onProdChange — pavDispo=false pour tous les produits
+  // Pour les clients sans PAV: on force pavDispo=false sur tout le catalogue
+  if(!cfg.hasPAV){
+    Object.values(cat).forEach(p => p.pavDispo = false);
+  }
+
+  // ── Stock cible: afficher colonne si hasStockCible ─────────
+  // (réservé pour futures évolutions — aujourd'hui visible dans Mon stock)
+
+  // ── Transporteurs: mettre à jour le select transporteur ───
+  const expT = document.getElementById('exp-t');
+  if(expT){
+    expT.innerHTML = cfg.transporteurs.map(t=>`<option>${t}</option>`).join('');
+  }
+
+  // ── Page title ────────────────────────────────────────────
+  document.title = `WMSito — ${cfg.nom}`;
+}
+
+// ASN FUNCTIONS
+function toggleASNForm(){
+  const f=document.getElementById('asn-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+function addASNLine(){
+  const container=document.getElementById('asn-lines');
+  const div=document.createElement('div');
+  div.className='asn-line';
+  div.style.cssText='display:grid;grid-template-columns:1fr 80px 120px 120px 28px;gap:6px;margin-bottom:5px;align-items:center';
+  div.innerHTML=`<select class="form-select" style="font-size:11px">
+    <option value="">— Référence —</option>
+    <option>ABSOLU 60ML</option><option>ATTRACTION 60ML</option><option>AMOUR 240ML</option>
+    <option>FORCE 240ML</option><option>CONFIANCE 240ML</option><option>AMOUR 1000ML</option>
+    <option>COUP DE FOUDRE 60ML</option><option>PRELUDE 300ML</option><option>HARMONIE 300ML</option>
+    <option>GINGEMBRE 4 500ML</option><option>ARCHIE 60ML</option><option>PURETE 240ML</option>
+  </select>
+  <input type="number" class="form-input" placeholder="Qté" style="font-size:11px;padding:5px 7px">
+  <input type="text" class="form-input" placeholder="N° lot" style="font-size:11px;padding:5px 7px">
+  <input type="date" class="form-input" style="font-size:11px;padding:5px 7px">
+  <button onclick="removeASNLine(this)" style="width:24px;height:24px;border:none;background:var(--coral-p);color:var(--coral-t);border-radius:5px;cursor:pointer;font-size:14px">×</button>`;
+  container.appendChild(div);
+}
+function removeASNLine(btn){
+  const lines=document.querySelectorAll('.asn-line');
+  if(lines.length>1) btn.closest('.asn-line').remove();
+}
+function submitASN(){
+  alert('ASN enregistré et transmis à Cargonautes. Référence : ASN-2026-'+(Math.floor(Math.random()*10)+48));
+  toggleASNForm();
+}
+
+// Sync PAV edit in catalogue → live update in cat object + display
+function updCatPav(key, val){
+  const n = parseInt(val);
+  if(!n || n<1) return;
+  if(cat[key]) cat[key].pav = n;
+  const disp = document.getElementById('pavdisp-'+key);
+  if(disp) disp.textContent = n;
+}
+
+function togEdit(id){
+  const p=document.getElementById(id);if(!p)return;
+  const open=p.classList.contains('open');
+  document.querySelectorAll('.prod-edit').forEach(x=>x.classList.remove('open'));
+  if(!open)p.classList.add('open');
+}
+
+// STOCK FILTER
+function filterStock(q){
+  const zone=document.getElementById('stock-zone-filter').value;
+  const etat=document.getElementById('stock-etat-filter').value;
+  const rows=document.querySelectorAll('#stock-tbody tr');
+  let visible=0;
+  rows.forEach(tr=>{
+    const text=tr.textContent.toLowerCase();
+    const matchQ=!q||text.includes(q.toLowerCase());
+    const matchZ=!zone||text.includes(zone.toLowerCase());
+    const matchE=!etat||(etat==='DLC'&&(text.includes('dlc')||text.includes('critique')))||(etat==='BIO'&&tr.querySelector('.bp'))||(etat==='OK'&&text.includes('ok'));
+    const show=matchQ&&matchZ&&matchE;
+    tr.style.display=show?'':'none';
+    if(show)visible++;
+  });
+  const cnt=document.getElementById('stock-count');
+  if(cnt)cnt.textContent=visible+' palette'+(visible>1?'s':'')+' affichée'+(visible>1?'s':'');
+}
+
+// STOCK TABS
+function switchStock(tab){
+  const l=tab==='liste';
+  document.getElementById('st-liste').style.display=l?'block':'none';
+  document.getElementById('st-plan').style.display=l?'none':'block';
+  const tl=document.getElementById('tb-liste'),tp=document.getElementById('tb-plan');
+  tl.style.background=l?'var(--surface)':'transparent';tl.style.color=l?'var(--text)':'var(--text3)';tl.style.boxShadow=l?'0 1px 3px rgba(0,0,0,.08)':'none';
+  tp.style.background=!l?'var(--surface)':'transparent';tp.style.color=!l?'var(--text)':'var(--text3)';tp.style.boxShadow=!l?'0 1px 3px rgba(0,0,0,.08)':'none';
+}
+
+// PLAN
+const palD={
+  'PAL-0891':{nom:'Jus pressé 25cl',dlc:'08/04/26',qte:'576 u.',zone:'Stockage sec',urgent:true},
+  'PAL-0912':{nom:'Jus betterave 33cl',dlc:'22/04/26',qte:'432 u.',zone:'Stockage sec',urgent:false},
+  'PAL-0893':{nom:'Jus pomme gingembre',dlc:'15/05/26',qte:'288 u.',zone:'Zone BIO',urgent:false}
+};
+function selPlan(id){
+  document.querySelectorAll('.pal-m rect').forEach(r=>r.setAttribute('stroke-width','1'));
+  document.querySelectorAll('[id^="lp-"]').forEach(el=>{el.style.background='var(--surface)';el.style.borderColor='var(--border)';});
+  const g=document.getElementById('pm-'+id);if(g)g.querySelector('rect').setAttribute('stroke-width','3');
+  const li=document.getElementById('lp-'+id);if(li){li.style.background='var(--cobalt-p)';li.style.borderColor='var(--cobalt)';}
+  const p=palD[id];if(!p)return;
+  document.getElementById('pd-title').textContent='PAL-2026-'+id.replace('PAL-','');
+  document.getElementById('pd-body').innerHTML=`<div style="display:flex;flex-direction:column;gap:3px"><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Produit</span><span style="font-weight:600">${p.nom}</span></div><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">Zone</span><span style="font-weight:600">${p.zone}</span></div><div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">DLC</span><span style="font-weight:600;color:${p.urgent?'var(--coral-t)':'inherit'}">${p.dlc}</span></div><div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--text2)">Qté</span><span style="font-weight:600">${p.qte}</span></div></div>`;
+  document.getElementById('plan-detail').style.display='block';
+}
+function hlPal(id){setTimeout(()=>selPlan(id),50);}
+function filterPlan(z,btn){
+  document.querySelectorAll('.plan-filter').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.pal-m').forEach(el=>{
+    const dz=el.dataset.zone;
+    el.style.opacity=(z==='all'||z===dz||(z==='CF'&&dz&&dz.startsWith('CF')))?'1':'0.12';
+  });
+}
+</script>
+<div id="preview-banner">
+  <span style="font-size:16px">👁</span>
+  <span>Mode visualisation — connecté en tant que <strong id="preview-client-name">—</strong></span>
+  <span style="opacity:.7;font-size:11px;font-weight:400">Les actions de confirmation sont désactivées</span>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button onclick="window.close()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Manrope',sans-serif">✕ Retour admin</button>
+  </div>
+</div>
+</body>
+</html>
