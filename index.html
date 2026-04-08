@@ -530,7 +530,6 @@ tr:hover .inline-edit-btn{opacity:1}
 
         <!-- ══ MODULE CARTONS ═══════════════════════════════════ -->
         <div id="module-cartons" style="margin-bottom:14px;border:2px solid var(--cobalt);border-radius:var(--rl);background:var(--surface);overflow:hidden">
-          <!-- Header cliquable pour colapser -->
           <div style="background:var(--cobalt);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleCartons()">
             <div style="display:flex;align-items:center;gap:10px">
               <span style="font-size:16px">📦</span>
@@ -546,20 +545,28 @@ tr:hover .inline-edit-btn{opacity:1}
               <span id="cartons-chevron" style="color:#fff;font-size:12px;margin-left:4px">▾</span>
             </div>
           </div>
-          <!-- Corps colapsable -->
+          <div id="cartons-shift-tabs" style="display:flex;border-bottom:1px solid var(--border)">
+            <div id="shift-tab-13h" onclick="setShiftTab('13h')" style="flex:1;padding:9px 16px;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;display:flex;align-items:center;gap:8px">
+              <span style="font-size:15px">🌅</span>
+              <div><div id="shift-13h-label" style="font-size:12px;font-weight:600">Shift 13h</div><div id="shift-13h-sub" style="font-size:10px;font-weight:400;color:var(--text3)">avant midi</div></div>
+              <span id="shift-13h-badge" style="margin-left:auto;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:var(--cobalt-p);color:var(--cobalt-t)">—</span>
+            </div>
+            <div style="width:1px;background:var(--border)"></div>
+            <div id="shift-tab-17h" onclick="setShiftTab('17h')" style="flex:1;padding:9px 16px;cursor:pointer;font-size:12px;font-weight:600;border-bottom:3px solid transparent;display:flex;align-items:center;gap:8px">
+              <span style="font-size:15px">🌆</span>
+              <div><div id="shift-17h-label" style="font-size:12px;font-weight:600">Shift 17h</div><div id="shift-17h-sub" style="font-size:10px;font-weight:400;color:var(--text3)">après midi</div></div>
+              <span id="shift-17h-badge" style="margin-left:auto;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:var(--amber-p);color:var(--amber-t)">—</span>
+            </div>
+          </div>
           <div id="cartons-body" style="padding:12px 16px">
-            <!-- Totaux globaux -->
             <div id="cartons-summary-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
-            <!-- Par expédition -->
-            <div id="cartons-by-expe" style="display:flex;flex-direction:column;gap:5px"></div>
-            <!-- Footer -->
+            <div id="cartons-by-expe" style="display:flex;flex-direction:column;gap:0"></div>
             <div style="background:var(--cobalt-p);border:1px solid #B8CEFF;border-radius:var(--r);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px">
               <div style="font-size:12px;color:var(--cobalt-t)" id="cartons-total-text"></div>
               <div style="font-size:11px;color:var(--text3)" id="cartons-temps-text"></div>
             </div>
           </div>
         </div>
-
 
         <!-- ══ FILTRE + LISTE PRÉPARATIONS ═══════════════════════ -->
         <div class="filter-bar">
@@ -2284,7 +2291,7 @@ function renderHistorique(panelId){
 const PREP_STORE = [
   // ── CUTOFF NORMAL 13h ─────────────────────────────────────────
   {
-    id:'PREP-2026-142', expe:'Expe0112525', client:'Yumi/Paf',
+    id:'PREP-2026-142', receptionDate:'07/04/2026', receptionHeure:'18:42', shift:'13h', expe:'Expe0112525', client:'Yumi/Paf',
     dest:'Biocoop Lancry', adresse:'45 rue de Lancry, 75010 Paris',
     contact:'Thierry Poireau', tel:'+33 1 83 79 08 96',
     canal:'CHR & Indep', cutoff:'Normal 13h', statut:'Terminée',
@@ -2303,7 +2310,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-143', expe:'Expe0112526', client:'Yumi/Paf',
+    id:'PREP-2026-143', receptionDate:'07/04/2026', receptionHeure:'20:15', shift:'13h', expe:'Expe0112526', client:'Yumi/Paf',
     dest:'Café de Flore', adresse:'172 Bd Saint-Germain, 75006 Paris',
     contact:'Arnaud Mouton', tel:'+33 1 45 48 55 26',
     canal:'CHR & Indep', cutoff:'Normal 13h', statut:'En cours',
@@ -2316,7 +2323,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-144', expe:'Expe0112527', client:'Yumi/Paf',
+    id:'PREP-2026-144', receptionDate:'07/04/2026', receptionHeure:'21:03', shift:'13h', expe:'Expe0112527', client:'Yumi/Paf',
     dest:'Hôtel Le Meurice', adresse:'228 rue de Rivoli, 75001 Paris',
     contact:'Marie-Claire Blanc', tel:'+33 1 44 58 10 10',
     canal:'CHR & Indep', cutoff:'Normal 13h', statut:'En attente',
@@ -2329,7 +2336,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-145', expe:'Expe0112528', client:'Yumi/Paf',
+    id:'PREP-2026-145', receptionDate:'08/04/2026', receptionHeure:'08:30', shift:'13h', expe:'Expe0112528', client:'Yumi/Paf',
     dest:'Monoprix Opéra', adresse:'23 bd des Capucines, 75002 Paris',
     contact:'Responsable Réception', tel:'+33 1 42 65 06 00',
     canal:'GMS', cutoff:'Normal 13h', statut:'En attente',
@@ -2341,7 +2348,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-146', expe:'Expe0112530', client:'Yumi/Paf',
+    id:'PREP-2026-146', receptionDate:'08/04/2026', receptionHeure:'09:12', shift:'13h', expe:'Expe0112530', client:'Yumi/Paf',
     dest:'Monoprix Nation', adresse:'48 av du Trône, 75012 Paris',
     contact:'Chef de rayon frais', tel:'+33 1 43 73 17 21',
     canal:'GMS', cutoff:'Normal 13h', statut:'En attente',
@@ -2354,7 +2361,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-147', expe:'Expe0112531', client:'Yumi/Paf',
+    id:'PREP-2026-147', receptionDate:'08/04/2026', receptionHeure:'10:44', shift:'13h', expe:'Expe0112531', client:'Yumi/Paf',
     dest:'Naturalia République', adresse:'8 bd du Temple, 75003 Paris',
     contact:'Louise Garnier', tel:'+33 1 42 72 10 60',
     canal:'GMS', cutoff:'Normal 13h', statut:'En attente',
@@ -2366,7 +2373,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-148', expe:'Expe0112532', client:'Yumi/Paf',
+    id:'PREP-2026-148', receptionDate:'08/04/2026', receptionHeure:'11:38', shift:'13h', expe:'Expe0112532', client:'Yumi/Paf',
     dest:'Franprix Bastille', adresse:'1 rue de la Roquette, 75011 Paris',
     contact:'Réception marchandise', tel:'+33 1 47 00 42 10',
     canal:'GMS', cutoff:'Normal 13h', statut:'En attente',
@@ -2379,7 +2386,7 @@ const PREP_STORE = [
   },
   // ── CUTOFF PREMIUM 17h ────────────────────────────────────────
   {
-    id:'PREP-2026-149', expe:'Expe0112540', client:'Yumi/Paf',
+    id:'PREP-2026-149', receptionDate:'08/04/2026', receptionHeure:'12:05', shift:'17h', expe:'Expe0112540', client:'Yumi/Paf',
     dest:'AXA Atout Cœur', adresse:'32 bd des Bouvets, 92000 Nanterre',
     contact:'Alexandra G.', tel:'+33 1 40 55 65 65',
     canal:'Bureaux', cutoff:'Premium 17h', statut:'En attente',
@@ -2391,7 +2398,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-150', expe:'Expe0112541', client:'Yumi/Paf',
+    id:'PREP-2026-150', receptionDate:'08/04/2026', receptionHeure:'12:47', shift:'17h', expe:'Expe0112541', client:'Yumi/Paf',
     dest:'BNP Paribas Tour Cœur Défense', adresse:'Tour Cœur Défense, 92400 Courbevoie',
     contact:'Service Restauration', tel:'+33 1 40 14 45 46',
     canal:'Bureaux', cutoff:'Premium 17h', statut:'En attente',
@@ -2402,7 +2409,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-151', expe:'Expe0112542', client:'Yumi/Paf',
+    id:'PREP-2026-151', receptionDate:'08/04/2026', receptionHeure:'13:22', shift:'17h', expe:'Expe0112542', client:'Yumi/Paf',
     dest:'LVMH Siège Social', adresse:'22 av Montaigne, 75008 Paris',
     contact:'Virginie Ledoux', tel:'+33 1 44 13 22 22',
     canal:'Bureaux', cutoff:'Premium 17h', statut:'En attente',
@@ -2415,7 +2422,7 @@ const PREP_STORE = [
   },
   // ── B2C ───────────────────────────────────────────────────────
   {
-    id:'PREP-2026-152', expe:'Expe0112501', client:'Yumi/Paf',
+    id:'PREP-2026-152', receptionDate:'08/04/2026', receptionHeure:'07:55', shift:'13h', expe:'Expe0112501', client:'Yumi/Paf',
     dest:'Mme Dupont Sophie', adresse:'12 rue des Lilas, 75020 Paris',
     contact:'Sophie Dupont', tel:'+33 6 12 34 56 78',
     canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
@@ -2426,7 +2433,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-153', expe:'Expe0112502', client:'Yumi/Paf',
+    id:'PREP-2026-153', receptionDate:'08/04/2026', receptionHeure:'08:18', shift:'13h', expe:'Expe0112502', client:'Yumi/Paf',
     dest:'M. Martin Théo', adresse:'5 rue Oberkampf, 75011 Paris',
     contact:'Théo Martin', tel:'+33 6 98 76 54 32',
     canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
@@ -2437,7 +2444,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-154', expe:'Expe0112503', client:'Yumi/Paf',
+    id:'PREP-2026-154', receptionDate:'08/04/2026', receptionHeure:'14:10', shift:'17h', expe:'Expe0112503', client:'Yumi/Paf',
     dest:'Mme Leroy Anne', adresse:'78 av Parmentier, 75011 Paris',
     contact:'Anne Leroy', tel:'+33 6 55 44 33 22',
     canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
@@ -2449,7 +2456,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-155', expe:'Expe0112504', client:'Yumi/Paf',
+    id:'PREP-2026-155', receptionDate:'08/04/2026', receptionHeure:'15:30', shift:'17h', expe:'Expe0112504', client:'Yumi/Paf',
     dest:'M. Bernard Luc', adresse:'33 rue de Charonne, 75011 Paris',
     contact:'Luc Bernard', tel:'+33 6 77 88 99 00',
     canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
@@ -2460,7 +2467,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-156', expe:'Expe0112505', client:'Yumi/Paf',
+    id:'PREP-2026-156', receptionDate:'08/04/2026', receptionHeure:'09:45', shift:'13h', expe:'Expe0112505', client:'Yumi/Paf',
     dest:'Mme Moreau Claire', adresse:'91 rue de la Fontaine au Roi, 75011 Paris',
     contact:'Claire Moreau', tel:'+33 6 11 22 33 44',
     canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
@@ -2470,7 +2477,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-157', expe:'Expe0112506', client:'Yumi/Paf',
+    id:'PREP-2026-157', receptionDate:'08/04/2026', receptionHeure:'11:02', shift:'13h', expe:'Expe0112506', client:'Yumi/Paf',
     dest:'M. Petit Hugo', adresse:'14 passage de la Bonne Graine, 75011 Paris',
     contact:'Hugo Petit', tel:'+33 6 44 55 66 77',
     canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
@@ -2481,7 +2488,7 @@ const PREP_STORE = [
     ]
   },
   {
-    id:'PREP-2026-158', expe:'Expe0112507', client:'Yumi/Paf',
+    id:'PREP-2026-158', receptionDate:'08/04/2026', receptionHeure:'16:20', shift:'17h', expe:'Expe0112507', client:'Yumi/Paf',
     dest:'Mme Simon Lucie', adresse:'62 rue Sedaine, 75011 Paris',
     contact:'Lucie Simon', tel:'+33 6 88 77 66 55',
     canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
@@ -2494,7 +2501,7 @@ const PREP_STORE = [
   },
   // ── Xoco (autre client, sans cartons Yumi) ────────────────────
   {
-    id:'PREP-2026-159', expe:'XC-2026-089', client:'Xoco',
+    id:'PREP-2026-159', receptionDate:'08/04/2026', receptionHeure:'10:30', shift:'13h', expe:'XC-2026-089', client:'Xoco',
     dest:'Monoprix Garosud', adresse:'ZAC Les Hauts de Wissous, 91320 Wissous',
     contact:'Chef rayon', tel:'',
     canal:'GMS', cutoff:'Normal 13h', statut:'En cours',
@@ -2578,6 +2585,81 @@ function packExpedition(items){
 // ── IMPRESSION ────────────────────────────────────────────
 
 
+// ══════════════════════════════════════════════════════════
+// SHIFT LOGIC — 13h vs 17h
+// ══════════════════════════════════════════════════════════
+let activeShift = null;  // '13h' | '17h' — set by lancerCartons
+
+function getCurrentShift(){
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+  // Before noon (< 12:00) → shift 13h is next
+  // After noon (≥ 12:00) → shift 17h is next
+  return (h < 12) ? '13h' : '17h';
+}
+
+function setShiftTab(shift){
+  activeShift = shift;
+  // Visual: active tab gets border + background
+  ['13h','17h'].forEach(s=>{
+    const tab = document.getElementById('shift-tab-'+s);
+    if(!tab) return;
+    if(s === shift){
+      tab.style.borderBottomColor = 'var(--cobalt)';
+      tab.style.background = 'var(--cobalt-p)';
+    } else {
+      tab.style.borderBottomColor = 'transparent';
+      tab.style.background = 'transparent';
+    }
+  });
+  lancerCartons();
+}
+
+function updateShiftTabs(preps13h, preps17h){
+  const now    = new Date();
+  const h      = now.getHours();
+  const nextShift = getCurrentShift();
+
+  // Counts
+  const c13 = preps13h.filter(p=>p.client==='Yumi/Paf'&&p.statut!=='Annulée').length;
+  const c17 = preps17h.filter(p=>p.client==='Yumi/Paf'&&p.statut!=='Annulée').length;
+
+  // Labels
+  const lbl13 = document.getElementById('shift-13h-label');
+  const lbl17 = document.getElementById('shift-17h-label');
+  const sub13 = document.getElementById('shift-13h-sub');
+  const sub17 = document.getElementById('shift-17h-sub');
+  const bdg13 = document.getElementById('shift-13h-badge');
+  const bdg17 = document.getElementById('shift-17h-badge');
+
+  if(lbl13) lbl13.textContent = nextShift==='13h' ? '▶ Shift 13h — prochain' : 'Shift 13h';
+  if(lbl17) lbl17.textContent = nextShift==='17h' ? '▶ Shift 17h — prochain' : 'Shift 17h';
+  if(sub13) sub13.textContent = 'Reçues avant 12h · cutoff 13h00';
+  if(sub17) sub17.textContent = 'Reçues après 12h · cutoff 17h00';
+  if(bdg13) bdg13.textContent = c13 + ' expéd.';
+  if(bdg17) bdg17.textContent = c17 + ' expéd.';
+
+  // Style: next shift gets amber highlight, past shift gets muted
+  const tab13 = document.getElementById('shift-tab-13h');
+  const tab17 = document.getElementById('shift-tab-17h');
+  if(tab13){
+    const isActive13 = activeShift === '13h';
+    const isNext13   = nextShift === '13h';
+    tab13.style.borderBottomColor = isActive13 ? 'var(--cobalt)' : 'transparent';
+    tab13.style.background = isActive13 ? 'var(--cobalt-p)' : isNext13 ? 'var(--amber-p)' : 'transparent';
+    if(lbl13) lbl13.style.color = isNext13 ? 'var(--amber-t)' : 'var(--text)';
+  }
+  if(tab17){
+    const isActive17 = activeShift === '17h';
+    const isNext17   = nextShift === '17h';
+    tab17.style.borderBottomColor = isActive17 ? 'var(--cobalt)' : 'transparent';
+    tab17.style.background = isActive17 ? 'var(--cobalt-p)' : isNext17 ? 'var(--amber-p)' : 'transparent';
+    if(lbl17) lbl17.style.color = isNext17 ? 'var(--amber-t)' : 'var(--text)';
+  }
+}
+
+
 function lancerCartons(){
   const TAG = {
     XS:{bg:'#1E3A5F',tx:'#fff'},
@@ -2589,7 +2671,17 @@ function lancerCartons(){
   const PILL_COLORS={XS:'var(--cobalt-t)',S:'var(--mint-t)',MC:'var(--amber-t)',LC:'var(--purple-t)',XL:'var(--coral-t)'};
   const PILL_BG    ={XS:'var(--cobalt-p)',S:'var(--mint-p)', MC:'var(--amber-p)',LC:'var(--purple-p)',XL:'var(--coral-p)'};
 
-  const yumi=PREP_STORE.filter(p=>p.client==='Yumi/Paf'&&p.statut!=='Annulée');
+  // Determine active shift (auto-detect on first run)
+  if(!activeShift) activeShift = getCurrentShift();
+
+  // Split all Yumi preps by shift
+  const yumiAll = PREP_STORE.filter(p=>p.client==='Yumi/Paf'&&p.statut!=='Annulée');
+  const preps13h = yumiAll.filter(p=>p.shift==='13h');
+  const preps17h = yumiAll.filter(p=>p.shift==='17h');
+  updateShiftTabs(preps13h, preps17h);
+
+  // Filter to active shift
+  const yumi = activeShift==='13h' ? preps13h : preps17h;
   const allBins=[];
   const totals={XS:0,S:0,MC:0,LC:0,XL:0};
 
