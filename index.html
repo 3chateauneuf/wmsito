@@ -527,51 +527,67 @@ tr:hover .inline-edit-btn{opacity:1}
         </div>
       </div>
       <div class="page" id="page-preparation">
+
+        <!-- ══ MODULE CARTONS ═══════════════════════════════════ -->
+        <div id="module-cartons" style="margin-bottom:14px;border:2px solid var(--cobalt);border-radius:var(--rl);background:var(--surface);overflow:hidden">
+          <!-- Header cliquable pour colapser -->
+          <div style="background:var(--cobalt);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleCartons()">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-size:16px">📦</span>
+              <div>
+                <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:13px;color:#fff">Conditionnement — Yumi / Paf</div>
+                <div style="font-size:10px;color:rgba(255,255,255,.65)">Depuis les commandes API · <span id="cartons-nb-expe">—</span> expéditions · <span id="cartons-nb-lignes">—</span> cartons</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:7px;align-items:center" onclick="event.stopPropagation()">
+              <button class="btn sm" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" onclick="lancerCartons()">⚙ Recalculer</button>
+              <button class="btn sm" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" onclick="imprimerFiche('A4-demi')">⎙ /2</button>
+              <button class="btn sm" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff" onclick="imprimerFiche('A4-quart')">⎙ /4</button>
+              <span id="cartons-chevron" style="color:#fff;font-size:12px;margin-left:4px">▾</span>
+            </div>
+          </div>
+          <!-- Corps colapsable -->
+          <div id="cartons-body" style="padding:12px 16px">
+            <!-- Totaux globaux -->
+            <div id="cartons-summary-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"></div>
+            <!-- Par expédition -->
+            <div id="cartons-by-expe" style="display:flex;flex-direction:column;gap:5px"></div>
+            <!-- Footer -->
+            <div style="background:var(--cobalt-p);border:1px solid #B8CEFF;border-radius:var(--r);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+              <div style="font-size:12px;color:var(--cobalt-t)" id="cartons-total-text"></div>
+              <div style="font-size:11px;color:var(--text3)" id="cartons-temps-text"></div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ══ FILTRE + LISTE PRÉPARATIONS ═══════════════════════ -->
         <div class="filter-bar">
-          <input type="text" placeholder="Rechercher numéro ou code-barres...">
-          <select><option>Tous les statuts</option><option>En attente</option><option>En cours</option><option>Terminée</option><option>Annulée</option></select>
-          <select><option>Tous les cutoffs</option><option>Premium 17h</option><option>Normal 13h</option><option>Sur place</option></select>
-          <select><option>Tous les clients</option><option>Yumi/Paf</option><option>Xoco</option></select>
-          <button class="btn primary" style="margin-left:auto">+ Nouvelle préparation</button>
+          <input type="text" placeholder="Rechercher numéro, expédition…" oninput="filterPrep(this.value)">
+          <select id="prep-filter-statut" onchange="filterPrep(document.getElementById('prep-search').value)">
+            <option value="">Tous les statuts</option>
+            <option value="En attente">En attente</option>
+            <option value="En cours">En cours</option>
+            <option value="Terminée">Terminée</option>
+          </select>
+          <select id="prep-filter-cutoff" onchange="filterPrep(document.getElementById('prep-search').value)">
+            <option value="">Tous les cutoffs</option>
+            <option value="Normal 13h">Normal 13h</option>
+            <option value="Premium 17h">Premium 17h</option>
+            <option value="Urgence">Urgence</option>
+          </select>
+          <select id="prep-filter-client" onchange="filterPrep(document.getElementById('prep-search').value)">
+            <option value="">Tous les clients</option>
+            <option value="Yumi/Paf">Yumi / Paf</option>
+            <option value="Xoco">Xoco</option>
+            <option value="Re-Belle">Re-Belle</option>
+          </select>
         </div>
-        <div class="prep-day" id="pday-0">
-          <div class="prep-day-header" onclick="toggleDay('pday-0')"><span>Mercredi 2 avril — aujourd'hui</span><div style="display:flex;align-items:center;gap:8px"><span>4 préparations</span><span class="chevron">▾</span></div></div>
-          <div class="prep-day-body" style="max-height:400px">
-            <div class="prep-row">
-              <div class="prep-name" onmouseenter="showTip('pt1')" onmouseleave="hideTip('pt1')">PREP-2026-142<div class="tooltip" id="pt1"><div class="tooltip-title">Commande #4521 — Yumi/Paf</div><div class="tooltip-row"><span class="tl">Livraison avant</span><span class="tv">13h00</span></div><div class="tooltip-row"><span class="tl">Contenu</span><span class="tv">Jus pressé ×90</span></div><div class="tooltip-row"><span class="tl">Poids</span><span class="tv">27 kg</span></div><div class="tooltip-row"><span class="tl">Durée réelle</span><span class="tv">23 min</span></div></div></div>
-              <div class="prep-client">Yumi/Paf</div>
-              <div class="dropdown-wrap"><span class="badge bm" style="cursor:pointer" onclick="toggleDropdown('pp-s1')">Terminée ▾</span><div class="dropdown-menu" id="pp-s1"><div class="dropdown-item" onclick="setStatus('pp-s1',this,'bm')"><div class="di-dot" style="background:var(--mint-t)"></div>Terminée</div><div class="dropdown-item" onclick="setStatus('pp-s1',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>En cours</div><div class="dropdown-item" onclick="setStatus('pp-s1',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>En attente</div><div class="dropdown-item" onclick="setStatus('pp-s1',this,'br')"><div class="di-dot" style="background:var(--coral-t)"></div>Annulée</div></div></div>
-              <div class="dropdown-wrap"><span class="badge bc" style="cursor:pointer" onclick="toggleDropdown('pp-c1')">Normal 13h ▾</span><div class="dropdown-menu" id="pp-c1"><div class="dropdown-item" onclick="setStatus('pp-c1',this,'bc')"><div class="di-dot" style="background:var(--cobalt-t)"></div>Normal 13h</div><div class="dropdown-item" onclick="setStatus('pp-c1',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>Premium 17h</div><div class="dropdown-item" onclick="setStatus('pp-c1',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>Sur place</div></div></div>
-              <span style="font-size:10px;color:var(--text3)">Sophie B. · 23 min</span>
-              <div class="prep-actions"><button class="btn sm soft">⎙ BL</button><button class="btn sm soft">⊞ Étiq.</button></div>
-            </div>
-            <div class="prep-row">
-              <div class="prep-name">PREP-2026-143</div><div class="prep-client">Xoco</div>
-              <div class="dropdown-wrap"><span class="badge ba" style="cursor:pointer" onclick="toggleDropdown('pp-s2')">En cours ▾</span><div class="dropdown-menu" id="pp-s2"><div class="dropdown-item" onclick="setStatus('pp-s2',this,'bm')"><div class="di-dot" style="background:var(--mint-t)"></div>Terminée</div><div class="dropdown-item" onclick="setStatus('pp-s2',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>En cours</div><div class="dropdown-item" onclick="setStatus('pp-s2',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>En attente</div><div class="dropdown-item" onclick="setStatus('pp-s2',this,'br')"><div class="di-dot" style="background:var(--coral-t)"></div>Annulée</div></div></div>
-              <div class="dropdown-wrap"><span class="badge ba" style="cursor:pointer" onclick="toggleDropdown('pp-c2')">Premium 17h ▾</span><div class="dropdown-menu" id="pp-c2"><div class="dropdown-item" onclick="setStatus('pp-c2',this,'bc')"><div class="di-dot" style="background:var(--cobalt-t)"></div>Normal 13h</div><div class="dropdown-item" onclick="setStatus('pp-c2',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>Premium 17h</div><div class="dropdown-item" onclick="setStatus('pp-c2',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>Sur place</div></div></div>
-              <div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
-              <span style="font-size:10px;color:var(--text3)">90/150 items</span>
-              <div class="prep-actions"><button class="btn sm soft">⎙ BL</button><button class="btn sm soft">⊞ Étiq.</button></div>
-            </div>
-            <div class="prep-row">
-              <div class="prep-name">PREP-2026-144</div><div class="prep-client">Wil's Déli</div>
-              <div class="dropdown-wrap"><span class="badge bg" style="cursor:pointer" onclick="toggleDropdown('pp-s3')">En attente ▾</span><div class="dropdown-menu" id="pp-s3"><div class="dropdown-item" onclick="setStatus('pp-s3',this,'bm')"><div class="di-dot" style="background:var(--mint-t)"></div>Terminée</div><div class="dropdown-item" onclick="setStatus('pp-s3',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>En cours</div><div class="dropdown-item" onclick="setStatus('pp-s3',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>En attente</div><div class="dropdown-item" onclick="setStatus('pp-s3',this,'br')"><div class="di-dot" style="background:var(--coral-t)"></div>Annulée</div></div></div>
-              <div class="dropdown-wrap"><span class="badge bc" style="cursor:pointer" onclick="toggleDropdown('pp-c3')">Normal 13h ▾</span><div class="dropdown-menu" id="pp-c3"><div class="dropdown-item" onclick="setStatus('pp-c3',this,'bc')"><div class="di-dot" style="background:var(--cobalt-t)"></div>Normal 13h</div><div class="dropdown-item" onclick="setStatus('pp-c3',this,'ba')"><div class="di-dot" style="background:var(--amber-t)"></div>Premium 17h</div><div class="dropdown-item" onclick="setStatus('pp-c3',this,'bg')"><div class="di-dot" style="background:var(--gray-t)"></div>Sur place</div></div></div>
-              <span style="font-size:10px;color:var(--text3)">Non assigné</span>
-              <div class="prep-actions"><button class="btn sm soft">⎙ BL</button><button class="btn sm soft">⊞ Étiq.</button></div>
-            </div>
-          </div>
-        </div>
-        <div class="prep-day" id="pday-1">
-          <div class="prep-day-header collapsed" onclick="toggleDay('pday-1')"><span>Jeudi 3 avril</span><div style="display:flex;align-items:center;gap:8px"><span>5 préparations</span><span class="chevron" style="transform:rotate(-90deg)">▾</span></div></div>
-          <div class="prep-day-body collapsed" style="max-height:0">
-            <div class="prep-row"><div class="prep-name">PREP-2026-150</div><div class="prep-client">Yumi/Paf</div><span class="badge bg">En attente</span><span class="badge bc">Normal 13h</span></div>
-            <div class="prep-row"><div class="prep-name">PREP-2026-151</div><div class="prep-client">Re-belle</div><span class="badge bg">En attente</span><span class="badge bg">Sur place</span></div>
-          </div>
-        </div>
+
+        <div id="prep-list-container"></div>
+
       </div>
 
-      <!-- EXPEDITIONS -->
       <div class="page" id="page-expeditions">
         <div class="filter-bar"><input type="text" placeholder="Rechercher numéro, transporteur, tracking..."><select><option>Tous les statuts</option><option>Créé</option><option>Expédié</option><option>Anomalie</option></select><button class="btn primary" style="margin-left:auto">+ Nouvelle expédition</button></div>
         <div class="card-flush"><table class="data-table" id="table-exp"><thead><tr><th onclick="sortTable('table-exp',0)">Numéro <span class="sort-icon">↕</span></th><th onclick="sortTable('table-exp',1)">Client <span class="sort-icon">↕</span></th><th>Transporteur</th><th onclick="sortTable('table-exp',3)">Date <span class="sort-icon">↕</span></th><th>Palettes</th><th>Poids</th><th>Type</th><th>Statut</th></tr></thead><tbody><tr><td class="mono">SHIP-4926572989</td><td style="font-weight:600">Organic Solutions</td><td class="dim">STEF Paris</td><td class="mono">02/04/26</td><td>2 EUR</td><td>235 kg</td><td><span class="badge bp">BIO</span></td><td><span class="badge bc">Créé</span></td></tr><tr><td class="mono">SHIP-4926572801</td><td style="font-weight:600">Yumi/Paf</td><td class="dim">Chronofresh</td><td class="mono">01/04/26</td><td>4 EUR</td><td>412 kg</td><td><span class="badge bc">Frais</span></td><td><span class="badge bm">Expédié</span></td></tr><tr><td class="mono">SHIP-4926572756</td><td style="font-weight:600">Xoco</td><td class="dim">STEF</td><td class="mono">31/03/26</td><td>1 EUR</td><td>180 kg</td><td><span class="badge bg">Sec</span></td><td><span class="badge br">Anomalie</span></td></tr></tbody></table></div>
@@ -1251,6 +1267,135 @@ tr:hover .inline-edit-btn{opacity:1}
 </div>
 
 <script>
+function toggleAllExpe(checked){
+  document.querySelectorAll('.expe-check').forEach(cb=>{ cb.checked=checked; });
+  const n=checked?document.querySelectorAll('.expe-check').length:0;
+  const tot=document.querySelectorAll('.expe-check').length;
+  const el=document.getElementById('expe-selection-count');
+  if(el) el.textContent=`${n}/${tot} sélectionnée(s)`;
+}
+
+function getSelectedExpes(){
+  return Array.from(document.querySelectorAll('.expe-check:checked')).map(cb=>cb.dataset.expe);
+}
+
+function imprimerExpe(type, expeId){
+  const prep = PREP_STORE.find(p=>p.expe===expeId);
+  if(!prep) return;
+  if(type==='bl') imprimerBL([prep]);
+  else imprimerEtiquettes([prep]);
+}
+
+function imprimerSelection(type){
+  const selected = getSelectedExpes();
+  if(!selected.length){ alert('Sélectionnez au moins une expédition.'); return; }
+  const preps = PREP_STORE.filter(p=>selected.includes(p.expe));
+  if(type==='bl') imprimerBL(preps);
+  else imprimerEtiquettes(preps);
+}
+
+function imprimerBL(preps){
+  const today = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  let html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Bons de livraison</title>
+<style>
+@page{size:A4;margin:12mm}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:10px;color:#111}
+.bl{page-break-after:always;padding-bottom:10mm}
+.bl:last-child{page-break-after:auto}
+.bl-header{display:flex;justify-content:space-between;border-bottom:2px solid #111;padding-bottom:8px;margin-bottom:10px}
+.logo{font-size:20px;font-weight:900}.logo span{color:#3B4FD8}
+.bl-title{font-size:16px;font-weight:900;margin-bottom:3px}
+.bl-meta{font-size:8px;color:#666}
+.addresses{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px}
+.addr-label{font-size:7px;font-weight:700;text-transform:uppercase;color:#999;margin-bottom:3px}
+.addr-name{font-size:12px;font-weight:700}
+.addr-detail{font-size:9px;color:#444;line-height:1.5}
+table{width:100%;border-collapse:collapse;margin-bottom:10px}
+th{background:#111;color:#fff;padding:4px 6px;font-size:8px;text-transform:uppercase;text-align:left}
+td{padding:4px 6px;border-bottom:1px solid #ddd;font-size:9px}
+tr:nth-child(even) td{background:#f8f8f8}
+.sign-box{border:1.5px solid #111;min-height:35px;padding:6px;margin-top:8px;font-size:8px}
+.note{background:#FFF3CD;border:1px solid #F59E0B;padding:5px 8px;border-radius:4px;font-size:9px;font-weight:700;margin-bottom:8px}
+.total-row{font-weight:700;border-top:2px solid #111}
+</style></head><body>`;
+
+  preps.forEach(prep=>{
+    const totalQte = prep.produits.reduce((s,pr)=>s+pr.qte,0);
+    const totalPoids = prep.produits.reduce((s,pr)=>s+(pr.qte*(pr.ref.includes('60')?0.065:pr.ref.includes('300')?0.315:pr.ref.includes('500')?0.525:pr.ref.includes('1000')?1.05:0.255)),0);
+    html+=`<div class="bl">
+      <div class="bl-header">
+        <div><div class="logo">CARGO<span>NAUTES</span></div><div class="bl-meta">189 Rue d'Aubervilliers, 75018 Paris · +33 1 84 80 41 40</div></div>
+        <div style="text-align:right"><div class="bl-title">Bon de Livraison</div><div class="bl-meta">${prep.expe} · ${today}</div></div>
+      </div>
+      ${prep.note?`<div class="note">⚠ ${prep.note}</div>`:''}
+      <div class="addresses">
+        <div><div class="addr-label">Expéditeur</div><div class="addr-name">Cargonautes</div><div class="addr-detail">189 Rue d'Aubervilliers, 75018 Paris</div></div>
+        <div><div class="addr-label">Destinataire</div><div class="addr-name">${prep.dest}</div><div class="addr-detail">${prep.adresse}<br>${prep.contact} · ${prep.tel}</div></div>
+      </div>
+      <table>
+        <thead><tr><th>Référence</th><th>Lot</th><th>DLC</th><th style="text-align:right">Qté</th><th>Mode</th></tr></thead>
+        <tbody>
+          ${prep.produits.filter(pr=>pr.qte>0).map(pr=>`<tr><td>${pr.ref}</td><td style="font-family:monospace">${pr.lot}</td><td style="font-family:monospace">${pr.dlc}</td><td style="text-align:right;font-weight:700">${pr.qte}</td><td>${pr.pav?'PAV':'VRAC'}</td></tr>`).join('')}
+          <tr class="total-row"><td colspan="3">TOTAL</td><td style="text-align:right">${totalQte} u.</td><td>${totalPoids.toFixed(1)} kg</td></tr>
+        </tbody>
+      </table>
+      <div class="sign-box">Signature ou Tampon :</div>
+    </div>`;
+  });
+
+  html+='</body></html>';
+  const w=window.open('','_blank','width=820,height=650');
+  w.document.write(html);w.document.close();w.focus();
+  setTimeout(()=>w.print(),400);
+}
+
+function imprimerEtiquettes(preps){
+  const today = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+  let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Étiquettes</title>
+<style>
+@page{size:A4;margin:8mm}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:6mm}
+.etiq{border:2px solid #111;border-radius:4px;padding:7px 9px;break-inside:avoid}
+.etiq-from{font-size:7px;color:#666;margin-bottom:4px}
+.etiq-to{font-size:13px;font-weight:900;line-height:1.2;margin-bottom:3px}
+.etiq-addr{font-size:9px;color:#333;margin-bottom:5px}
+.etiq-ref{font-family:monospace;font-size:8px;color:#3B4FD8;font-weight:700;margin-bottom:5px}
+.etiq-items{font-size:8px;border-top:1px solid #ddd;padding-top:4px;margin-top:4px}
+.etiq-note{background:#FFF3CD;border:1px solid #F59E0B;padding:3px 5px;border-radius:3px;font-size:8px;font-weight:700;margin-top:4px}
+</style></head><body><div class="grid">`;
+
+  preps.forEach(prep=>{
+    const totalQte=prep.produits.reduce((s,pr)=>s+pr.qte,0);
+    const totalColis=prep.produits.reduce((s,pr)=>s+pr.colis,0);
+    html+=`<div class="etiq">
+      <div class="etiq-from">DE: Cargonautes · 189 Rue d'Aubervilliers, 75018 Paris</div>
+      <div class="etiq-to">${prep.dest}</div>
+      <div class="etiq-addr">${prep.adresse}</div>
+      <div class="etiq-ref">${prep.expe} · ${today} · ${prep.canal}</div>
+      <div class="etiq-items">${totalQte} u. · ${totalColis} colis · ${prep.produits.filter(pr=>pr.qte>0).length} réf.</div>
+      ${prep.note?`<div class="etiq-note">⚠ ${prep.note.substring(0,80)}</div>`:''}
+    </div>`;
+  });
+
+  html+='</div></body></html>';
+  const w=window.open('','_blank','width=820,height=650');
+  w.document.write(html);w.document.close();w.focus();
+  setTimeout(()=>w.print(),400);
+}
+
+function toggleCartons(){
+  const body = document.getElementById('cartons-body');
+  const chev = document.getElementById('cartons-chevron');
+  if(!body) return;
+  const collapsed = body.style.display === 'none';
+  body.style.display = collapsed ? 'block' : 'none';
+  if(chev) chev.textContent = collapsed ? '▾' : '▸';
+}
+
 function toggleDay(label) {
   const active = label.style.background === 'var(--cobalt-p)' || label.style.background.includes('cobalt');
   if (active) {
@@ -1631,21 +1776,7 @@ function renderCutoffPreview(cl){
   }).join('');
 }
 
-function addException(){
-  const list = document.getElementById('exceptions-list');
-  const div = document.createElement('div');
-  div.className = 'exc-row';
-  div.style.cssText = 'display:grid;grid-template-columns:120px 1fr 80px 28px;gap:6px;align-items:center;font-size:11px';
-  div.innerHTML = `<input type="date" class="dialog-input" style="font-size:11px;padding:4px 7px">
-    <input type="text" class="dialog-input" style="font-size:11px;padding:4px 7px" placeholder="Motif">
-    <select class="dialog-select" style="font-size:11px;padding:4px 7px"><option>Fermé</option><option>11h</option><option>13h</option><option>15h</option><option>17h</option></select>
-    <button onclick="this.closest('.exc-row').remove()" style="width:24px;height:24px;border:none;background:var(--coral-p);color:var(--coral-t);border-radius:5px;cursor:pointer;font-size:14px">×</button>`;
-  list.appendChild(div);
-}
-
-// ── TAB: FEATURES ─────────────────────────────────────────
-// ── CERTIFICATIONS ───────────────────────────────────────
-const CERTIFS_AVAILABLE = ['BIO','Alcool','Batteries','Toxique','Halal','Casher','Vegan','Gluten free'];
+// duplicate addException removed
 
 function renderCertifs(cl){
   const list = document.getElementById('ff-certifs-list');
@@ -1803,9 +1934,7 @@ function openNewClient(){
 }
 
 // ── INIT CLIENTS PAGE ─────────────────────────────────────
-document.addEventListener('DOMContentLoaded', ()=>{
-  renderClientCards();
-});
+// renderClientCards called in main DOMContentLoaded below
 
 
 // ══════════════════════════════════════════════════════════
@@ -1852,6 +1981,7 @@ function genMockCommandes(mondayDate){
 let semaineOffset = 0;
 let mockData = {};
 let openCutoffKey = null;
+let openDateKey   = null;
 
 function getMondayOf(date){
   const d = new Date(date);
@@ -1876,8 +2006,12 @@ function renderCutoffGrid(){
   const monday = getMondayOf(today);
   monday.setDate(monday.getDate() + semaineOffset*7);
 
-  // Generate fresh mock for this week
-  mockData = genMockCommandes(monday);
+  // Generate mock only if week changed (stable data within same week)
+  const mondayKey = monday.toISOString().slice(0,10);
+  if(!mockData._weekKey || mockData._weekKey !== mondayKey){
+    mockData = genMockCommandes(monday);
+    mockData._weekKey = mondayKey;
+  }
 
   const days = [];
   const dayNames = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
@@ -1904,34 +2038,34 @@ function renderCutoffGrid(){
 
   // Rows — one per cutoff
   CUTOFFS.forEach(co=>{
-    const rowKey = `${co.id}_row`;
-    const isOpen = openCutoffKey === co.id;
+    // Is this cutoff row currently open? (day-independent check for detail row)
+    const rowOpen = openCutoffKey === co.id;
     html += `<tr>`;
     html += `<td style="padding:8px 12px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)"><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:${co.bg};color:${co.color}">${co.label}</span></td>`;
     days.forEach(dt=>{
       const key = dt.toISOString().slice(0,10);
       const cmds = (mockData[key]||{})[co.id]||[];
       const n = cmds.length;
+      // Is THIS specific cell open?
+      const cellOpen = openCutoffKey === co.id && openDateKey === key;
       if(!n){
         html += `<td style="padding:8px 10px;text-align:center;border-bottom:1px solid var(--border);border-left:1px solid var(--border);color:var(--text3)">—</td>`;
         return;
       }
-      // Count by client for tooltip
       const byClient = {};
       cmds.forEach(cmd=>{ byClient[cmd.client]=(byClient[cmd.client]||0)+1; });
-      const tooltipRows = Object.entries(byClient).map(([cl,nb])=>`${cl}: ${nb}`).join(' · ');
-      html += `<td style="padding:6px 10px;text-align:center;border-bottom:1px solid var(--border);border-left:1px solid var(--border);cursor:pointer" 
+      html += `<td style="padding:6px 10px;text-align:center;border-bottom:1px solid var(--border);border-left:1px solid var(--border);cursor:pointer;${cellOpen?'background:var(--cobalt-p);':'background:transparent;'}" 
         onclick="openCutoffDetail('${key}','${co.id}','${co.label} · ${dt.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}')"
         onmouseenter="showCutoffTooltip(event,'${key}','${co.id}')"
         onmouseleave="hideCutoffTooltip()">
-        <div style="display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 7px;border-radius:11px;font-weight:700;font-size:11px;background:${co.bg};color:${co.color}">${n}</div>
+        <div style="display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 7px;border-radius:11px;font-weight:700;font-size:11px;background:${cellOpen?co.color:''+co.bg};color:${cellOpen?'#fff':co.color}">${n}</div>
         <div style="font-size:9px;color:var(--text3);margin-top:2px">${Object.keys(byClient).length} client${Object.keys(byClient).length>1?'s':''}</div>
       </td>`;
     });
     html += '</tr>';
 
-    // Drill-down inline row (injected when open)
-    if(isOpen){
+    // Drill-down inline row — injected after the cutoff row if open
+    if(rowOpen){
       html += `<tr id="inline-detail-row"><td colspan="8" style="padding:0;border-bottom:2px solid var(--cobalt)">
         <div id="cutoff-detail-panel" style="border-radius:0;border:none;margin:0">
           <div style="padding:10px 14px;background:var(--cobalt-p);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
@@ -1949,6 +2083,7 @@ function renderCutoffGrid(){
     }
   });
 
+
   html += '</tbody></table>';
   grid.innerHTML = html;
 
@@ -1960,19 +2095,12 @@ function renderCutoffGrid(){
     document.body.appendChild(tt);
   }
 
-  // Re-populate detail if open
-  if(openCutoffKey){
-    // find the matching open row and populate
+  // Re-populate detail if open — use exact dateKey stored
+  if(openCutoffKey && openDateKey){
     const detailBody = document.getElementById('detail-tbody');
     const titleEl    = document.getElementById('detail-panel-title');
-    // find data
-    let found = null;
-    Object.entries(mockData).forEach(([date,cutoffs])=>{
-      if(cutoffs[openCutoffKey]) found = {date, cmds: cutoffs[openCutoffKey]};
-    });
-    if(found && detailBody){
-      populateDetailTable(found.cmds, openCutoffKey+' · '+found.date, titleEl, detailBody);
-    }
+    const cmds = (mockData[openDateKey]||{})[openCutoffKey]||[];
+    if(detailBody) populateDetailTable(cmds, openCutoffKey+' · '+openDateKey, titleEl, detailBody);
   }
 }
 
@@ -1998,19 +2126,21 @@ function hideCutoffTooltip(){
 
 function openCutoffDetail(dateKey, cutoffId, label){
   hideCutoffTooltip();
-  if(openCutoffKey === cutoffId){
+  // Toggle: click same cell again closes it
+  if(openCutoffKey === cutoffId && openDateKey === dateKey){
     closeCutoffDetail();
     return;
   }
   openCutoffKey = cutoffId;
+  openDateKey   = dateKey;
+  // Re-render grid (mockData stable — won't regenerate)
   renderCutoffGrid();
-  // Populate after render
+  // Populate detail panel after render
   const detailBody = document.getElementById('detail-tbody');
   const titleEl    = document.getElementById('detail-panel-title');
   const cmds = (mockData[dateKey]||{})[cutoffId]||[];
   if(titleEl) titleEl.textContent = label + ' · ' + cmds.length + ' commande' + (cmds.length>1?'s':'');
   populateDetailTable(cmds, label, titleEl, detailBody);
-  // Scroll to detail row
   setTimeout(()=>{ const r=document.getElementById('inline-detail-row'); if(r) r.scrollIntoView({behavior:'smooth',block:'nearest'}); },50);
 }
 
@@ -2030,6 +2160,7 @@ function populateDetailTable(cmds, label, titleEl, tbody){
 
 function closeCutoffDetail(){
   openCutoffKey = null;
+  openDateKey   = null;
   const panel = document.getElementById('cutoff-detail-panel');
   if(panel) panel.style.display='none';
   renderCutoffGrid();
@@ -2145,32 +2276,731 @@ function renderHistorique(panelId){
 }
 
 // ── INIT ON PAGE LOAD ─────────────────────────────────────
-document.addEventListener('DOMContentLoaded', ()=>{
+
+// ══════════════════════════════════════════════════════════════════
+// STORE COMMANDES YUMI — données comme si reçues depuis API TeamDesk
+// Structure: chaque PREP = une expédition avec ses lignes produit
+// ══════════════════════════════════════════════════════════════════
+const PREP_STORE = [
+  // ── CUTOFF NORMAL 13h ─────────────────────────────────────────
+  {
+    id:'PREP-2026-142', expe:'Expe0112525', client:'Yumi/Paf',
+    dest:'Biocoop Lancry', adresse:'45 rue de Lancry, 75010 Paris',
+    contact:'Thierry Poireau', tel:'+33 1 83 79 08 96',
+    canal:'CHR & Indep', cutoff:'Normal 13h', statut:'Terminée',
+    agent:'Sophie B.', duree:23,
+    note:'Donner en main propre le BL - Faire signer le BL et prendre en photo',
+    produits:[
+      {ref:'Amour BIO 240mL',     qte:12, colis:2, pav:true,  lot:'6082078', dlc:'26/05/2026'},
+      {ref:'Bonheur BIO 240mL',   qte:12, colis:2, pav:true,  lot:'6082072', dlc:'26/05/2026'},
+      {ref:'Confiance BIO 240mL', qte:12, colis:2, pav:true,  lot:'6082060', dlc:'26/05/2026'},
+      {ref:'Force BIO 240mL',     qte:12, colis:2, pav:true,  lot:'6083074', dlc:'27/05/2026'},
+      {ref:'Joie BIO 240mL',      qte:12, colis:2, pav:true,  lot:'6081065', dlc:'25/05/2026'},
+      {ref:'Légèreté BIO 240mL',  qte:12, colis:2, pav:true,  lot:'6082069', dlc:'26/05/2026'},
+      {ref:'Pureté BIO 240mL',    qte:12, colis:2, pav:true,  lot:'6089087', dlc:'02/06/2026'},
+      {ref:'Vitalité BIO 240mL',  qte:12, colis:2, pav:true,  lot:'6081110', dlc:'25/05/2026'},
+      {ref:'Absolu BIO 60mL',     qte:64, colis:8, pav:true,  lot:'6061095', dlc:'16/06/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-143', expe:'Expe0112526', client:'Yumi/Paf',
+    dest:'Café de Flore', adresse:'172 Bd Saint-Germain, 75006 Paris',
+    contact:'Arnaud Mouton', tel:'+33 1 45 48 55 26',
+    canal:'CHR & Indep', cutoff:'Normal 13h', statut:'En cours',
+    agent:'Antoine G.', duree:null,
+    note:'Faire signer le BL et prendre en photo',
+    produits:[
+      {ref:'Force BIO 240mL',   qte:18, colis:3, pav:true,  lot:'6083074', dlc:'27/05/2026'},
+      {ref:'Absolu BIO 60mL',   qte:24, colis:3, pav:true,  lot:'6061095', dlc:'16/06/2026'},
+      {ref:'Joie BIO 240mL',    qte:6,  colis:1, pav:true,  lot:'6081065', dlc:'25/05/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-144', expe:'Expe0112527', client:'Yumi/Paf',
+    dest:'Hôtel Le Meurice', adresse:'228 rue de Rivoli, 75001 Paris',
+    contact:'Marie-Claire Blanc', tel:'+33 1 44 58 10 10',
+    canal:'CHR & Indep', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null,
+    note:'Faire signer le BL et prendre en photo',
+    produits:[
+      {ref:'Amour BIO 240mL',   qte:24, colis:4, pav:true,  lot:'6082078', dlc:'26/05/2026'},
+      {ref:'Absolu BIO 60mL',   qte:48, colis:6, pav:true,  lot:'6061095', dlc:'16/06/2026'},
+      {ref:'Pureté BIO 500mL',  qte:12, colis:2, pav:true,  lot:'5091044', dlc:'12/08/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-145', expe:'Expe0112528', client:'Yumi/Paf',
+    dest:'Monoprix Opéra', adresse:'23 bd des Capucines, 75002 Paris',
+    contact:'Responsable Réception', tel:'+33 1 42 65 06 00',
+    canal:'GMS', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Confiance BIO 240mL', qte:18, colis:3, pav:true,  lot:'6082060', dlc:'26/05/2026'},
+      {ref:'Joie BIO 240mL',      qte:18, colis:3, pav:true,  lot:'6081065', dlc:'25/05/2026'},
+      {ref:'Absolu BIO 60mL',     qte:32, colis:4, pav:true,  lot:'6061095', dlc:'16/06/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-146', expe:'Expe0112530', client:'Yumi/Paf',
+    dest:'Monoprix Nation', adresse:'48 av du Trône, 75012 Paris',
+    contact:'Chef de rayon frais', tel:'+33 1 43 73 17 21',
+    canal:'GMS', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Amour BIO 240mL',      qte:36, colis:6, pav:true,  lot:'6082078', dlc:'26/05/2026'},
+      {ref:'Force BIO 240mL',      qte:36, colis:6, pav:true,  lot:'6083074', dlc:'27/05/2026'},
+      {ref:'Absolu BIO 60mL',      qte:96, colis:12, pav:true, lot:'6061095', dlc:'16/06/2026'},
+      {ref:'Légèreté BIO 300mL',   qte:24, colis:4, pav:true,  lot:'6082069', dlc:'26/05/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-147', expe:'Expe0112531', client:'Yumi/Paf',
+    dest:'Naturalia République', adresse:'8 bd du Temple, 75003 Paris',
+    contact:'Louise Garnier', tel:'+33 1 42 72 10 60',
+    canal:'GMS', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Bonheur BIO 240mL',  qte:36, colis:6, pav:true, lot:'6082072', dlc:'26/05/2026'},
+      {ref:'Vitalité BIO 240mL', qte:36, colis:6, pav:true, lot:'6081110', dlc:'25/05/2026'},
+      {ref:'Pureté BIO 500mL',   qte:24, colis:4, pav:true, lot:'5091044', dlc:'12/08/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-148', expe:'Expe0112532', client:'Yumi/Paf',
+    dest:'Franprix Bastille', adresse:'1 rue de la Roquette, 75011 Paris',
+    contact:'Réception marchandise', tel:'+33 1 47 00 42 10',
+    canal:'GMS', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Confiance BIO 240mL', qte:24, colis:4, pav:true, lot:'6082060', dlc:'26/05/2026'},
+      {ref:'Joie BIO 240mL',      qte:24, colis:4, pav:true, lot:'6081065', dlc:'25/05/2026'},
+      {ref:'Absolu BIO 60mL',     qte:48, colis:6, pav:true, lot:'6061095', dlc:'16/06/2026'},
+    ]
+  },
+  // ── CUTOFF PREMIUM 17h ────────────────────────────────────────
+  {
+    id:'PREP-2026-149', expe:'Expe0112540', client:'Yumi/Paf',
+    dest:'AXA Atout Cœur', adresse:'32 bd des Bouvets, 92000 Nanterre',
+    contact:'Alexandra G.', tel:'+33 1 40 55 65 65',
+    canal:'Bureaux', cutoff:'Premium 17h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Force BIO 240mL',  qte:18, colis:3, pav:true, lot:'6083074', dlc:'27/05/2026'},
+      {ref:'Amour BIO 240mL',  qte:18, colis:3, pav:true, lot:'6082078', dlc:'26/05/2026'},
+      {ref:'Absolu BIO 60mL',  qte:32, colis:4, pav:true, lot:'6061095', dlc:'16/06/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-150', expe:'Expe0112541', client:'Yumi/Paf',
+    dest:'BNP Paribas Tour Cœur Défense', adresse:'Tour Cœur Défense, 92400 Courbevoie',
+    contact:'Service Restauration', tel:'+33 1 40 14 45 46',
+    canal:'Bureaux', cutoff:'Premium 17h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Vitalité BIO 240mL', qte:24, colis:4, pav:true,  lot:'6081110', dlc:'25/05/2026'},
+      {ref:'Amour BIO 1000mL',   qte:6,  colis:1, pav:false, lot:'6082078', dlc:'26/05/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-151', expe:'Expe0112542', client:'Yumi/Paf',
+    dest:'LVMH Siège Social', adresse:'22 av Montaigne, 75008 Paris',
+    contact:'Virginie Ledoux', tel:'+33 1 44 13 22 22',
+    canal:'Bureaux', cutoff:'Premium 17h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Amour BIO 240mL',   qte:30, colis:5, pav:true,  lot:'6082078', dlc:'26/05/2026'},
+      {ref:'Absolu BIO 60mL',   qte:64, colis:8, pav:true,  lot:'6061095', dlc:'16/06/2026'},
+      {ref:'Pureté BIO 500mL',  qte:12, colis:2, pav:true,  lot:'5091044', dlc:'12/08/2026'},
+    ]
+  },
+  // ── B2C ───────────────────────────────────────────────────────
+  {
+    id:'PREP-2026-152', expe:'Expe0112501', client:'Yumi/Paf',
+    dest:'Mme Dupont Sophie', adresse:'12 rue des Lilas, 75020 Paris',
+    contact:'Sophie Dupont', tel:'+33 6 12 34 56 78',
+    canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Absolu BIO 60mL',  qte:16, colis:2, pav:false, lot:'6061095', dlc:'16/06/2026'},
+      {ref:'Amour BIO 240mL',  qte:6,  colis:1, pav:false, lot:'6082078', dlc:'26/05/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-153', expe:'Expe0112502', client:'Yumi/Paf',
+    dest:'M. Martin Théo', adresse:'5 rue Oberkampf, 75011 Paris',
+    contact:'Théo Martin', tel:'+33 6 98 76 54 32',
+    canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Force BIO 240mL',    qte:6, colis:1, pav:false, lot:'6083074', dlc:'27/05/2026'},
+      {ref:'Légèreté BIO 240mL', qte:6, colis:1, pav:false, lot:'6082069', dlc:'26/05/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-154', expe:'Expe0112503', client:'Yumi/Paf',
+    dest:'Mme Leroy Anne', adresse:'78 av Parmentier, 75011 Paris',
+    contact:'Anne Leroy', tel:'+33 6 55 44 33 22',
+    canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Absolu BIO 60mL',  qte:8, colis:1, pav:false, lot:'6061095', dlc:'16/06/2026'},
+      {ref:'Vitalité BIO 240mL',qte:6, colis:1, pav:false, lot:'6081110', dlc:'25/05/2026'},
+      {ref:'Joie BIO 240mL',   qte:6, colis:1, pav:false, lot:'6081065', dlc:'25/05/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-155', expe:'Expe0112504', client:'Yumi/Paf',
+    dest:'M. Bernard Luc', adresse:'33 rue de Charonne, 75011 Paris',
+    contact:'Luc Bernard', tel:'+33 6 77 88 99 00',
+    canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Pureté BIO 500mL',  qte:4, colis:1, pav:false, lot:'5091044', dlc:'12/08/2026'},
+      {ref:'Amour BIO 1000mL',  qte:2, colis:1, pav:false, lot:'6082078', dlc:'26/05/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-156', expe:'Expe0112505', client:'Yumi/Paf',
+    dest:'Mme Moreau Claire', adresse:'91 rue de la Fontaine au Roi, 75011 Paris',
+    contact:'Claire Moreau', tel:'+33 6 11 22 33 44',
+    canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Absolu BIO 60mL', qte:32, colis:4, pav:false, lot:'6061095', dlc:'16/06/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-157', expe:'Expe0112506', client:'Yumi/Paf',
+    dest:'M. Petit Hugo', adresse:'14 passage de la Bonne Graine, 75011 Paris',
+    contact:'Hugo Petit', tel:'+33 6 44 55 66 77',
+    canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Force BIO 300mL',    qte:4, colis:1, pav:false, lot:'6083074', dlc:'27/05/2026'},
+      {ref:'Confiance BIO 240mL',qte:6, colis:1, pav:false, lot:'6082060', dlc:'26/05/2026'},
+    ]
+  },
+  {
+    id:'PREP-2026-158', expe:'Expe0112507', client:'Yumi/Paf',
+    dest:'Mme Simon Lucie', adresse:'62 rue Sedaine, 75011 Paris',
+    contact:'Lucie Simon', tel:'+33 6 88 77 66 55',
+    canal:'B2C', cutoff:'Normal 13h', statut:'En attente',
+    agent:null, duree:null, note:'',
+    produits:[
+      {ref:'Bonheur BIO 240mL',  qte:6, colis:1, pav:false, lot:'6082072', dlc:'26/05/2026'},
+      {ref:'Gratitude BIO 240mL',qte:6, colis:1, pav:false, lot:'6082078', dlc:'26/05/2026'},
+      {ref:'Vitalité BIO 500mL', qte:2, colis:1, pav:false, lot:'5091044', dlc:'12/08/2026'},
+    ]
+  },
+  // ── Xoco (autre client, sans cartons Yumi) ────────────────────
+  {
+    id:'PREP-2026-159', expe:'XC-2026-089', client:'Xoco',
+    dest:'Monoprix Garosud', adresse:'ZAC Les Hauts de Wissous, 91320 Wissous',
+    contact:'Chef rayon', tel:'',
+    canal:'GMS', cutoff:'Normal 13h', statut:'En cours',
+    agent:'Marc D.', duree:null, note:'',
+    produits:[
+      {ref:'Chocolat noir 70% 100g', qte:48, colis:4, pav:true, lot:'XC241015A', dlc:'15/10/2026'},
+    ]
+  },
+];
+
+// ── CARTON ENGINE — bin-packing par expédition ───────────────────
+const CARTON_SIZES_ASC = ['XS','S','MC','LC','XL'];
+const CARTON_SIZES_DESC= ['XL','LC','MC','S','XS'];
+const CARTON_VOLS = {XS:2.7,S:3.6,MC:7.38,LC:10.68,XL:12.6};
+const UNIT_VOLS   = {
+  '60v':0.065,'240v':0.255,'300v':0.315,'500v':0.525,'1000v':1.05,
+  'p60':0.58,'p240':1.55,'p300':1.45,'p500':2.15
+};
+const CAPS = {
+  XS:{'60v':45,'240v':18,'300v':14,'500v':8, '1000v':4, 'p60':6, 'p240':2,'p300':1,'p500':1},
+  S: {'60v':62,'240v':26,'300v':20,'500v':10,'1000v':6, 'p60':7, 'p240':3,'p300':2,'p500':1},
+  MC:{'60v':123,'240v':36,'300v':28,'500v':99,'1000v':9, 'p60':12,'p240':5,'p300':2,'p500':1},
+  LC:{'60v':178,'240v':60,'300v':48,'500v':99,'1000v':14,'p60':16,'p240':8,'p300':4,'p500':2},
+  XL:{'60v':210,'240v':84,'300v':59,'500v':36,'1000v':16,'p60':18,'p240':8,'p300':8,'p500':4},
+};
+
+function detectFormat(ref){
+  const r=ref.toLowerCase();
+  if(r.includes('60')||r.includes('shot')) return '60ml';
+  if(r.includes('237')||r.includes('240')) return '240ml';
+  if(r.includes('300')) return '300ml';
+  if(r.includes('500')) return '500ml';
+  if(r.includes('1000')||r.includes('1l')) return '1000ml';
+  return '240ml';
+}
+function getCapKey(fmt,pav){
+  if(pav){const m={'60ml':'p60','240ml':'p240','300ml':'p300','500ml':'p500'};return m[fmt]||'p240';}
+  return fmt.replace('ml','')+'v';
+}
+
+function packExpedition(items){
+  // items: [{capKey, colis}]
+  const remaining={};
+  items.forEach(it=>{remaining[it.capKey]=(remaining[it.capKey]||0)+it.colis;});
+  const bins=[];
+  while(Object.values(remaining).some(v=>v>0)){
+    let bestBin=null, bestScore=-1;
+    CARTON_SIZES_DESC.forEach(t=>{
+      const counts={};
+      let vol=0;
+      Object.entries(remaining).forEach(([k,avail])=>{
+        if(avail<=0)return;
+        const cap=CAPS[t][k]||0;
+        const uv=UNIT_VOLS[k]||0.5;
+        const maxCap=Math.min(cap,avail);
+        const maxVol=Math.floor((CARTON_VOLS[t]-vol)/uv);
+        const take=Math.min(maxCap,maxVol);
+        if(take>0){counts[k]=take;vol+=take*uv;}
+      });
+      if(!Object.keys(counts).length)return;
+      const score=vol/CARTON_VOLS[t];
+      if(score>bestScore){bestScore=score;bestBin={taille:t,counts,vol_used:vol,vol_total:CARTON_VOLS[t]};}
+    });
+    if(!bestBin)break;
+    // Downsize to smallest that fits
+    for(const t of CARTON_SIZES_ASC){
+      const okV=bestBin.vol_used<=CARTON_VOLS[t]*1.02;
+      const okC=Object.entries(bestBin.counts).every(([k,n])=>n<=(CAPS[t][k]||0));
+      if(okV&&okC){bestBin.taille=t;bestBin.vol_total=CARTON_VOLS[t];break;}
+    }
+    bestBin.remplissage=Math.min(100,Math.round(bestBin.vol_used/bestBin.vol_total*100));
+    bins.push(bestBin);
+    Object.entries(bestBin.counts).forEach(([k,n])=>{remaining[k]-=n;});
+  }
+  return bins;
+}
+
+
+// ── CALCUL CARTONS ────────────────────────────────────────
+
+// ── IMPRESSION ────────────────────────────────────────────
+
+
+function lancerCartons(){
+  const TAG = {
+    XS:{bg:'#1E3A5F',tx:'#fff'},
+    S: {bg:'#14532D',tx:'#fff'},
+    MC:{bg:'#78350F',tx:'#fff'},
+    LC:{bg:'#3B0764',tx:'#fff'},
+    XL:{bg:'#7F1D1D',tx:'#fff'},
+  };
+  const PILL_COLORS={XS:'var(--cobalt-t)',S:'var(--mint-t)',MC:'var(--amber-t)',LC:'var(--purple-t)',XL:'var(--coral-t)'};
+  const PILL_BG    ={XS:'var(--cobalt-p)',S:'var(--mint-p)', MC:'var(--amber-p)',LC:'var(--purple-p)',XL:'var(--coral-p)'};
+
+  const yumi=PREP_STORE.filter(p=>p.client==='Yumi/Paf'&&p.statut!=='Annulée');
+  const allBins=[];
+  const totals={XS:0,S:0,MC:0,LC:0,XL:0};
+
+  yumi.forEach(prep=>{
+    const byKey={};
+    prep.produits.forEach(pr=>{
+      const ck=getCapKey(detectFormat(pr.ref),pr.pav);
+      byKey[ck]=(byKey[ck]||0)+pr.colis;
+    });
+    const bins=packExpedition(Object.entries(byKey).map(([k,v])=>({capKey:k,colis:v})));
+    allBins.push({prep,bins});
+    bins.forEach(b=>{if(totals[b.taille]!==undefined)totals[b.taille]+=1;});
+  });
+
+  const totalC=Object.values(totals).reduce((a,b)=>a+b,0);
+
+  // ── Pastilles globales (totaux par taille) ──────────────────
+  const pillsEl=document.getElementById('cartons-summary-pills');
+  if(pillsEl) pillsEl.innerHTML=
+    CARTON_SIZES_ASC.filter(t=>totals[t]>0).map(t=>
+      `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:${TAG[t].bg};border-radius:6px;font-size:11px;font-weight:700;color:${TAG[t].tx}">
+        <span style="font-size:14px">${totals[t]}</span>
+        <span style="opacity:.8">${t}</span>
+      </span>`
+    ).join('')+
+    `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#111;border-radius:6px;font-size:11px;font-weight:700;color:#fff;margin-left:4px">
+      <span style="font-size:14px">${totalC}</span>
+      <span style="opacity:.7">TOTAL</span>
+    </span>`;
+
+  // ── Vue par expédition ──────────────────────────────────────
+  const byExpeEl=document.getElementById('cartons-by-expe');
+  if(byExpeEl) {
+  // Header with select-all + print buttons
+  const headerHtml=`<div style="display:grid;grid-template-columns:24px 120px 1fr 160px 80px auto;gap:0;align-items:center;padding:5px 10px;background:var(--bg);border:1px solid var(--border-md);border-radius:var(--r) var(--r) 0 0;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">
+    <label style="cursor:pointer;display:flex;align-items:center"><input type="checkbox" id="check-all-expe" onchange="toggleAllExpe(this.checked)" style="width:13px;height:13px;cursor:pointer"></label>
+    <div>Expédition</div>
+    <div>Destinataire</div>
+    <div>Conditionnement</div>
+    <div>Flags</div>
+    <div style="display:flex;gap:5px">
+      <button class="btn sm primary" style="font-size:9px;padding:2px 8px" onclick="imprimerSelection('etiquettes')">⊞ Étiq.</button>
+      <button class="btn sm soft" style="font-size:9px;padding:2px 8px" onclick="imprimerSelection('bl')">⎙ BL</button>
+    </div>
+  </div>`;
+
+  const rowsHtml=allBins.map(({prep,bins},idx)=>{
+    const prepTotals={};
+    bins.forEach(b=>{ prepTotals[b.taille]=(prepTotals[b.taille]||0)+1; });
+    const isB2B=['CHR & Indep','GMS','Bureaux'].includes(prep.canal);
+    const needsSig=prep.note&&prep.note.toLowerCase().includes('signer');
+    const isEven=idx%2===0;
+
+    const tags=CARTON_SIZES_ASC
+      .filter(t=>prepTotals[t]>0)
+      .map(t=>`<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;background:${TAG[t].bg};border-radius:4px;font-size:11px;font-weight:700;color:${TAG[t].tx}">
+        <span style="font-size:13px;line-height:1">${prepTotals[t]}</span>
+        <span style="opacity:.8;font-size:10px">${t}</span>
+      </span>`).join('');
+
+    return `<div style="display:grid;grid-template-columns:24px 120px 1fr 160px 80px auto;gap:0;align-items:center;padding:6px 10px;background:${isEven?'var(--surface)':'#F0F2F7'};border-left:1px solid var(--border-md);border-right:1px solid var(--border-md);border-bottom:1px solid ${isEven?'var(--border)':'#C8CDD8'};font-size:11px" id="expe-row-${prep.expe}">
+      <label style="cursor:pointer;display:flex;align-items:center"><input type="checkbox" class="expe-check" data-expe="${prep.expe}" style="width:13px;height:13px;cursor:pointer"></label>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--cobalt-t);font-weight:600">${prep.expe}</div>
+      <div style="font-weight:600;padding-right:8px">${prep.dest}</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">${tags}</div>
+      <div style="display:flex;gap:3px;flex-wrap:wrap">
+        ${isB2B?'<span style="font-size:9px;font-weight:700;color:#B83838;border:1px solid #B83838;border-radius:3px;padding:1px 5px">B2B</span>':''}
+        ${needsSig?'<span style="font-size:9px;font-weight:700;color:#9A6010;background:#FFF0D6;border:1px solid #9A6010;border-radius:3px;padding:1px 5px">✍</span>':''}
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="btn sm soft" style="font-size:9px;padding:2px 7px" onclick="imprimerExpe('etiquettes','${prep.expe}')">⊞</button>
+        <button class="btn sm soft" style="font-size:9px;padding:2px 7px" onclick="imprimerExpe('bl','${prep.expe}')">⎙</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  byExpeEl.innerHTML = headerHtml + rowsHtml +
+    `<div style="border:1px solid var(--border-md);border-top:none;border-radius:0 0 var(--r) var(--r);padding:5px 10px;background:var(--bg);font-size:10px;color:var(--text3)">
+      <span id="expe-selection-count">0 sélectionnée(s)</span> ·
+      <button class="btn sm soft" style="font-size:9px;padding:2px 7px;margin-left:4px" onclick="imprimerSelection('etiquettes')">⊞ Imprimer étiquettes sélection</button>
+      <button class="btn sm soft" style="font-size:9px;padding:2px 7px;margin-left:3px" onclick="imprimerSelection('bl')">⎙ Imprimer BL sélection</button>
+    </div>`;
+
+  // Wire checkbox events after render
+  setTimeout(()=>{
+    document.querySelectorAll('.expe-check').forEach(cb=>{
+      cb.addEventListener('change', ()=>{
+        const n=document.querySelectorAll('.expe-check:checked').length;
+        const tot=document.querySelectorAll('.expe-check').length;
+        const el=document.getElementById('expe-selection-count');
+        if(el) el.textContent=`${n}/${tot} sélectionnée(s)`;
+        const chkAll=document.getElementById('check-all-expe');
+        if(chkAll) chkAll.indeterminate = n>0 && n<tot;
+        if(chkAll) chkAll.checked = n===tot;
+      });
+    });
+  },0);
+  } // end if(byExpeEl)
+
+  // ── Footer ──────────────────────────────────────────────────
+  const el=document.getElementById('cartons-total-text');
+  if(el) el.innerHTML=`<strong>${totalC} cartons</strong> à préparer en sec · ${yumi.length} expéditions`;
+  const el2=document.getElementById('cartons-temps-text');
+  if(el2) el2.textContent=`~${Math.max(20,Math.round(totalC*1.5))} min estimés`;
+  const el3=document.getElementById('cartons-nb-expe');
+  if(el3) el3.textContent=yumi.length;
+  const el4=document.getElementById('cartons-nb-lignes');
+  if(el4) el4.textContent=totalC;
+}
+
+
+function imprimerFiche(format){
+  const PILL_COLORS={XS:'#1E40AF',S:'#1A7A66',MC:'#9A6010',LC:'#5040A0',XL:'#B83838'};
+  const yumi=PREP_STORE.filter(p=>p.client==='Yumi/Paf'&&p.statut!=='Annulée');
+  const totals={XS:0,S:0,MC:0,LC:0,XL:0};
+  const allBins=[];
+  yumi.forEach(prep=>{
+    const byKey={};
+    prep.produits.forEach(pr=>{
+      const ck=getCapKey(detectFormat(pr.ref),pr.pav);
+      byKey[ck]=(byKey[ck]||0)+pr.colis;
+    });
+    const bins=packExpedition(Object.entries(byKey).map(([k,v])=>({capKey:k,colis:v})));
+    allBins.push({prep,bins});
+    bins.forEach(b=>{if(totals[b.taille]!==undefined)totals[b.taille]+=1;});
+  });
+  const totalC=Object.values(totals).reduce((a,b)=>a+b,0);
+  const today=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const isQ=format==='A4-quart';
+  const fs=isQ?'7px':'9px';
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>Fiche cartons ${today}</title>
+<style>
+@page{size:A4;margin:${isQ?'5mm':'10mm'}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:${fs};color:#111}
+.hdr{display:flex;justify-content:space-between;border-bottom:2px solid #111;padding-bottom:4px;margin-bottom:6px}
+.logo{font-size:${isQ?'12px':'17px'};font-weight:900}.logo span{color:#3B4FD8}
+.pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.pill{border:2px solid #111;border-radius:5px;padding:3px 8px;text-align:center;min-width:36px}
+.pill-n{font-size:${isQ?'16px':'22px'};font-weight:900;line-height:1}
+.pill-l{font-size:6px;font-weight:700;text-transform:uppercase}
+.pt{background:#111;color:#fff}
+table{width:100%;border-collapse:collapse;font-size:${fs};margin-bottom:5px}
+th{background:#111;color:#fff;padding:2px 4px;font-size:${isQ?'5px':'7px'};text-transform:uppercase;text-align:left}
+td{padding:2px 4px;border-bottom:1px solid #eee;vertical-align:middle}
+tr:nth-child(even) td{background:#f9f9f9}
+.tl{font-weight:900;font-size:${isQ?'11px':'14px'}}
+.b2b{border:1px solid #B83838;color:#B83838;border-radius:3px;padding:1px 3px;font-size:5px;font-weight:700}
+.sig{background:#FFF0D6;border:1px solid #9A6010;color:#9A6010;border-radius:3px;padding:1px 3px;font-size:5px;font-weight:700;margin-left:2px}
+.fold{border-top:1px dashed #aaa;margin:5px 0;text-align:center;font-size:6px;color:#aaa}
+.auto{border:2px dashed #B83838;border-radius:4px;padding:5px 7px;margin-top:4px;background:#FFF3CD}
+.sign{border:1.5px solid #111;border-radius:3px;padding:5px;margin-top:4px;min-height:20px;font-size:${fs}}
+</style></head><body>
+<div class="hdr">
+  <div><div class="logo">CARGO<span>NAUTES</span></div>
+  <div style="font-size:${isQ?'8px':'11px'};font-weight:700">Fiche cartons — Yumi/Paf · ${today}</div>
+  <div style="font-size:6px;color:#666">${totalC} cartons · ${yumi.length} expéditions · ${isQ?'A4/4 pochette BL':'A4/2 dans carton'}</div></div>
+</div>
+<div class="pills">
+${CARTON_SIZES_ASC.filter(t=>totals[t]>0).map(t=>`<div class="pill" style="border-color:${PILL_COLORS[t]};color:${PILL_COLORS[t]}"><div class="pill-n">${totals[t]}</div><div class="pill-l">${t}</div></div>`).join('')}
+<div class="pill pt"><div class="pill-n">${totalC}</div><div class="pill-l" style="color:#fff">TOTAL</div></div>
+</div>
+<table><thead><tr><th>Expéd.</th><th>Destinataire</th><th>Canal</th><th>Contenu</th><th>Taille</th><th>Vol.</th><th>%</th><th>Flags</th></tr></thead>
+<tbody>${allBins.flatMap(({prep,bins})=>{
+  const isB2B=['CHR & Indep','GMS','Bureaux'].includes(prep.canal);
+  const ns=prep.note&&prep.note.toLowerCase().includes('signer');
+  return bins.map(b=>`<tr><td style="font-family:monospace;font-size:6px">${prep.expe}</td><td style="font-weight:700">${prep.dest}</td><td>${prep.canal}</td><td style="font-size:6px">${Object.entries(b.counts).map(([k,n])=>n+'x'+k).join(' ')}</td><td class="tl" style="color:${PILL_COLORS[b.taille]}">${b.taille}</td><td>${b.vol_used.toFixed(1)}L</td><td>${b.remplissage}%</td><td>${isB2B?'<span class="b2b">B2B</span>':''}${ns?'<span class="sig">✍</span>':''}</td></tr>`);
+}).join('')}</tbody></table>
+${isQ?'<div class="fold">✂ plier ici ✂</div>':''}
+${allBins.some(({prep})=>prep.note&&prep.note.toLowerCase().includes('signer'))?
+  `<div class="auto"><div style="font-size:${isQ?'7px':'9px'};font-weight:900;color:#B83838">⚠ PREUVE DE LIVRAISON REQUISE</div>
+  <div style="font-size:6px;color:#7A3010">📋 Donner BL en main propre · ✍ Faire signer + tampon · 📸 Photo avant départ</div></div>`:''}
+<div class="sign">Pris en charge : __________________________ · Date : _______ · Heure : _______</div>
+</body></html>`;
+
+  const w=window.open('','_blank','width=820,height=650');
+  w.document.write(html);w.document.close();w.focus();
+  setTimeout(()=>w.print(),400);
+}
+
+
+
+const titles={
+  dashboard:"Tableau de bord",reception:"Réception",inventaires:"Inventaires",
+  preparation:"Préparation",expeditions:"Expéditions",stock:"Stock & emplacements",
+  produits:"Produits",sav:"SAV / Tickets",rapports:"Rapports",
+  clients:"Clients",transporteurs:"Transporteurs",config:"Configuration"
+};
+
+function renderPrepList(){renderPrepListFiltered(PREP_STORE);}
+
+function renderPrepListFiltered(filtered){
+  const container=document.getElementById('prep-list-container');
+  if(!container)return;
+  const groups={};
+  filtered.forEach(p=>{if(!groups[p.cutoff])groups[p.cutoff]=[];groups[p.cutoff].push(p);});
+  const order=['Normal 13h','Premium 17h','Urgence','B2C'];
+  const bmap={'Normal 13h':'bc','Premium 17h':'ba','Urgence':'br','B2C':'bg'};
+  let html=`<div style="font-size:11px;font-weight:700;color:var(--cobalt-t);padding:6px 0 8px;border-bottom:2px solid var(--cobalt-p);margin-bottom:10px;display:flex;justify-content:space-between">
+    <span>📅 Mercredi 8 avril 2026 — aujourd'hui</span>
+    <span style="font-weight:400;color:var(--text3)">${filtered.length} préparations · ${filtered.filter(p=>p.client==='Yumi/Paf').length} Yumi/Paf</span>
+  </div>`;
+  order.filter(k=>groups[k]).forEach(cutoff=>{
+    const preps=groups[cutoff];
+    html+=`<div class="prep-day" style="margin-bottom:10px">
+      <div class="prep-day-header" onclick="toggleDay(this)">
+        <span><span class="badge ${bmap[cutoff]||'bg'}" style="margin-right:6px">${cutoff}</span>${preps.length} préparation${preps.length>1?'s':''}</span>
+        <div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;color:var(--text3)">${preps.filter(p=>p.statut==='Terminée').length}/${preps.length} terminées</span><span class="chevron">▾</span></div>
+      </div>
+      <div class="prep-day-body" style="max-height:3000px">${preps.map(p=>renderPrepRow(p)).join('')}</div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+function renderPrepRow(p){
+  const sb={Terminée:'bm','En cours':'ba','En attente':'bg',Annulée:'br'}[p.statut]||'bg';
+  const totalItems=p.produits.reduce((s,pr)=>s+pr.qte,0);
+  const totalColis=p.produits.reduce((s,pr)=>s+pr.colis,0);
+  const needsSig=p.note&&p.note.toLowerCase().includes('signer');
+  return `<div class="prep-row" id="preprow-${p.id}">
+    <div><div style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--cobalt-t)">${p.id}</div>
+    <div style="font-size:9px;color:var(--text3)">${p.expe}</div></div>
+    <div><div style="font-weight:600;font-size:12px">${p.dest}</div>
+    <div style="font-size:10px;color:var(--text3)">${p.canal} · ${totalItems} u. · ${totalColis} colis</div></div>
+    <span class="badge ${sb}" style="cursor:pointer" onclick="cycleStatut('${p.id}')">${p.statut} ▾</span>
+    <span class="badge ${p.cutoff==='Normal 13h'?'bc':'ba'}">${p.cutoff}</span>
+    <span style="font-size:10px;color:var(--text3)">${p.agent||'Non assigné'}</span>
+    ${needsSig?'<span class="badge br" style="font-size:9px">✍ Signer</span>':'<span></span>'}
+    <div style="display:flex;gap:5px">
+      <button class="btn sm soft" onclick="togglePrepDetail('${p.id}')">▼ Détail</button>
+      ${p.client==='Yumi/Paf'?'<button class="btn sm soft">⎙ BL</button>':''}
+    </div>
+  </div>
+  <div id="prepdetail-${p.id}" style="display:none;border-top:1px solid var(--border);padding:10px 14px;background:var(--bg)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+      <div style="font-size:11px"><strong>${p.dest}</strong><br>${p.adresse}<br>${p.contact} · ${p.tel}</div>
+      ${p.note?`<div style="background:var(--amber-p);border:1px solid #FFD080;border-radius:var(--r);padding:7px 10px;font-size:11px;color:var(--amber-t)">${p.note}</div>`:'<div></div>'}
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead><tr style="background:var(--bg)">
+        <th style="padding:4px 8px;text-align:left;font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase">Référence</th>
+        <th style="padding:4px 8px;text-align:right;font-size:9px;font-weight:600;color:var(--text3)">Qté</th>
+        <th style="padding:4px 8px;text-align:center;font-size:9px;font-weight:600;color:var(--text3)">Colis</th>
+        <th style="padding:4px 8px;font-size:9px;font-weight:600;color:var(--text3)">Lot</th>
+        <th style="padding:4px 8px;font-size:9px;font-weight:600;color:var(--text3)">DLC</th>
+        <th style="padding:4px 8px;font-size:9px;font-weight:600;color:var(--text3)">Mode</th>
+      </tr></thead>
+      <tbody>${p.produits.map(pr=>`<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:4px 8px;font-weight:500">${pr.ref}</td>
+        <td style="padding:4px 8px;text-align:right;font-weight:700">${pr.qte}</td>
+        <td style="padding:4px 8px;text-align:center">${pr.colis}</td>
+        <td style="padding:4px 8px;font-family:'DM Mono',monospace;font-size:10px">${pr.lot}</td>
+        <td style="padding:4px 8px;font-family:'DM Mono',monospace;font-size:10px">${pr.dlc}</td>
+        <td style="padding:4px 8px"><span class="badge ${pr.pav?'bc':'bg'}" style="font-size:9px">${pr.pav?'PAV':'VRAC'}</span></td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+function togglePrepDetail(id){
+  const el=document.getElementById('prepdetail-'+id);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function cycleStatut(id){
+  const p=PREP_STORE.find(x=>x.id===id);
+  if(!p)return;
+  const cycle=['En attente','En cours','Terminée'];
+  p.statut=cycle[(cycle.indexOf(p.statut)+1)%cycle.length];
+  renderPrepList();
+  lancerCartons();
+}
+
+function filterPrep(){
+  const qEl=document.getElementById('prep-search');
+  const qv=qEl?qEl.value:'';
+  const statut=document.getElementById('prep-filter-statut')?.value||'';
+  const cutoff=document.getElementById('prep-filter-cutoff')?.value||'';
+  const client=document.getElementById('prep-filter-client')?.value||'';
+  renderPrepListFiltered(PREP_STORE.filter(p=>{
+    const qv=q.value||'';
+    const mQ=!qv||(p.id+p.dest+p.expe).toLowerCase().includes(qv.toLowerCase());
+    const mS=!statut||p.statut===statut;
+    const mC=!cutoff||p.cutoff===cutoff;
+    const mCl=!client||p.client===client;
+    return mQ&&mS&&mC&&mCl;
+  }));
+}
+
+
+
+// ══════════════════════════════════════════════════════════════
+// FONCTIONS DE BASE — navigation, overlays, tableaux, dropdowns
+// ══════════════════════════════════════════════════════════════
+
+function navigate(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  const titleEl = document.getElementById('page-title');
+  if(titleEl) titleEl.textContent = titles[page] || page;
+  closeAllDropdowns();
+  if(page === 'dashboard')   renderCutoffGrid();
+  if(page === 'preparation') { renderPrepList(); lancerCartons(); }
+  if(page === 'config')      renderPalettes();
+  if(page === 'clients')     renderClientCards();
+}
+
+function openOverlay(id)  { const el=document.getElementById(id); if(el) el.classList.add('open'); }
+function closeOverlay(id) { const el=document.getElementById(id); if(el) el.classList.remove('open'); }
+
+function sortTable(tableId, col) {
+  const table = document.getElementById(tableId);
+  if(!table) return;
+  const tbody = table.querySelector('tbody');
+  const rows  = Array.from(tbody.querySelectorAll('tr'));
+  const th    = table.querySelectorAll('th')[col];
+  const asc   = th.dataset.sort !== 'asc';
+  table.querySelectorAll('th').forEach(h => {
+    h.classList.remove('sorted');
+    delete h.dataset.sort;
+    if(h.querySelector('.sort-icon')) h.querySelector('.sort-icon').textContent = '↕';
+  });
+  th.classList.add('sorted');
+  th.dataset.sort = asc ? 'asc' : 'desc';
+  if(th.querySelector('.sort-icon')) th.querySelector('.sort-icon').textContent = asc ? '↑' : '↓';
+  rows.sort((a, b) => {
+    const av = a.cells[col]?.textContent.trim() || '';
+    const bv = b.cells[col]?.textContent.trim() || '';
+    const an = parseFloat(av.replace(/[^0-9.]/g,''));
+    const bn = parseFloat(bv.replace(/[^0-9.]/g,''));
+    if(!isNaN(an) && !isNaN(bn)) return asc ? an - bn : bn - an;
+    return asc ? av.localeCompare(bv,'fr') : bv.localeCompare(av,'fr');
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+
+function switchTab(tab, el) {
+  const parent = el.closest('.tabs');
+  if(parent) parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  // Show/hide tab content panels
+  const panels = document.querySelectorAll('[id^="tab-"]');
+  panels.forEach(p => { p.style.display = 'none'; });
+  const target = document.getElementById('tab-' + tab);
+  if(target) target.style.display = 'block';
+}
+
+function setStatus(dropId, el, badgeClass) {
+  const drop = document.getElementById(dropId);
+  if(!drop) return;
+  const trigger = drop.previousElementSibling;
+  if(trigger) {
+    trigger.className = 'badge ' + badgeClass;
+    trigger.style.cursor = 'pointer';
+    trigger.textContent = el.textContent.trim() + ' ▾';
+  }
+  drop.classList.remove('open');
+}
+
+function toggleDropdown(id) {
+  const drop = document.getElementById(id);
+  if(!drop) return;
+  const isOpen = drop.classList.contains('open');
+  closeAllDropdowns();
+  if(!isOpen) drop.classList.add('open');
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('open'));
+}
+
+// Close dropdowns and overlays on outside click
+document.addEventListener('click', function(e) {
+  if(!e.target.closest('.dropdown-wrap')) closeAllDropdowns();
+  if(e.target.classList.contains('overlay')) e.target.classList.remove('open');
+});
+
+// Init on load
+document.addEventListener('DOMContentLoaded', function() {
   renderCutoffGrid();
   renderPalettes();
   renderClientCards();
+  renderPrepList();
+  lancerCartons();
 });
+if(document.readyState !== 'loading') {
+  setTimeout(function(){
+    renderCutoffGrid();
+    renderPalettes();
+    renderClientCards();
+    renderPrepList();
+    lancerCartons();
+  }, 0);
+}
 
 
-function navigate(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');el.classList.add('active');document.getElementById('page-title').textContent=titles[page];closeAllDropdowns()}
-function toggleDay(id){const day=document.getElementById(id);const header=day.querySelector('.prep-day-header');const body=day.querySelector('.prep-day-body');const chevron=header.querySelector('.chevron');const collapsed=header.classList.contains('collapsed');if(collapsed){header.classList.remove('collapsed');chevron.style.transform='';body.classList.remove('collapsed');body.style.maxHeight=body.scrollHeight+'px'}else{header.classList.add('collapsed');chevron.style.transform='rotate(-90deg)';body.classList.add('collapsed');body.style.maxHeight='0'}}
-function showTip(id){const t=document.getElementById(id);if(t)t.style.display='block'}
-function hideTip(id){const t=document.getElementById(id);if(t)t.style.display='none'}
-function closeAllDropdowns(){document.querySelectorAll('.dropdown-menu').forEach(m=>m.classList.remove('open'))}
-function toggleDropdown(id){const menu=document.getElementById(id);const wasOpen=menu.classList.contains('open');closeAllDropdowns();if(!wasOpen)menu.classList.add('open')}
-function setStatus(ddId,item,badgeClass){const menu=document.getElementById(ddId);const badge=menu.previousElementSibling;const label=item.querySelector('.di-dot').nextSibling.textContent.trim();badge.textContent=label+' ▾';badge.className='badge '+badgeClass;badge.style.cursor='pointer';menu.classList.remove('open')}
-document.addEventListener('click',function(e){if(!e.target.closest('.dropdown-wrap'))closeAllDropdowns()});
-function openOverlay(id){document.getElementById(id).classList.add('open')}
-function closeOverlay(id){document.getElementById(id).classList.remove('open')}
-function openNotifDialog(produit,client,contact,jours,date){document.getElementById('notif-sub').textContent=contact+' · '+client+' · Stock';document.getElementById('notif-msg').innerHTML='Bonjour '+contact.split(' ')[0]+',<br><br>Nous vous informons que le produit <strong>'+produit+'</strong> arrive à expiration dans <strong>'+jours+'</strong> (échéance : '+date+').<br><br>Merci de nous indiquer la marche à suivre. Sans réponse avant la date d\'expiration, nous procéderons à la destruction de la marchandise conformément à notre procédure.<br><br>Cordialement,<br>L\'équipe Cargonautes';openOverlay('overlay-notif')}
-function sendNotif(){closeOverlay('overlay-notif');alert('Notification envoyée — enregistrée dans l\'historique WMSito')}
-function openAnomalieForm(client,date){document.getElementById('anomalie-form-sub').textContent='Réception · '+client+' · '+date;openOverlay('overlay-anomalie-form')}
-function openAnomalieView(client,date,description){document.getElementById('anomalie-view-sub').textContent='Réception · '+client+' · '+date;document.getElementById('anomalie-view-content').textContent=description;openOverlay('overlay-anomalie-view')}
-function saveAnomalie(){closeOverlay('overlay-anomalie-form');alert('Anomalie enregistrée dans l\'historique WMSito')}
-function openEditReception(client,date){document.getElementById('edit-reception-sub').textContent=client+' · '+date;openOverlay('overlay-edit-reception')}
-function switchTab(tab,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-tv').style.display=tab==='tv'?'block':'none';document.getElementById('tab-tm').style.display=tab==='tm'?'block':'none'}
-function sortTable(tableId,col){const table=document.getElementById(tableId);const tbody=table.querySelector('tbody');const rows=Array.from(tbody.querySelectorAll('tr'));const th=table.querySelectorAll('th')[col];const asc=th.dataset.sort!=='asc';table.querySelectorAll('th').forEach(h=>{h.classList.remove('sorted');delete h.dataset.sort;if(h.querySelector('.sort-icon'))h.querySelector('.sort-icon').textContent='↕'});th.classList.add('sorted');th.dataset.sort=asc?'asc':'desc';if(th.querySelector('.sort-icon'))th.querySelector('.sort-icon').textContent=asc?'↑':'↓';rows.sort((a,b)=>{const av=a.cells[col]?.textContent.trim()||'';const bv=b.cells[col]?.textContent.trim()||'';const an=parseFloat(av.replace(/[^0-9.]/g,''));const bn=parseFloat(bv.replace(/[^0-9.]/g,''));if(!isNaN(an)&&!isNaN(bn))return asc?an-bn:bn-an;return asc?av.localeCompare(bv,'fr'):bv.localeCompare(av,'fr')});rows.forEach(r=>tbody.appendChild(r))}
-document.querySelectorAll('.overlay').forEach(ov=>{ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('open')})});
+function showTip(id){
+  const t=document.getElementById(id);
+  if(t)t.style.display='block';
+}
+function hideTip(id){
+  const t=document.getElementById(id);
+  if(t)t.style.display='none';
+}
+
 </script>
 </body>
 </html>
